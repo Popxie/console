@@ -133,7 +133,7 @@
         },
         computed: {
             ...mapGetters({
-                adsList: 'getAdsList',
+                adsList: 'getAdsListInfo',
                 recordsTotal: 'getRecordsTotal'
             })
         },
@@ -194,7 +194,7 @@
                                 message: err,
                                 type: 'error'
                             })
-                        })
+                        });
                 } else {
                     self.deleteAdvertById(self.query)
                         .then((data) => {
@@ -238,7 +238,7 @@
                 return row.beginTime;
             },
         },
-        mounted() {
+        created() {
             let self = this;
             self.getAdsList(self.page);
         }

@@ -31,7 +31,8 @@
         },
         computed: {
             ...mapGetters({
-                'userInfo': 'getUserInfo'
+                userInfo: 'getUserInfo',
+                isLogin: 'isLogin'
             })
         },
         methods: {
@@ -43,10 +44,25 @@
                     this.loginOut();
                     this.$router.push('/login');
                 }
+            },
+            checkLogin() {
+                var self = this;
+                if (!self.isLogin) {
+                    self.$router.push('/login');
+                }
             }
+        },
+        // 监听是否登录
+        watch: {
+            '$route': 'checkLogin'
         },
         components: {
             NavBar
+        },
+        created() {
+            var self = this;
+            self.checkLogin();
+
         }
     }
 </script>

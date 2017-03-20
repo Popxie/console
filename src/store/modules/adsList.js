@@ -15,7 +15,7 @@ const state = {
 };
 
 const getters = {
-    getAdsList: state => state.adsList,
+    getAdsListInfo: state => state.adsList,
     getRecordsTotal: state => state.recordsTotal,
     getPageInfo: state=> state.page
 };

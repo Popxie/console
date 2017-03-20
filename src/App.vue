@@ -15,23 +15,8 @@
             Loading
         },
         computed: mapGetters({
-            loading: 'getLoadStatus',
-            isLogin: 'isLogin'
-        }),
-        methods: {
-            ...mapActions([
-            	'getAreas'
-            ]),
-            checkLogin() {
-                var self = this
-                if (!self.isLogin) {
-                    self.$router.push('/login');
-                }
-            }
-        },
-        mounted() {
-            this.checkLogin()
-        }
+            loading: 'getLoadStatus'
+        })
     }
 </script>
 

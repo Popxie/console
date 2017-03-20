@@ -6,11 +6,11 @@ import {_get} from '../../utils/fetch';
 
 const state = {
     userInfo: null
-}
+};
 const getters = {
-    getUserInfo: state => JSON.parse(sessionStorage.getItem('userInfo')) || {},
+    getUserInfo: state => JSON.parse(sessionStorage.getItem('userInfo')),
     isLogin: state => !!JSON.parse(sessionStorage.getItem('userInfo'))
-}
+};
 // actions
 const actions = {
     login ({commit, state}, query) {
@@ -31,7 +31,7 @@ const actions = {
     loginOut ({commit}) {
         commit(types.LOGIN_OUT)
     }
-}
+};
 
 // mutations
 const mutations = {
@@ -43,7 +43,7 @@ const mutations = {
         state.userInfo = null;
         sessionStorage.removeItem('userInfo');
     }
-}
+};
 
 export default {
     state,
