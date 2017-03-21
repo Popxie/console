@@ -1,38 +1,10 @@
 <template>
     <div class="container">
-        <!--<SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>-->
-        <el-dialog title="选择地区" v-model="dialogVisible" size="tiny" :close-on-click-modal="false" :show-close="false"
-                   :close-on-press-escape="false">
-            <el-form ref="form" label-position="right" label-width="150px">
-                <el-form-item label="请选择省份：" prop="provinceName">
-                    <el-select v-model="form.provinceName" placeholder="请选择省份" @change="selectProvince">
-                        <template v-for="area in areas">
-                            <el-option :label="area.name" :value="area.name"></el-option>
-                        </template>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="请选择城市：" prop="cityName">
-                    <el-select v-model="form.cityName" placeholder="请选择城市" @change="selectCity">
-                        <template v-for="city in citys">
-                            <el-option :label="city.name" :value="city.name"></el-option>
-                        </template>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="请选择地区：" prop="areaName">
-                    <el-select v-model="form.areaName" placeholder="请选择地区">
-                        <template v-for="district in districts">
-                            <el-option :label="district" :value="district"></el-option>
-                        </template>
-                    </el-select>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-            <el-button @click="cancelSelect">取 消</el-button>
-            <el-button type="info" @click="setAreas">确 定</el-button>
-        </span>
-        </el-dialog>
-        <!--弹出框-->
+        <!--选择广告类型-->
         <TapSelect v-if="showNext" title="广告管理" :taps="taps" @setValue="setViewPosition"/>
+        <!--选择地区-->
+        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+
         <el-row v-if="!showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
@@ -55,12 +27,6 @@
                             </el-radio-group>
                             <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
                                 {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
-
-
-
-
-
-
                             </el-button>
                         </el-form-item>
                         <el-form-item label="设置投放时间段：" prop="startTime">
@@ -72,15 +38,6 @@
                     <!--上传图片-->
                     <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
                         <el-form-item label="广告图片：" prop="adsPicUrl">
-                            <!--<el-upload-->
-                            <!--:action="url"-->
-                            <!--:on-preview="handlePreview"-->
-                            <!--:on-remove="handleRemove"-->
-                            <!--:on-success="handleSuccess"-->
-                            <!--:before-upload="beforeUpload">-->
-                            <!--<el-button size="large" icon="plus" type="info">点击上传</el-button>-->
-                            <!--<div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>-->
-                            <!--</el-upload>-->
                             <el-upload
                                 :action="url"
                                 list-type="picture-card"
@@ -90,7 +47,7 @@
                                 :before-upload="beforeUpload">
                                 <i class="el-icon-plus"></i>
                             </el-upload>
-                            <el-dialog v-model="dialogVisible" size="tiny">
+                            <el-dialog v-model="dialogImg" size="tiny">
                                 <img width="100%" :src="dialogImageUrl" alt="">
                             </el-dialog>
                         </el-form-item>
@@ -192,9 +149,8 @@
 </template>
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import SelectAreas from '../components/SelectArea.vue';
+    import SelectAreas from '../components/SelectSimpleArea.vue';
     import TapSelect from '../components/TapSelect.vue';
-    import {Areas} from '../config/Areas';
     import {settings} from '../config/settings';
     export default {
         components: {
@@ -218,17 +174,11 @@
                     task: '升级提示框',
                     value: 5
                 }],
-                dialogImageUrl: '',
                 dialogVisible: false,
-                id: '',
                 url: `${settings.URL}/advert/api/uploadImage.html`,
-                areas: Areas,
-                citys: [],
-                districts: [],
-                dialogVisible: false,
+                dialogImg: false,
+                dialogImageUrl: '',
                 showNext: true,
-                provinceList: [],
-                cityList: [],
                 form: {
                     topic: '',
                     putPosition: 1,
@@ -369,16 +319,17 @@
                 let self = this;
                 self.dialogVisible = true;
             },
-            setAreas() {
+            setAreas(form) {
                 let self = this;
-                if (!self.form.provinceName) {
+                if (!form.provinceName) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
                         type: 'info'
-                    })
+                    });
                     return;
                 }
+                self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
             },
             reset() {
@@ -393,30 +344,6 @@
                 self.form.beginTime = items[0];
                 self.form.stopTime = items[1];
             },
-            stopTimeChange(val) {
-                let self = this;
-                self.form.stopTime = val;
-            },
-            selectProvince() {
-                let self = this;
-                self.districts = [];
-                self.form.cityName = '';
-                self.form.areaName = '';
-                for (let i = 0, len = self.areas.length; i < len; i++) {
-                    if (self.form.provinceName == self.areas[i].name) {
-                        self.citys = self.areas[i].city;
-                    }
-                }
-            },
-            selectCity() {
-                let self = this;
-                self.form.areaName = '';
-                for (let i = 0, len = self.citys.length; i < len; i++) {
-                    if (self.form.cityName == self.citys[i].name) {
-                        self.districts = self.citys[i].area;
-                    }
-                }
-            },
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
@@ -426,15 +353,10 @@
             },
             handlePictureCardPreview(file) {
                 this.dialogImageUrl = file.url;
-                console.log(file);
-                this.dialogVisible = true;
+                this.dialogImg = true;
             },
             handleRemove(file, fileList) {
                 this.form.adsPicUrl = '';
-                console.log(file, fileList);
-            },
-            handlePreview(file) {
-                console.log(file);
             },
             handleSuccess(res) {
                 let self = this;
