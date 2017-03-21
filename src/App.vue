@@ -7,7 +7,7 @@
 
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import Loading from './components/loading.vue';
+    import Loading from './components/Loading.vue';
     import router from './router';
     export default {
         name: 'app',

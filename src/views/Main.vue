@@ -24,7 +24,7 @@
 </template>
 <script>
     import {mapGetters, mapActions} from 'vuex'
-    import NavBar from '../components/navBar.vue';
+    import NavBar from '../components/NavBar.vue';
     export default{
         data() {
             return {}

@@ -16,7 +16,7 @@
             </el-checkbox-group>
             <span slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>
-            <el-button type="info" @click="confirm">确 定</el-button>
+            <el-button type="info" @click="Confirm">确 定</el-button>
         </span>
         </el-dialog>
         <el-dialog title="选择城市" v-model="showCity" size="tiny">
@@ -134,7 +134,7 @@
                 return val.substring(0, len) + '...';
             },
             confirm() {
-                this.$emit('confirm');
+                this.$emit('Confirm');
             },
             cancel() {
                 this.$emit('cancel');

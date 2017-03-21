@@ -11,8 +11,8 @@ Vue.use(VueResource);
  */
 Vue.http.interceptors.push(function (request, next) {
 
-    if (request.url.indexOf("/login") < 0) {
-        let user = JSON.parse(sessionStorage.getItem('userInfo'));
+    let user = JSON.parse(sessionStorage.getItem('userInfo'));
+    if (user && user.token) {
         // modify headers
         request.headers.set('token', user.token);
     }

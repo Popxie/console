@@ -7,6 +7,8 @@ import Main  from 'views/Main';
 const CreateAdv = resolve => require(['views/CreateAdv'], resolve);
 const AdvList = resolve => require(['views/AdvList'], resolve);
 const EditAdv = resolve => require(['views/EditAdv'], resolve);
+const CreateCoupon = resolve => require(['views/CreateCoupon'], resolve);
+
 
 
 Vue.use(Router);
@@ -44,6 +46,14 @@ export default new Router({
                 {
                     path: 'advList',
                     component: AdvList
+                },
+                {
+                    path: 'createCoupon',
+                    component: CreateCoupon
+                },
+                {
+                    path: 'couponList',
+                    component: CreateCoupon
                 }
             ]
         }

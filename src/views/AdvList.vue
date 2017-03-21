@@ -113,7 +113,7 @@
 
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import Confirm from '../components/confirm.vue';
+    import Confirm from '../components/Confirm.vue';
     export default {
         components: {
             Confirm

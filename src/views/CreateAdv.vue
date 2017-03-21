@@ -5,21 +5,21 @@
                    :close-on-press-escape="false">
             <el-form ref="form" label-position="right" label-width="150px">
                 <el-form-item label="请选择省份：" prop="provinceName">
-                    <el-select  v-model="form.provinceName" placeholder="请选择省份" @change="selectProvince">
+                    <el-select v-model="form.provinceName" placeholder="请选择省份" @change="selectProvince">
                         <template v-for="area in areas">
                             <el-option :label="area.name" :value="area.name"></el-option>
                         </template>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="请选择城市：" prop="cityName">
-                    <el-select  v-model="form.cityName" placeholder="请选择城市" @change="selectCity">
+                    <el-select v-model="form.cityName" placeholder="请选择城市" @change="selectCity">
                         <template v-for="city in citys">
                             <el-option :label="city.name" :value="city.name"></el-option>
                         </template>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="请选择地区：" prop="areaName">
-                    <el-select  v-model="form.areaName" placeholder="请选择地区">
+                    <el-select v-model="form.areaName" placeholder="请选择地区">
                         <template v-for="district in districts">
                             <el-option :label="district" :value="district"></el-option>
                         </template>
@@ -32,39 +32,7 @@
         </span>
         </el-dialog>
         <!--弹出框-->
-        <div v-if="showNext" class="box_td">
-            <div class="txt_info">
-
-            </div>
-            <div class="title_txt">
-                广告管理
-            </div>
-            <div class="ads-select">
-                <div class="ads-type">
-                    <div class="ads" @click="setViewPosition(1)">
-                        <i class="icon icon-ads-add"></i>
-                        <span>开屏</span>
-                    </div>
-                    <div class="ads" @click="setViewPosition(2)">
-                        <i class="icon icon-ads-add"></i>
-                        <span>首页弹框</span>
-                    </div>
-                    <div class="ads" @click="setViewPosition(3)">
-                        <i class="icon icon-ads-add"></i>
-                        <span>骑行结束</span>
-                    </div>
-                    <div class="ads" @click="setViewPosition(4)">
-                        <i class="icon icon-ads-add"></i>
-                        <span>首页顶部链</span>
-                    </div>
-                    <div class="ads" @click="setViewPosition(5)">
-                        <i class="icon icon-ads-add"></i>
-                        <span>升级提示框</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        <TapSelect v-if="showNext" title="广告管理" :taps="taps" @setValue="setViewPosition"/>
         <el-row v-if="!showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
@@ -86,7 +54,13 @@
                                 <el-radio :label="1">选择地域</el-radio>
                             </el-radio-group>
                             <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
-                                {{form.provinceName+'-'+form.cityName+'-'+form.areaName}}
+                                {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
+
+
+
+
+
+
                             </el-button>
                         </el-form-item>
                         <el-form-item label="设置投放时间段：" prop="startTime">
@@ -99,13 +73,13 @@
                     <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
                         <el-form-item label="广告图片：" prop="adsPicUrl">
                             <!--<el-upload-->
-                                <!--:action="url"-->
-                                <!--:on-preview="handlePreview"-->
-                                <!--:on-remove="handleRemove"-->
-                                <!--:on-success="handleSuccess"-->
-                                <!--:before-upload="beforeUpload">-->
-                                <!--<el-button size="large" icon="plus" type="info">点击上传</el-button>-->
-                                <!--<div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>-->
+                            <!--:action="url"-->
+                            <!--:on-preview="handlePreview"-->
+                            <!--:on-remove="handleRemove"-->
+                            <!--:on-success="handleSuccess"-->
+                            <!--:before-upload="beforeUpload">-->
+                            <!--<el-button size="large" icon="plus" type="info">点击上传</el-button>-->
+                            <!--<div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>-->
                             <!--</el-upload>-->
                             <el-upload
                                 :action="url"
@@ -218,15 +192,32 @@
 </template>
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import SelectAreas from '../components/selectArea.vue';
+    import SelectAreas from '../components/SelectArea.vue';
+    import TapSelect from '../components/TapSelect.vue';
     import {Areas} from '../config/Areas';
     import {settings} from '../config/settings';
     export default {
         components: {
-            SelectAreas
+            SelectAreas, TapSelect
         },
         data() {
             return {
+                taps: [{
+                    task: '开屏',
+                    value: 1
+                }, {
+                    task: '首页弹框',
+                    value: 2
+                }, {
+                    task: '骑行结束',
+                    value: 3
+                }, {
+                    task: '首页顶部链',
+                    value: 4
+                }, {
+                    task: '升级提示框',
+                    value: 5
+                }],
                 dialogImageUrl: '',
                 dialogVisible: false,
                 id: '',
@@ -286,7 +277,7 @@
                         {max: 255, message: '字数不能超过255个', trigger: 'blur'}
                     ],
                     startTime: [
-                        {type:'array', required: true, message: '请选择时间范围', trigger: 'change'}
+                        {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
                     ],
                     adsContext: [
                         {required: true, message: '请填写正文', trigger: 'blur'},
@@ -338,7 +329,7 @@
                 let self = this;
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
-                        if (self.form.viewPosition != 5 && !self.form.startTime[0] ) {
+                        if (self.form.viewPosition != 5 && !self.form.startTime[0]) {
                             self.$notify({
                                 title: '提示',
                                 message: '时间未选择！',
@@ -380,7 +371,7 @@
             },
             setAreas() {
                 let self = this;
-                if(!self.form.provinceName) {
+                if (!self.form.provinceName) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -439,7 +430,7 @@
                 this.dialogVisible = true;
             },
             handleRemove(file, fileList) {
-            	this.form.adsPicUrl = '';
+                this.form.adsPicUrl = '';
                 console.log(file, fileList);
             },
             handlePreview(file) {
@@ -453,8 +444,8 @@
             },
             beforeUpload(file) {
                 let self = this;
-                if(self.form.adsPicUrl) {
-                	return false;
+                if (self.form.adsPicUrl) {
+                    return false;
                 }
                 //img = require(`../assets/img/${file.name}`);
                 //self.checkImgPX(img, 512, 512);
@@ -478,11 +469,6 @@
                 }
                 return true;
             }
-        },
-        created() {
-
-        },
-        mounted() {
         }
     }
 </script>
@@ -494,77 +480,5 @@
 
     .mt40 {
         margin-top: 40px;
-    }
-
-    .box_td {
-        border: 1px solid #e9e9e9;
-        min-height: 500px;
-        background: #fff;
-        position: relative;
-    }
-
-    .txt_info {
-        color: #333;
-        font-family: å¾®è½¯é›…é»‘;
-        font-size: 14px;
-        margin-left: 10%;
-        margin-top: 5%;
-        width: 41%;
-    }
-
-    .title_txt {
-        background: url(../assets/img/titile_bg.png) no-repeat;
-        font-size: 30px;
-        height: 134px;
-        line-height: 134px;
-        position: absolute;
-        right: 10%;
-        text-align: center;
-        top: 0;
-        width: 271px;
-    }
-
-    .ads-select {
-        width: 100%;
-        height: 400px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .ads-type {
-        width: 60%;
-        height: 400px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .ads {
-        width: 100px;
-        height: 100px;
-        margin-bottom: 20px;
-        background-color: #18bffd;
-        border-radius: 10px;
-        color: #fff;
-        float: left;
-        text-align: center;
-        cursor: pointer;
-    }
-
-    .icon-ads-add {
-        margin: 10px auto 0;
-        width: 49px;
-        background: url(./../assets/img/step_icon.png) 0 0/640px 900px no-repeat;
-        background-position: 0 -363px !important;
-        display: block;
-        height: 59px;
-    }
-    .icon-add {
-        margin: 10px auto 0;
-        font-size: 50px;
-        margin-bottom: 15px;
     }
 </style>
