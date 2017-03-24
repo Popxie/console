@@ -30,7 +30,7 @@ const parseParams = function (obj) {
 };
 
 // 基础URL
-const baseUrl = `${settings.URL}/advert/api`;
+const baseUrl = `${settings.URL}/api`;
 
 /**
  *

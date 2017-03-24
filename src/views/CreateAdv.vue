@@ -53,7 +53,7 @@
                         </el-form-item>
                     </template>
                     <!--首页弹框-->
-                    <div v-if="form.viewPosition == 2">
+                    <template v-if="form.viewPosition == 2">
                         <el-form-item label="展现设置：" prop="viewSet">
                             <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
                                 <el-option label="关闭后当天不展现" :value="1"></el-option>
@@ -71,15 +71,15 @@
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
-                    </div>
+                    </template>
                     <!--骑行结束页-->
-                    <div v-if="form.viewPosition == 3">
+                    <template v-if="form.viewPosition == 3">
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
-                    </div>
+                    </template>
                     <!--首页顶部文字链-->
-                    <div v-if="form.viewPosition == 4">
+                    <template v-if="form.viewPosition == 4">
                         <el-form-item label="广告文案：" prop="adsContext">
                             <el-input type="textarea" v-model="form.adsContext"></el-input>
                         </el-form-item>
@@ -100,9 +100,9 @@
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
-                    </div>
+                    </template>
                     <!--升级提示框-->
-                    <div v-if="form.viewPosition == 5">
+                    <template v-if="form.viewPosition == 5">
                         <el-form-item label="升级提示标题：" prop="adsTitle">
                             <el-input v-model="form.adsTitle"></el-input>
                         </el-form-item>
@@ -137,7 +137,7 @@
                                 <el-input type="textarea" v-model="form.androidDownloadUrl"></el-input>
                             </el-form-item>
                         </template>
-                    </div>
+                    </template>
                     <el-form-item>
                         <el-button type="info" @click="toggleNext">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">完成</el-button>

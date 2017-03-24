@@ -16,7 +16,7 @@ const getters = {
 const actions = {
     // 创建广告
     createNewAds({commit}, params) {
-        const url = '/saveadvert.html';
+        const url = '/saveadvert';
         return _post({url}, params)
             .then((json) => {
                 if (json.statusCode == 200) {
@@ -29,7 +29,7 @@ const actions = {
             })
     },
     getAdsByid({commit, state}, query) {
-        const url = '/queryAdvertById.html';
+        const url = '/queryAdvertById';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
@@ -43,7 +43,7 @@ const actions = {
             });
     },
     updateAdsById({commit, state}, params) {
-        const url = '/updateAdvertById.html'
+        const url = '/updateAdvertById'
         return _post({url}, params, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
@@ -56,7 +56,7 @@ const actions = {
             })
     },
     checkAdsByType({commit, state}, query) {
-        const url = '/queryAdvertByTime.html';
+        const url = '/queryAdvertByTime';
         return _get({url, query})
             .then((json) => {
                 if (json.statusCode == 200) {

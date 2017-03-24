@@ -23,7 +23,7 @@ const getters = {
 const actions = {
     // 获取广告列表
     getAdsList({commit, state}, query) {
-        const url = '/queryAdvert.html';
+        const url = '/queryAdvert';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
@@ -38,7 +38,7 @@ const actions = {
     },
     // 执行上下线
     updateAdvertStatusById({commit, state}, query) {
-        const url = '/updateAdvertStatusById.html';
+        const url = '/updateAdvertStatusById';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
@@ -52,7 +52,7 @@ const actions = {
     },
     // 删除广告
     deleteAdvertById({commit, state}, query) {
-        const url = '/deleteAdvertById.html';
+        const url = '/deleteAdvertById';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {

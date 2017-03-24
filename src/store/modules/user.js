@@ -15,7 +15,7 @@ const getters = {
 const actions = {
     login ({commit, state}, query) {
         if (state.userInfo) return commit(types.LOGIN_SUCCESS, state.userInfo)
-        const url = '/login.html';
+        const url = '/login';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
