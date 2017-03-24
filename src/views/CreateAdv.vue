@@ -175,7 +175,7 @@
                     value: 5
                 }],
                 dialogVisible: false,
-                url: `${settings.URL}/advert/api/uploadImage.html`,
+                url: `${settings.URL}/api/uploadImage`,
                 dialogImg: false,
                 dialogImageUrl: '',
                 showNext: true,
