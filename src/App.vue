@@ -21,7 +21,6 @@
         	link.rel = 'shortcut icon';
             link.href = require('./assets/img/favicon.ico');
         	let header = document.getElementsByTagName("head");
-        	console.log(header);
         	header[0].appendChild(link);
         }
     }
