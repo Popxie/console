@@ -7,7 +7,7 @@
         <el-row v-if="showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
-                <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="170px">
+                <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px">
                     <el-form-item label="是否仅新用户可用：" prop="isNewuserUse">
                         <el-radio-group v-model="form.isNewuserUse">
                             <el-radio :label="1">是</el-radio>
@@ -20,7 +20,8 @@
                             <el-radio :label="2">2</el-radio>
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
-                                <el-input style="width: 40px;" v-model="other" @change="setLimit"
+
+                                <el-input style="width: 60px;" type="number" v-model.number="other" @change="setLimit"
                                           placeholder="请输入内容"></el-input>
                             </el-radio>
                             <el-radio :label="-1">不限</el-radio>
@@ -40,16 +41,21 @@
                         <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
                             {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
 
+
                         </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
                         <div class="row-wrap">
-                            <template v-for="(item, index)  in form.allDenomination">
+                            <template v-for="(item, index)  in form.coupon">
                                 <div class="wid row">
-                                    <el-input v-model="item.allDenomination" placeholder="输入劵面额"></el-input>
+                                    <el-input type="number" v-model.number="item.denomination"
+                                              placeholder="输入劵面额"></el-input>
                                     元劵
-                                    <el-input v-model="item.totalDenomination" placeholder="输入张数"></el-input>
+
+                                    <el-input type="number" v-model.number="item.couponNum"
+                                              placeholder="输入张数"></el-input>
                                     张数
+
 
                                 </div>
                             </template>
@@ -61,13 +67,16 @@
                     <template v-if="form.type == 3">
                         <el-form-item label="设置券的面额&数量：" required>
                             <div class="row-wrap">
-                                <template v-for="(item, index)  in form.allDenomination">
+                                <template v-for="(item, index)  in form.coupon">
                                     <div class="wid row">
-                                        <el-input v-if="index == 0" @change="setAllDenomination" v-model="item.allDenomination" placeholder="输入折扣劵"></el-input>
-                                        <el-input v-if="index != 0" v-model="item.allDenomination" placeholder="输入折扣劵"></el-input>
+                                        <el-input type="number" @blur="setAllDenomination($event,index )"
+                                                  v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         元劵
-                                        <el-input v-model="item.totalDenomination" placeholder="输入张数"></el-input>
+
+                                        <el-input type="number" v-model.number="item.couponNum"
+                                                  placeholder="输入张数"></el-input>
                                         张数
+
                                     </div>
                                 </template>
                                 <div class="wid">
@@ -75,19 +84,25 @@
                                 </div>
                             </div>
                         </el-form-item>
-                        <el-form-item  label="设置券的最高抵扣金额：" prop="maxDeductionType">
+                        <el-form-item label="设置券的最高抵扣金额：" prop="maxDeductionType">
 
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
-                                    <el-input style="width: 40px;" v-model="form.maxDeductionMoney"
+
+                                    <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
                                               placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
-                               <template v-for="item in form.allDenomination">
-                                    {{item.allDenomination || '--' }}元卷<el-input  style="width: 60px;" v-model="item.maxDeductionMoney"
-                                              placeholder="金额"></el-input>元
-                                </template>
+
+                                    <template v-for="item in form.coupon">
+                                        {{item.denomination || '--' }}元卷
+                                        <el-input type="number" style="width: 60px;"
+                                                  v-model.number="item.maxDeductionMoney"
+                                                  placeholder="金额"></el-input>
+                                        元
+
+                                    </template>
                                 </el-radio>
                             </el-radio-group>
                         </el-form-item>
@@ -146,18 +161,30 @@
                     topic: '',
                     couponName: '',
                     areaType: 0,
-                    allDenomination: [{}],
+                    coupon: [{}],
                     time: '',
                     maxDeductionType: 0,
                     maxDeductionMoney: 0,
                     denomination: 0
                 },
                 rules: {
+                    isNewuserUse: [
+                        {type: 'number', required: true, message: '请选择是否是新用户', trigger: 'change'}
+                    ],
+                    limitSize: [
+                        {type: 'number', required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
+                    ],
                     topic: [
-                        {required: true, message: '请输入广告主题', trigger: 'blur'},
+                        {type: 'string',required: true, message: '请输入广告主题', trigger: 'blur'},
                     ],
                     couponName: [
-                        {required: true,  message: '请输入优惠劵显示名称', trigger: 'blur'}
+                        {required: true, message: '请输入优惠劵显示名称', trigger: 'blur'}
+                    ],
+                    maxDeductionType: [
+                        {type: 'number', required: true, message: ' 设置券的最高抵扣金额', trigger: 'change'}
+                    ],
+                    areaType: [
+                        {type: 'number', required: true, message: '请选择投放地域', trigger: 'change'}
                     ],
                     time: [
                         {type: 'date', required: true, message: '请选择结束时间', trigger: 'change'}
@@ -221,21 +248,23 @@
             },
             addCoupon() {
                 let self = this;
-                self.form.allDenomination.push({});
+                self.form.coupon.push({});
             },
             setEndTime(val) {
                 this.form.endTime = val;
             },
-            setAllDenomination(val) {
-                this.form.allDenomination.splice(0,1 ,{allDenomination: val});
+            setAllDenomination(e, index) {
+                let obj =  this.form.coupon[index];
+                obj.denomination = e.target.value;
+                this.form.coupon.splice(index, 1, obj);
             },
             finishCreate() {
                 let self = this;
-                self.$refs['form'].validate((valid)=> {
-                    if(valid) {
-                        self.$http.post(settings.URL, self.form)
-                            .then( (res)=> {
-                            	if(res.statusCode == 200) {
+                self.$refs['form'].validate((valid) => {
+                    if (valid) {
+                        self.$http.post(`${settings.URL}/api/savecoupon`, self.form)
+                            .then((res) => {
+                                if (res.statusCode == 200) {
                                     self.$notify({
                                         title: '成功',
                                         message: '创建成功',
@@ -243,15 +272,15 @@
                                     });
                                     self.$router.push('couponList');
                                 }
-                            }, (err)=> {
+                            }, (err) => {
                                 self.$notify({
                                     title: '失败',
                                     message: err,
                                     type: 'error'
                                 });
-                            })
-                    }else {
-                    	return false
+                            });
+                    } else {
+                        return false
                     }
                 })
             }
