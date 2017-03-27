@@ -8,6 +8,7 @@ const CreateAdv = resolve => require(['views/CreateAdv'], resolve);
 const AdvList = resolve => require(['views/AdvList'], resolve);
 const EditAdv = resolve => require(['views/EditAdv'], resolve);
 const CreateCoupon = resolve => require(['views/CreateCoupon'], resolve);
+const CouponList = resolve => require(['views/CouponList'], resolve);
 
 
 
@@ -53,7 +54,7 @@ export default new Router({
                 },
                 {
                     path: 'couponList',
-                    component: CreateCoupon
+                    component: CouponList
                 }
             ]
         }
