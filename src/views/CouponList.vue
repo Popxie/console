@@ -192,7 +192,7 @@
             return {
                 taps: [{
                     task: '全部',
-                    value: ''
+                    value: ""
                 }, {
                     task: '充值卷',
                     value: '1'
