@@ -29,7 +29,7 @@
         </el-row>
         <el-row>
             <el-col>
-                <el-tabs v-model="type" @tab-click="changeType">
+                <el-tabs v-model="page.type" @tab-click="changeType">
                     <template v-for="tap in taps">
                         <el-tab-pane :label="tap.task" :name="tap.value">
                             <el-table
@@ -51,6 +51,7 @@
                                             size="small"
                                             type="text"
                                             @click="routeToEdit(scope.$index, scope.row)">{{scope.row.topic}}
+
 
 
                                         </el-button>
@@ -137,15 +138,18 @@
                                                    size="small"
                                                    @click="handleEdit(scope.$index, scope.row, 'edit')">执行下线
 
+
                                         </el-button>
                                         <el-button v-if="scope.row.status == 2"
                                                    size="small"
                                                    @click="handleEdit(scope.$index, scope.row, 'edit')">执行上线
 
+
                                         </el-button>
                                         <el-button v-if="scope.row.status == 3"
                                                    size="small"
                                                    @click="handleEdit(scope.$index, scope.row, 'edit')">执行再次上线
+
 
                                         </el-button>
                                         <el-button
@@ -153,6 +157,7 @@
                                             size="small"
                                             type="danger"
                                             @click="handleEdit(scope.$index, scope.row, 'delete')">删除
+
 
                                         </el-button>
                                     </template>
@@ -162,6 +167,17 @@
                     </template>
                 </el-tabs>
             </el-col>
+        </el-row>
+        <el-row type="flex" justify="end">
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="page.currentPage"
+                :page-sizes="[5, 10, 50, 100]"
+                :page-size="page.pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="recordsTotal">
+            </el-pagination>
         </el-row>
     </div>
 </template>
@@ -194,13 +210,23 @@
                     pageSize: 10,
                     topic: '',
                     isNewuserUse: '',
-                    status: ''
+                    status: '',
+                    type: '',
                 },
-                type: '',
                 couponList: []
             }
         },
+        computed: {
+            ...mapGetters({
+                adsList: 'getCouponInfo',
+                recordsTotal: 'getConRecordsTotal'
+            })
+        },
         methods: {
+            ...mapActions([
+                'getConponList',
+                'deleteConponById'
+            ]),
             cancel() {
                 this.showConfirm = true;
             },
@@ -208,7 +234,7 @@
 
             },
             changeType(tab, event) {
-                console.log(this.type);
+                console.log(this.page.type);
             },
             routeToEdit() {
 
@@ -239,11 +265,25 @@
                 self.operationType = type;
                 self.query = query;
                 self.showConfirm = true;
-                type =='edit'? self.message = '是否确定执行此操作吗？': self.message = '是否确定删除该广告？' ;
+                type == 'edit' ? self.message = '是否确定执行此操作吗？' : self.message = '是否确定删除该广告？';
             },
             updateStatus() {
 
-            }
+            },
+            handleSizeChange(val) {
+                let self = this;
+                self.page.pageSize = val;
+                self.getConponList(self.page);
+            },
+            handleCurrentChange(val) {
+                let self = this;
+                self.page.currentPage = val;
+                self.getConponList(self.page);
+            },
+        },
+        created() {
+            let self = this;
+            self.getConponList(self.page);
         }
     }
 </script>

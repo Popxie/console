@@ -6,18 +6,12 @@ import {_get} from '../../utils/fetch';
 
 const state = {
     adsList: [],
-    recordsTotal: 0,
-    page: {
-        currentPage: 0,
-        pageSize: 0,
-        topic: ''
-    }
+    recordsTotal: 0
 };
 
 const getters = {
     getAdsListInfo: state => state.adsList,
-    getRecordsTotal: state => state.recordsTotal,
-    getPageInfo: state=> state.page
+    getRecordsTotal: state => state.recordsTotal
 };
 
 const actions = {
@@ -63,12 +57,8 @@ const actions = {
             }).catch((error) => {
                 return Promise.reject(error)
             })
-    },
-    // 暂存页面信息
-    savePageInfo({commit, state}, query) {
-        commit()
     }
-}
+};
 
 const mutations = {
     [types.CHECKOUT_ADS_SUCCESS] (state, data) {
@@ -95,7 +85,7 @@ const mutations = {
         state.adsList = state.adsList.filter(a => a.id != id);
 
     }
-}
+};
 export default {
     state,
     getters,

@@ -1,22 +1,22 @@
 /**
  * Created by chengfei on 2017/2/21.
  */
-import * as types from '../mutation-types'
-import {_get} from '../../utils/fetch'
+import * as types from '../mutation-types';
+import {_get} from '../../utils/fetch';
 const state = {
     message: 'home'
-}
+};
 
 // getters
 const getters = {
     getMessage: state => state.message
-}
+};
 // mutations
 const mutations = {
     [types.FETCH_HOME_SUCCESS] (state, data) {
         state.message = data.name
     }
-}
+};
 
 // actions
 const actions = {
@@ -34,11 +34,11 @@ const actions = {
                 return Promise.reject(error)
             })
     }
-}
+};
 
 export default {
     state,
     getters,
     actions,
     mutations
-}
+};
