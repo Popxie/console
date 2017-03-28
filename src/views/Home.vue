@@ -4,7 +4,7 @@
         </div>
         <div class="main">
             <div class="company">小鸣单车</div>
-            <div class="mask">——广告系统</div>
+            <!--<div class="mask">——广告系统</div>-->
         </div>
     </div>
 </template>
