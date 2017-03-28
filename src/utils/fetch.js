@@ -51,8 +51,12 @@ export const _get = function ({url, query}, commit) {
     return Vue.http.get(_url)
         .then((res) => {
             if (commit) commit('FINISH_LOADING')
-            if (res.status >= 200 && res.status < 300) {
+            if (res.status == 200) {
                 return res.data
+            }
+            if(res.status == 203) {
+                sessionStorage.removeItem('userInfo');
+                return null
             }
             return Promise.reject(new Error(res.status))
         }, (res) => {
@@ -81,8 +85,12 @@ export const _post = function ({url, query}, params, commit) {
     return Vue.http.post(_url, params)
         .then((res) => {
             if (commit) commit('FINISH_LOADING');
-            if (res.status >= 200 && res.status < 300) {
+            if (res.status == 200) {
                 return res.data;
+            }
+            if(res.status == 203) {
+                sessionStorage.removeItem('userInfo');
+                return null
             }
             return Promise.reject(new Error(res.status));
         }, (res) => {

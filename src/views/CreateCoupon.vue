@@ -21,7 +21,9 @@
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
 
-                                <el-input style="width: 60px;" type="number" v-model.number="other" @change="setLimit"
+
+                                <el-input style="width: 60px;" type="number" min="0" v-model.number="other"
+                                          @change="setLimit"
                                           placeholder="请输入内容"></el-input>
                             </el-radio>
                             <el-radio :label="-1">不限</el-radio>
@@ -42,6 +44,7 @@
                             {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
 
 
+
                         </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
@@ -52,9 +55,11 @@
                                               placeholder="输入劵面额"></el-input>
                                     元劵
 
+
                                     <el-input type="number" v-model.number="item.couponNum"
                                               placeholder="输入张数"></el-input>
                                     张数
+
 
 
                                 </div>
@@ -73,9 +78,11 @@
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         元劵
 
+
                                         <el-input type="number" v-model.number="item.couponNum"
                                                   placeholder="输入张数"></el-input>
                                         张数
+
 
                                     </div>
                                 </template>
@@ -89,18 +96,22 @@
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
 
+
                                     <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
                                               placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
 
+
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}元卷
+
                                         <el-input type="number" style="width: 60px;"
                                                   v-model.number="item.maxDeductionMoney"
                                                   placeholder="金额"></el-input>
                                         元
+
 
                                     </template>
                                 </el-radio>
@@ -126,6 +137,7 @@
     </div>
 </template>
 <script>
+    import {mapGetters, mapActions} from 'vuex';
     import TapSelect from '../components/TapSelect.vue';
     import SelectAreas from '../components/SelectSimpleArea.vue';
     import {settings} from '../config/settings';
@@ -175,7 +187,7 @@
                         {type: 'number', required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
                     ],
                     topic: [
-                        {type: 'string',required: true, message: '请输入广告主题', trigger: 'blur'},
+                        {type: 'string', required: true, message: '请输入广告主题', trigger: 'blur'},
                     ],
                     couponName: [
                         {required: true, message: '请输入优惠劵显示名称', trigger: 'blur'}
@@ -193,6 +205,9 @@
             }
         },
         methods: {
+            ...mapActions([
+                'createConpon'
+            ]),
             setCoupon(val) {
                 let self = this;
                 self.showNext = true;
@@ -254,7 +269,7 @@
                 this.form.endTime = val;
             },
             setAllDenomination(e, index) {
-                let obj =  this.form.coupon[index];
+                let obj = this.form.coupon[index];
                 obj.denomination = e.target.value;
                 this.form.coupon.splice(index, 1, obj);
             },
@@ -262,16 +277,9 @@
                 let self = this;
                 self.$refs['form'].validate((valid) => {
                     if (valid) {
-                        self.$http.post(`${settings.URL}/api/savecoupon`, self.form)
+                        self.createConpon(self.form)
                             .then((res) => {
-                                if (res.statusCode == 200) {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: '创建成功',
-                                        type: 'success'
-                                    });
-                                    self.$router.push('couponList');
-                                }
+                                self.$router.push('couponList');
                             }, (err) => {
                                 self.$notify({
                                     title: '失败',

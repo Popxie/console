@@ -8,7 +8,7 @@ const state = {
     userInfo: null
 };
 const getters = {
-    getUserInfo: state => JSON.parse(sessionStorage.getItem('userInfo')),
+    getUserInfo: state => JSON.parse(sessionStorage.getItem('userInfo')) || {},
     isLogin: state => !!JSON.parse(sessionStorage.getItem('userInfo'))
 };
 // actions
@@ -36,8 +36,8 @@ const actions = {
 // mutations
 const mutations = {
     [types.LOGIN_SUCCESS] (state, data) {
-        sessionStorage.setItem('userInfo', JSON.stringify(data))
-        state.userInfo = data
+        sessionStorage.setItem('userInfo', JSON.stringify(data));
+        state.userInfo = data;
     },
     [types.LOGIN_OUT] (state) {
         state.userInfo = null;

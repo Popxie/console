@@ -211,7 +211,6 @@
                             })
                         });
                 }
-
             },
             cancel() {
                 this.showConfirm = false;

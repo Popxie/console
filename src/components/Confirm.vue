@@ -1,7 +1,7 @@
 <template>
     <el-dialog  title="提示" v-model="show" size="tiny" @close="cancel">
         <div :style="styles">
-            <span>{{message}}</span>
+            <span style="font-size: 30px">{{message}}</span>
         </div>
         <span slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>

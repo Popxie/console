@@ -17,7 +17,7 @@ const actions = {
     // 创建广告
     createNewAds({commit}, params) {
         const url = '/saveadvert';
-        return _post({url}, params)
+        return _post({url}, params,commit)
             .then((json) => {
                 if (json.statusCode == 200) {
                     return Promise.resolve(json.data);

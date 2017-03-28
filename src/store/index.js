@@ -10,7 +10,7 @@ import home from './modules/home';
 import user from './modules/user';
 import createAds from './modules/createAds';
 import adsList from './modules/adsList';
-import couponList from './modules/couponList';
+import couponList from './modules/coupon';
 import createLogger from 'vuex/dist/logger';
 Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== 'production';

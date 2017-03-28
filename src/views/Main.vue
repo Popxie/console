@@ -47,7 +47,8 @@
             },
             checkLogin() {
                 var self = this;
-                if (!self.isLogin) {
+                var userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+                if (!userInfo) {
                     self.$router.push('/login');
                 }
             }
