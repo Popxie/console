@@ -6,12 +6,16 @@ import {_get, _post} from '../../utils/fetch';
 
 const state = {
     couponList: [],
-    recordsTotal: 0
+    recordsTotal: 0,
+    couponInfo: [],
+    infoRecordsTotal: 0
 };
 
 const getters = {
-    getCouponInfo: state => state.couponList,
-    getConRecordsTotal: state => state.recordsTotal
+    getCouList: state => state.couponList,
+    getCouInfo: state => state.couponInfo,
+    getConRecordsTotal: state => state.recordsTotal,
+    getConInfoRecordsTotal: state => state.infoRecordsTotal
 };
 
 const actions = {
@@ -34,6 +38,18 @@ const actions = {
             .then((json) => {
                 if (json.statusCode == 200) {
                     return commit(types.CHECKOUT_CONPON_SUCCESS, json.data);
+                }
+                return Promise.reject(json.message);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
+    getConponInfo({commit, state}, query) {
+        const url = '/selectCouponsByBatchId';
+        return _get({url, query}, commit)
+            .then((json) => {
+                if (json.statusCode == 200) {
+                    return commit(types.CHECKOUT_CONPONINFO_SUCCESS, json.data);
                 }
                 return Promise.reject(json.message);
             }).catch((error) => {
@@ -75,6 +91,10 @@ const mutations = {
     [types.CHECKOUT_CONPON_SUCCESS] (state, data) {
         state.couponList = data.content;
         state.recordsTotal = data.recordsTotal;
+    },
+    [types.CHECKOUT_CONPONINFO_SUCCESS] (state, data) {
+        state.couponInfo = data.content;
+        state.infoRecordsTotal = data.recordsTotal;
     },
     [types.UPDATE_CONPON_SUCCESS] (state, id) {
         console.log(id);

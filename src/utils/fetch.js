@@ -19,7 +19,7 @@ Vue.http.interceptors.push(function (request, next) {
     next();
 });
 // 解析params 参数
-const parseParams = function (obj) {
+export const parseParams = function (obj) {
     let str = '';
     Object.keys(obj).map((key) => {
         if (obj[key]) {

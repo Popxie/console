@@ -117,7 +117,7 @@
                                     width="150">
                                 </el-table-column>
                                 <el-table-column
-                                    label="广告主题"
+                                    label="查看劵码"
                                     width="150">
                                     <template scope="scope">
                                         <el-button
@@ -214,7 +214,7 @@
         },
         computed: {
             ...mapGetters({
-                couponList: 'getCouponInfo',
+                couponList: 'getCouList',
                 recordsTotal: 'getConRecordsTotal'
             })
         },
@@ -234,8 +234,9 @@
                 self.page.pageSize = 10;
                 self.getConponList(self.page);
             },
-            routeToEdit() {
-
+            routeToEdit(index, row) {
+                let self = this;
+                self.$router.push({path: 'couponInfo', query: {id: row.id}})
             },
             typeFilter(row, column) {
                 let types = ['充值卷', '抵扣卷', '折扣卷'];
