@@ -360,9 +360,11 @@
                 });
                 console.log(self.form.coupon);
                 if(!flag) {
+                	let message = ''
+                	self.form.type == 3? message = '券的面额&数量&最高抵扣金额填写不完整' : message = '券的面额&数量填写不完整';
                     self.$notify({
                         title: '警告',
-                        message: '券的面额&数量填写不完整',
+                        message: message,
                         type: 'warning'
                     });
                 	return;
