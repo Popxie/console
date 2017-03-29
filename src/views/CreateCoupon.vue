@@ -20,8 +20,6 @@
                             <el-radio :label="2">2</el-radio>
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
-
-
                                 <el-input style="width: 60px;" type="number" min="0" v-model.number="other"
                                           @change="setLimit"
                                           placeholder="请输入内容"></el-input>
@@ -45,23 +43,20 @@
 
 
 
+
+
                         </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
                         <div class="row-wrap">
                             <template v-for="(item, index)  in form.coupon">
                                 <div class="wid row">
-                                    <el-input type="number" v-model.number="item.denomination"
+                                    <el-input type="number" v-model.number="item.denomination"  @blur="checkMoney($event)"
                                               placeholder="输入劵面额"></el-input>
                                     元劵
-
-
-                                    <el-input type="number" v-model.number="item.couponNum"
+                                    <el-input type="number" v-model.number="item.couponNum"  @blur="checkValue($event)"
                                               placeholder="输入张数"></el-input>
                                     张数
-
-
-
                                 </div>
                             </template>
                             <div class="wid">
@@ -74,16 +69,18 @@
                             <div class="row-wrap">
                                 <template v-for="(item, index)  in form.coupon">
                                     <div class="wid row">
-                                        <el-input type="number" @blur="setAllDenomination($event,index )"
+                                        <el-input type="number" max="100" min="0"
+                                                  @blur="setAllDenomination($event,index )"
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
-                                        元劵
+                                        折券
+
+
 
 
                                         <el-input type="number" v-model.number="item.couponNum"
+                                                  @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
-                                        张数
-
-
+                                        张
                                     </div>
                                 </template>
                                 <div class="wid">
@@ -95,24 +92,18 @@
 
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
-
-
                                     <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
-                                              placeholder="输入金额"></el-input>
+                                              @blur="checkMoney($event)"   placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
-
-
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}元卷
-
                                         <el-input type="number" style="width: 60px;"
                                                   v-model.number="item.maxDeductionMoney"
+                                                  @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
                                         元
-
-
                                     </template>
                                 </el-radio>
                             </el-radio-group>
@@ -184,7 +175,7 @@
                         {type: 'number', required: true, message: '请选择是否是新用户', trigger: 'change'}
                     ],
                     limitSize: [
-                        {type:'number',required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
+                        {type: 'number', required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
                     ],
                     topic: [
                         {type: 'string', required: true, message: '请输入广告主题', trigger: 'blur'},
@@ -215,6 +206,24 @@
             },
             setLimit(val) {
                 let self = this;
+                if (val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于0',
+                        type: 'info'
+                    });
+                    self.form.limitSize = '';
+                    return;
+                }
+                if(!this.isInt(val)) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值为整数',
+                        type: 'info'
+                    });
+                    self.form.limitSize = '';
+                    return;
+                }
                 self.$nextTick(() => {
                     self.form.limitSize = self.other
                 });
@@ -247,7 +256,6 @@
                     return;
                 }
                 self.form = Object.assign({}, self.form, form);
-                console.log(self.form);
                 self.dialogVisible = false;
             },
             cancelSelect () {
@@ -270,9 +278,55 @@
                 this.form.endTime = val;
             },
             setAllDenomination(e, index) {
+                let val = e.target.value;
+                if (val > 100 || val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能大于100且不能小于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
                 let obj = this.form.coupon[index];
                 obj.denomination = e.target.value;
                 this.form.coupon.splice(index, 1, obj);
+            },
+            checkValue(e, index) {
+                let val = e.target.value;
+                if (val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
+                if(!this.isInt(val)) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值为整数',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                }
+            },
+            isInt(str){
+                let g = /^-?\d+$/;
+                return g.test(str);
+            },
+            checkMoney(e) {
+                let val = e.target.value;
+                if (val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
             },
             finishCreate() {
                 let self = this;
