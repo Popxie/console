@@ -90,7 +90,7 @@
                                 <el-radio :label="1">单独设置：
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}元卷
-                                        <el-input type="number" style="width: 60px;"
+                                        <el-input type="number" style="width: 60px;" :disabled="form.maxDeductionType !=1"
                                                   v-model.number="item.maxDeductionMoney"
                                                   @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
@@ -335,10 +335,41 @@
                     return;
                 }
             },
+            isEmptyObject(e) {
+                let t;
+                for (t in e)
+                    return !1;
+                return !0
+            },
             finishCreate() {
                 let self = this;
+                let flag = true;
+                self.form.coupon.map((c)=> {
+                	if(self.isEmptyObject(c)) {
+                		flag = false;
+                    }
+                    if(!c.denomination){
+                		flag = false;
+                    }
+                    if(!c.couponNum){
+                        flag = false;
+                    }
+                    if(self.form.type == 3 && !c.maxDeductionMoney) {
+                    	flag = false;
+                    }
+                });
+                console.log(self.form.coupon);
+                if(!flag) {
+                    self.$notify({
+                        title: '警告',
+                        message: '券的面额&数量填写不完整',
+                        type: 'warning'
+                    });
+                	return;
+                }
                 self.$refs['form'].validate((valid) => {
                     if (valid) {
+
                         self.createConpon(self.form)
                             .then((res) => {
                                 self.$router.push('couponList');

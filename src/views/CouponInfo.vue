@@ -8,7 +8,7 @@
                 <el-input v-model="execlInfo.start" type="number" placeholder="请输入开始值"></el-input>
             </el-col>
             <el-col :span="2">
-                <el-input v-model="execlInfo.length" type="number" placeholder="请输入长度"></el-input>
+                <el-input v-model="execlInfo.length" type="number" placeholder="请输入结束值"></el-input>
             </el-col>
             <el-col :span="2">
                 <el-button  type="info" @click="outToExcel">导出excel</el-button>
@@ -145,15 +145,15 @@
                 if(!self.execlInfo.length) {
                     self.$notify({
                         title: '提示',
-                        message: '请输入长度',
+                        message: '请输入结束',
                         type: 'info'
                     })
                     return;
                 }
-                if(self.execlInfo.length > 20000) {
+                if(self.execlInfo.length - self.execlInfo.start > 20000) {
                     self.$notify({
                         title: '提示',
-                        message: '长度不能大于20000',
+                        message: '起始值、结束值相差不能大于20000',
                         type: 'info'
                     })
                     return;
