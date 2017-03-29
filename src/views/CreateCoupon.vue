@@ -184,7 +184,7 @@
                         {type: 'number', required: true, message: '请选择是否是新用户', trigger: 'change'}
                     ],
                     limitSize: [
-                        {required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
+                        {type:'number',required: true, message: '请选择可领用/兑换上限', trigger: 'change'},
                     ],
                     topic: [
                         {type: 'string', required: true, message: '请输入广告主题', trigger: 'blur'},
