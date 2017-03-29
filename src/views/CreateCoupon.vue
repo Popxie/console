@@ -40,11 +40,6 @@
                         </el-radio-group>
                         <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
                             {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
-
-
-
-
-
                         </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
@@ -73,10 +68,6 @@
                                                   @blur="setAllDenomination($event,index )"
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         折券
-
-
-
-
                                         <el-input type="number" v-model.number="item.couponNum"
                                                   @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
@@ -93,7 +84,7 @@
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
                                     <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
-                                              @blur="checkMoney($event)"   placeholder="输入金额"></el-input>
+                                              @blur="checkMaxDeductionMoney($event)"  placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
@@ -315,6 +306,22 @@
             isInt(str){
                 let g = /^-?\d+$/;
                 return g.test(str);
+            },
+            checkMaxDeductionMoney (e) {
+                let val = e.target.value;
+                let self = this;
+                if (val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
+                self.form.coupon.map((c)=> {
+                	c.maxDeductionMoney = val;
+                });
             },
             checkMoney(e) {
                 let val = e.target.value;

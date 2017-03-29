@@ -1,11 +1,20 @@
 <template>
     <div class="container">
-        <el-row class="btn-m">
+        <el-row class="btn-m" :gutter="20">
             <el-col :span="2">
                 <el-button  @click="()=> $router.go(-1)">返回</el-button>
             </el-col>
             <el-col :span="2">
+                <el-input v-model="execlInfo.start" placeholder="请输入开始值"></el-input>
+            </el-col>
+            <el-col :span="2">
+                <el-input v-model="execlInfo.length" placeholder="请输入长度"></el-input>
+            </el-col>
+            <el-col :span="2">
                 <el-button  type="info" @click="outToExcel">导出excel</el-button>
+            </el-col>
+            <el-col :span="5" >
+                <div style="line-height: 36px; height: 36px"> 总生成张数： {{recordsTotal}}张</div>
             </el-col>
         </el-row>
         <el-row>
@@ -105,6 +114,11 @@
                     currentPage: 1,
                     pageSize: 10,
                     batchId: this.$route.query.id
+                },
+                execlInfo: {
+                	start: '',
+                    length: '',
+                    batchId: this.$route.query.id
                 }
             }
         },
@@ -119,7 +133,32 @@
                 'getConponInfo'
             ]),
             outToExcel() {
-                let url = `${settings.URL}/api/excel/exportCoupons?batchId=${this.$route.query.id}`;
+            	let self = this;
+            	if(!self.execlInfo.start) {
+            		self.$notify({
+                        title: '提示',
+                        message: '请输入开始值',
+                        type: 'info'
+                    })
+                    return;
+                }
+                if(!self.execlInfo.length) {
+                    self.$notify({
+                        title: '提示',
+                        message: '请输入长度',
+                        type: 'info'
+                    })
+                    return;
+                }
+                if(self.execlInfo.length > 20000) {
+                    self.$notify({
+                        title: '提示',
+                        message: '长度不能大于20000',
+                        type: 'info'
+                    })
+                    return;
+                }
+                let url = `${settings.URL}/api/excel/exportCoupons?${parseParams(this.execlInfo)}`;
                 window.open(url, '_blank');
             },
             handleSizeChange(val) {
