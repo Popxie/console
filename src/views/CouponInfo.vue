@@ -5,10 +5,10 @@
                 <el-button  @click="()=> $router.go(-1)">返回</el-button>
             </el-col>
             <el-col :span="2">
-                <el-input v-model="execlInfo.start" placeholder="请输入开始值"></el-input>
+                <el-input v-model="execlInfo.start" type="number" placeholder="请输入开始值"></el-input>
             </el-col>
             <el-col :span="2">
-                <el-input v-model="execlInfo.length" placeholder="请输入长度"></el-input>
+                <el-input v-model="execlInfo.length" type="number" placeholder="请输入长度"></el-input>
             </el-col>
             <el-col :span="2">
                 <el-button  type="info" @click="outToExcel">导出excel</el-button>
