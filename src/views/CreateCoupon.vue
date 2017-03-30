@@ -20,6 +20,7 @@
                             <el-radio :label="2">2</el-radio>
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
+
                                 <el-input style="width: 60px;" type="number" min="0" v-model.number="other"
                                           @change="setLimit"
                                           placeholder="请输入内容"></el-input>
@@ -40,18 +41,22 @@
                         </el-radio-group>
                         <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
                             {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
+
                         </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
                         <div class="row-wrap">
                             <template v-for="(item, index)  in form.coupon">
                                 <div class="wid row">
-                                    <el-input type="number" v-model.number="item.denomination"  @blur="checkMoney($event)"
+                                    <el-input type="number" v-model.number="item.denomination"
+                                              @blur="checkMoneyAndRepeat($event, index)"
                                               placeholder="输入劵面额"></el-input>
                                     元劵
-                                    <el-input type="number" v-model.number="item.couponNum"  @blur="checkValue($event)"
+
+                                    <el-input type="number" v-model.number="item.couponNum" @blur="checkValue($event)"
                                               placeholder="输入张数"></el-input>
                                     张数
+
                                 </div>
                             </template>
                             <div class="wid">
@@ -68,10 +73,12 @@
                                                   @blur="setAllDenomination($event,index )"
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         折券
+
                                         <el-input type="number" v-model.number="item.couponNum"
                                                   @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
                                         张
+
                                     </div>
                                 </template>
                                 <div class="wid">
@@ -83,18 +90,23 @@
 
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
+
                                     <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
-                                              @blur="checkMaxDeductionMoney($event)"  placeholder="输入金额"></el-input>
+                                              @blur="checkMaxDeductionMoney($event)" placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
+
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}元卷
-                                        <el-input type="number" style="width: 60px;" :disabled="form.maxDeductionType !=1"
+
+                                        <el-input type="number" style="width: 60px;"
+                                                  :disabled="form.maxDeductionType !=1"
                                                   v-model.number="item.maxDeductionMoney"
                                                   @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
                                         元
+
                                     </template>
                                 </el-radio>
                             </el-radio-group>
@@ -197,16 +209,16 @@
             },
             setLimit(val) {
                 let self = this;
-                if (val < 0) {
+                if (val <= 0) {
                     this.$notify({
                         title: '提示',
-                        message: '数值不能小于0',
+                        message: '数值不能小于或等于0',
                         type: 'info'
                     });
                     self.form.limitSize = '';
                     return;
                 }
-                if(!this.isInt(val)) {
+                if (!this.isInt(val)) {
                     this.$notify({
                         title: '提示',
                         message: '数值为整数',
@@ -269,6 +281,7 @@
                 this.form.endTime = val;
             },
             setAllDenomination(e, index) {
+            	let self = this;
                 let val = e.target.value;
                 if (val > 100 || val < 0) {
                     this.$notify({
@@ -278,6 +291,23 @@
                     });
                     e.target.value = 0;
                     return;
+                }
+                let flag = true;
+                let items = JSON.parse(JSON.stringify(self.form.coupon));
+                items.splice(index, 1)
+                items.map((c)=> {
+                    if(c.denomination == val) {
+                        this.$notify({
+                            title: '提示',
+                            message: '劵不能重复',
+                            type: 'info'
+                        });
+                        e.target.value = 0;
+                        flag = false;
+                    }
+                });
+                if(!flag) {
+                	return
                 }
                 let obj = this.form.coupon[index];
                 obj.denomination = e.target.value;
@@ -294,7 +324,7 @@
                     e.target.value = 0;
                     return;
                 }
-                if(!this.isInt(val)) {
+                if (!this.isInt(val)) {
                     this.$notify({
                         title: '提示',
                         message: '数值为整数',
@@ -319,9 +349,34 @@
                     e.target.value = 0;
                     return;
                 }
-                self.form.coupon.map((c)=> {
-                	c.maxDeductionMoney = val;
+                self.form.coupon.map((c) => {
+                    c.maxDeductionMoney = val;
                 });
+            },
+            checkMoneyAndRepeat(e,i) {
+            	let self = this;
+                let val = e.target.value;
+                if (val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
+                let items = JSON.parse(JSON.stringify(self.form.coupon));
+                items.splice(i, 1)
+                items.map((c)=> {
+                	if(c.denomination == val) {
+                        this.$notify({
+                            title: '提示',
+                            message: '劵不能重复',
+                            type: 'info'
+                        });
+                        e.target.value = 0;
+                    }
+                })
             },
             checkMoney(e) {
                 let val = e.target.value;
@@ -334,6 +389,7 @@
                     e.target.value = 0;
                     return;
                 }
+
             },
             isEmptyObject(e) {
                 let t;
@@ -341,33 +397,37 @@
                     return !1;
                 return !0
             },
+            returnFlag(array) {
+                let flag = false;
+                let items = self.form.coupon;
+            },
             finishCreate() {
                 let self = this;
                 let flag = true;
-                self.form.coupon.map((c)=> {
-                	if(self.isEmptyObject(c)) {
-                		flag = false;
-                    }
-                    if(!c.denomination){
-                		flag = false;
-                    }
-                    if(!c.couponNum){
+                self.form.coupon.map((c) => {
+                    if (self.isEmptyObject(c)) {
                         flag = false;
                     }
-                    if(self.form.type == 3 && !c.maxDeductionMoney) {
-                    	flag = false;
+                    if (!c.denomination) {
+                        flag = false;
+                    }
+                    if (!c.couponNum) {
+                        flag = false;
+                    }
+                    if (self.form.type == 3 && !c.maxDeductionMoney) {
+                        flag = false;
                     }
                 });
                 console.log(self.form.coupon);
-                if(!flag) {
-                	let message = ''
-                	self.form.type == 3? message = '券的面额&数量&最高抵扣金额填写不完整' : message = '券的面额&数量填写不完整';
+                if (!flag) {
+                    let message = ''
+                    self.form.type == 3 ? message = '券的面额&数量&最高抵扣金额填写不完整' : message = '券的面额&数量填写不完整';
                     self.$notify({
                         title: '警告',
                         message: message,
                         type: 'warning'
                     });
-                	return;
+                    return;
                 }
                 self.$refs['form'].validate((valid) => {
                     if (valid) {
