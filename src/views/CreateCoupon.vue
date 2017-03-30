@@ -56,7 +56,7 @@
                                     <el-input type="number" v-model.number="item.couponNum" @blur="checkValue($event)"
                                               placeholder="输入张数"></el-input>
                                     张数
-
+                                    <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                 </div>
                             </template>
                             <div class="wid">
@@ -69,7 +69,7 @@
                             <div class="row-wrap">
                                 <template v-for="(item, index)  in form.coupon">
                                     <div class="wid row">
-                                        <el-input type="number" max="100" min="0"
+                                        <el-input type="number" max="10" min="0"
                                                   @blur="setAllDenomination($event,index )"
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         折券
@@ -78,7 +78,7 @@
                                                   @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
                                         张
-
+                                    <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                     </div>
                                 </template>
                                 <div class="wid">
@@ -282,16 +282,28 @@
                 let self = this;
                 self.form.coupon.push({});
             },
+            delCoupon(index) {
+            	let items = this.form.coupon;
+            	if(items.length == 1) {
+                    this.$notify({
+                        title: '提示',
+                        message: '不能全部删除',
+                        type: 'info'
+                    });
+            		return;
+                }
+                this.form.coupon.splice(index,1);
+            },
             setEndTime(val) {
                 this.form.endTime = val;
             },
             setAllDenomination(e, index) {
             	let self = this;
                 let val = e.target.value;
-                if (val > 100 || val < 0) {
+                if (val > 10 || val < 0) {
                     this.$notify({
                         title: '提示',
-                        message: '数值不能大于100且不能小于0',
+                        message: '数值不能大于10且不能小于0',
                         type: 'info'
                     });
                     e.target.value = 0;
@@ -315,7 +327,7 @@
                 	return
                 }
                 let obj = this.form.coupon[index];
-                obj.denomination = e.target.value;
+                obj.denomination = val;
                 this.form.coupon.splice(index, 1, obj);
             },
             checkValue(e, index) {
@@ -413,13 +425,13 @@
                     if (self.isEmptyObject(c)) {
                         flag = false;
                     }
-                    if (!c.denomination) {
+                    if (!c.denomination && c.denomination != 0) {
                         flag = false;
                     }
                     if (!c.couponNum && c.couponNum != 0) {
                         flag = false;
                     }
-                    if (self.form.type == 3 && !c.maxDeductionMoney) {
+                    if (self.form.type == 3 && !c.maxDeductionMoney && c.maxDeductionMoney !=0) {
                         flag = false;
                     }
                 });

@@ -139,7 +139,7 @@
                         title: '提示',
                         message: '请输入开始值',
                         type: 'info'
-                    })
+                    });
                     return;
                 }
                 if(!self.execlInfo.length) {
@@ -147,7 +147,15 @@
                         title: '提示',
                         message: '请输入结束',
                         type: 'info'
-                    })
+                    });
+                    return;
+                }
+                if(self.execlInfo.length < self.execlInfo.start) {
+                    self.$notify({
+                        title: '提示',
+                        message: '结束值大于开始值',
+                        type: 'info'
+                    });
                     return;
                 }
                 if(self.execlInfo.length - self.execlInfo.start > 20000) {
@@ -155,7 +163,7 @@
                         title: '提示',
                         message: '起始值、结束值相差不能大于20000',
                         type: 'info'
-                    })
+                    });
                     return;
                 }
                 let url = `${settings.URL}/api/excel/exportCoupons?${parseParams(this.execlInfo)}`;
@@ -186,7 +194,50 @@
             isUsedFilter(row, column) {
             	let isUses = ['未使用', '已使用'];
                 return isUses[Number(row.isUsed)];
+            },
+            isInt(str){
+                let g = /^-?\d+$/;
+                return g.test(str);
+            },
+        },
+        watch: {
+        	'execlInfo.start' : function (val) {
+                if(val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '不能小于0',
+                        type: 'info'
+                    });
+                    this.execlInfo.start = 0;
+                }
+                if (!this.isInt(val)) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值为整数',
+                        type: 'info'
+                    });
+                    this.execlInfo.start = 0;
+                }
+            },
+            'execlInfo.length' : function (val) {
+                if(val < 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '不能小于0',
+                        type: 'info'
+                    });
+                    this.execlInfo.length = 0;
+                }
+                if (!this.isInt(val)) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值为整数',
+                        type: 'info'
+                    });
+                    this.execlInfo.length = 0;
+                }
             }
+
         },
         created() {
             this.getConponInfo(this.page);
