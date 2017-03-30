@@ -21,8 +21,8 @@
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
 
-                                <el-input style="width: 60px;" type="number" min="0" v-model.number="other"
-                                          @change="setLimit"
+                                <el-input style="width: 60px;" type="number" min="0" :value="other"
+                                          @blur="setLimit($event)"
                                           placeholder="请输入内容"></el-input>
                             </el-radio>
                             <el-radio :label="-1">不限</el-radio>
@@ -158,7 +158,7 @@
                 },
                 showNext: false,
                 dialogVisible: false,
-                other: 0,
+                other: 4,
                 maxMoney: 0,
                 form: {
                     type: 0,
@@ -207,15 +207,17 @@
                 self.showNext = true;
                 self.form.type = val;
             },
-            setLimit(val) {
+            setLimit(e) {
                 let self = this;
-                if (val <= 0) {
-                    this.$notify({
+                let val = e.target.value;
+                if(val <=0) {
+                    self.$notify({
                         title: '提示',
-                        message: '数值不能小于或等于0',
+                        message: '数值不能小于等于0',
                         type: 'info'
                     });
-                    self.form.limitSize = '';
+                    e.target.value = 4;
+                    self.form.limitSize = 1;
                     return;
                 }
                 if (!this.isInt(val)) {
@@ -224,12 +226,15 @@
                         message: '数值为整数',
                         type: 'info'
                     });
-                    self.form.limitSize = '';
+                    e.target.value = 4;
+                    self.form.limitSize = 1;
                     return;
                 }
-                self.$nextTick(() => {
-                    self.form.limitSize = self.other
+                self.other = Number(val);
+                self.$nextTick(function () {
+                    self.form.limitSize = self.other;
                 });
+
             },
             setMaxMoney() {
                 this.$nextTick(() => {
@@ -411,14 +416,13 @@
                     if (!c.denomination) {
                         flag = false;
                     }
-                    if (!c.couponNum) {
+                    if (!c.couponNum && c.couponNum != 0) {
                         flag = false;
                     }
                     if (self.form.type == 3 && !c.maxDeductionMoney) {
                         flag = false;
                     }
                 });
-                console.log(self.form.coupon);
                 if (!flag) {
                     let message = ''
                     self.form.type == 3 ? message = '券的面额&数量&最高抵扣金额填写不完整' : message = '券的面额&数量填写不完整';

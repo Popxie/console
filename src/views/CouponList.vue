@@ -73,7 +73,8 @@
                                 <el-table-column
                                     label="单用户可领用/兑换上限张数"
                                     prop="limitSize"
-                                    width="150">
+                                    width="150"
+                                    :formatter="returnLimitSize">
                                 </el-table-column>
                                 <el-table-column
                                     label="券过期时间"
@@ -245,8 +246,11 @@
             },
             isNewuserUseFilter(row, column) {
                 let isNewuserUse = ['否', '是'];
-                if (!row.isNewuserUse) return '';
                 return isNewuserUse[row.isNewuserUse];
+            },
+            returnLimitSize(row, column) {
+            	if(row.limitSize != -1) return row.limitSize;
+            	return '不限';
             },
             statusFilter(row, column) {
                 let status = ['已生成', '已下线', '已过期', '已删除'];
