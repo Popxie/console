@@ -6,6 +6,7 @@ import {_get, _post} from '../../utils/fetch';
 
 const state = {
     couponList: [],
+    couponMap: {},
     recordsTotal: 0,
     couponInfo: [],
     infoRecordsTotal: 0
@@ -15,7 +16,8 @@ const getters = {
     getCouList: state => state.couponList,
     getCouInfo: state => state.couponInfo,
     getConRecordsTotal: state => state.recordsTotal,
-    getConInfoRecordsTotal: state => state.infoRecordsTotal
+    getConInfoRecordsTotal: state => state.infoRecordsTotal,
+    getCouponMap: state => state.couponMap,
 };
 
 const actions = {
@@ -95,6 +97,7 @@ const mutations = {
     [types.CHECKOUT_CONPONINFO_SUCCESS] (state, data) {
         state.couponInfo = data.content;
         state.infoRecordsTotal = data.recordsTotal;
+        state.couponMap = data.couponMap;
     },
     [types.UPDATE_CONPON_SUCCESS] (state, id) {
         console.log(id);
