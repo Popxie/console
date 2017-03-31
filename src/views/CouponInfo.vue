@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <el-row class="btn-m" :gutter="20">
+        <el-row class="btn-m" :gutter="30">
             <el-col :span="2">
                 <el-button  @click="()=> $router.go(-1)">返回</el-button>
             </el-col>
@@ -13,7 +13,7 @@
             <el-col :span="2">
                 <el-button  type="info" @click="outToExcel">导出excel</el-button>
             </el-col>
-            <el-col :span="5" >
+            <el-col :span="4" :offset="1">
                 <div style="line-height: 36px; height: 36px"> 总生成张数： {{recordsTotal}}张</div>
             </el-col>
         </el-row>
@@ -55,7 +55,7 @@
                     >
                     </el-table-column>
                     <el-table-column v-if="type != 3"
-                        label="面额(折)"
+                        label="面额(元)"
                         prop="denomination"
                         width="150">
                     </el-table-column>
@@ -92,7 +92,7 @@
                         :formatter="isExchangedFilter">
                     </el-table-column>
                     <el-table-column
-                        label="充值情况"
+                        label="使用情况"
                         prop="isUsed"
                         width="150"
                         :formatter="isUsedFilter">

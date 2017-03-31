@@ -23,16 +23,16 @@
 
                                 <el-input style="width: 60px;" type="number" min="0" :value="other"
                                           @blur="setLimit($event)"
-                                          placeholder="请输入内容"></el-input>
+                                          placeholder="请输入"></el-input>
                             </el-radio>
                             <el-radio :label="-1">不限</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="发券活动主题：" prop="topic">
-                        <el-input v-model="form.topic" :maxlength="30"></el-input>
+                        <el-input v-model="form.topic" :maxlength="30" placeholder="请输入本次发券的主题，30字以内"></el-input>
                     </el-form-item>
                     <el-form-item label="优惠卷显示名称：" prop="couponName">
-                        <el-input v-model="form.couponName" :maxlength="15"></el-input>
+                        <el-input v-model="form.couponName" :maxlength="15" placeholder="请输入优惠券上显示的券名，15字以内"></el-input>
                     </el-form-item>
                     <el-form-item label="设置投放地域：" prop="areaType">
                         <el-radio-group v-model="form.areaType" @change="selectArea">
@@ -91,21 +91,21 @@
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
 
-                                    <el-input type="number" style="width: 60px;" v-model.number="form.maxDeductionMoney"
+                                    <el-input type="number" style="width: 80px;" v-model.number="form.maxDeductionMoney"
                                               @blur="checkMaxDeductionMoney($event)" placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
 
                                     <template v-for="item in form.coupon">
-                                        {{item.denomination || '--' }}元卷
+                                        {{item.denomination || '--' }}折劵
 
-                                        <el-input type="number" style="width: 60px;"
+                                        <el-input type="number" style="width: 80px;"
                                                   :disabled="form.maxDeductionType !=1"
                                                   v-model.number="item.maxDeductionMoney"
                                                   @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
-                                        元
+                                        元&nbsp;&nbsp;
 
                                     </template>
                                 </el-radio>
@@ -122,7 +122,7 @@
                         </el-date-picker>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="info" @click="showNext = false">返回</el-button>
+                        <el-button type="info" @click="upStep()">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
                     </el-form-item>
                 </el-form>
@@ -173,6 +173,7 @@
                     maxDeductionMoney: 0,
                     denomination: 0
                 },
+                copyForm: {},
                 rules: {
                     isNewuserUse: [
                         {type: 'number', required: true, message: '请选择是否是新用户', trigger: 'change'}
@@ -206,6 +207,22 @@
                 let self = this;
                 self.showNext = true;
                 self.form.type = val;
+            },
+            upStep() {
+                this.showNext = false;
+                this.form = {
+                    type: 0,
+                    isNewuserUse: 1,
+                    limitSize: 1,
+                    topic: '',
+                    couponName: '',
+                    areaType: 0,
+                    coupon: [{}],
+                    time: '',
+                    maxDeductionType: 0,
+                    maxDeductionMoney: 0,
+                    denomination: 0
+                };
             },
             setLimit(e) {
                 let self = this;
@@ -478,6 +495,8 @@
                     }
                 })
             }
+        },
+        created() {
         }
     }
 </script>
