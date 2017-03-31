@@ -8,9 +8,9 @@
                 <el-menu-item index="advList">广告列表</el-menu-item>
             </el-submenu>
             <el-submenu index="2">
-                <template slot="title"><i class="icon fa fa-jpy"></i>优惠卷管理</template>
+                <template slot="title"><i class="icon fa fa-jpy"></i>优惠券管理</template>
                 <el-menu-item index="createCoupon">创建优惠券</el-menu-item>
-                <el-menu-item index="couponList">优惠卷列表</el-menu-item>
+                <el-menu-item index="couponList">优惠券列表</el-menu-item>
             </el-submenu>
         </el-menu>
     </div>

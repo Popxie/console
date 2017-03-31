@@ -22,7 +22,7 @@
                 <el-table
                     :data="couponList"
                     border
-                    style="width: 100%;max-height:1000px;text-align: center">
+                    style="width: 100%;text-align: center">
                     <el-table-column
                         fixed
                         label="劵批次"
@@ -54,10 +54,20 @@
                         :formatter="isNewuserUseFilter"
                     >
                     </el-table-column>
-                    <el-table-column
-                        label="面额"
+                    <el-table-column v-if="type != 3"
+                        label="面额(折)"
                         prop="denomination"
                         width="150">
+                    </el-table-column>
+                    <el-table-column v-if="type == 3"
+                                     label="折扣(折)"
+                                     prop="denomination"
+                                     width="150">
+                    </el-table-column>
+                    <el-table-column v-if="type == 3"
+                                     label="最高抵扣金额(元)"
+                                     prop="maxDeductionMoney"
+                                     width="150">
                     </el-table-column>
                     <el-table-column
                         label="劵的过期时间"
@@ -110,6 +120,7 @@
     export default{
         data() {
             return {
+            	type: this.$route.query.type,
                 page: {
                     currentPage: 1,
                     pageSize: 10,

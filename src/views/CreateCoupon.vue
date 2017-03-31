@@ -210,6 +210,21 @@
             setLimit(e) {
                 let self = this;
                 let val = e.target.value;
+                if(val == 1) {
+                    self.form.limitSize = 1;
+                    e.target.value = 4;
+                	return
+                }
+                if(val == 2) {
+                    self.form.limitSize = 2;
+                    e.target.value = 4;
+                    return
+                }
+                if(val == 3) {
+                    self.form.limitSize = 3;
+                    e.target.value = 4;
+                    return
+                }
                 if(val <=0) {
                     self.$notify({
                         title: '提示',
@@ -300,10 +315,10 @@
             setAllDenomination(e, index) {
             	let self = this;
                 let val = e.target.value;
-                if (val > 10 || val < 0) {
+                if (val > 10 || val <= 0) {
                     this.$notify({
                         title: '提示',
-                        message: '数值不能大于10且不能小于0',
+                        message: '数值不能大于10且不能小于等于0',
                         type: 'info'
                     });
                     e.target.value = 0;
@@ -357,10 +372,10 @@
             checkMaxDeductionMoney (e) {
                 let val = e.target.value;
                 let self = this;
-                if (val < 0) {
+                if (val <= 0) {
                     this.$notify({
                         title: '提示',
-                        message: '数值不能小于0',
+                        message: '数值不能小于等于0',
                         type: 'info'
                     });
                     e.target.value = 0;
@@ -373,10 +388,10 @@
             checkMoneyAndRepeat(e,i) {
             	let self = this;
                 let val = e.target.value;
-                if (val < 0) {
+                if (val <= 0) {
                     this.$notify({
                         title: '提示',
-                        message: '数值不能小于0',
+                        message: '数值不能小于等于0',
                         type: 'info'
                     });
                     e.target.value = 0;

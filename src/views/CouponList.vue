@@ -36,7 +36,7 @@
                             <el-table
                                 :data="couponList"
                                 border
-                                style="width: 100%;max-height:1000px;text-align: center">
+                                style="width: 100%;text-align: center">
                                 <el-table-column
                                     fixed
                                     label="劵批次"
@@ -44,7 +44,7 @@
                                     width="150">
                                 </el-table-column>
                                 <el-table-column
-                                    label="广告主题"
+                                    label="发券活动主题"
                                     prop="topic"
                                     width="150">
                                 </el-table-column>
@@ -81,10 +81,20 @@
                                     prop="endDate"
                                     width="150">
                                 </el-table-column>
-                                <el-table-column
+                                <el-table-column v-if="page.type != 3 && page.type != 0  "
                                     label="券的面额（元)"
                                     prop="allDenomination"
                                     width="150">
+                                </el-table-column>
+                                <el-table-column v-if="page.type == 3"
+                                                 label="券的折扣（折)"
+                                                 prop="allDenomination"
+                                                 width="150">
+                                </el-table-column>
+                                <el-table-column v-if="page.type == 0 "
+                                                 label="券的面额或者折扣"
+                                                 prop="allDenomination"
+                                                 width="150">
                                 </el-table-column>
                                 <el-table-column
                                     label="券总张数"
@@ -142,7 +152,7 @@
                                         </el-button>
                                         <el-button v-if="scope.row.status == 2"
                                                    size="small"
-                                                   @click="handleEdit(scope.$index, scope.row, 'edit')">执行上线
+                                                   @click="handleEdit(scope.$index, scope.row, 'edit')">执行再次上线
 
                                         </el-button>
                                         <el-button v-if="scope.row.status == 3"
@@ -190,13 +200,13 @@
                     task: '全部',
                     value: ''
                 }, {
-                    task: '充值卷',
+                    task: '充值劵',
                     value: '1'
                 }, {
-                    task: '抵扣卷',
+                    task: '抵扣劵',
                     value: '2'
                 }, {
-                    task: '折扣卷',
+                    task: '折扣劵',
                     value: '3'
                 }],
                 query: {},
@@ -237,10 +247,10 @@
             },
             routeToEdit(index, row) {
                 let self = this;
-                self.$router.push({path: 'couponInfo', query: {id: row.id}})
+                self.$router.push({path: 'couponInfo', query: {id: row.id, type: row.type}})
             },
             typeFilter(row, column) {
-                let types = ['充值卷', '抵扣卷', '折扣卷'];
+                let types = ['充值劵', '抵扣劵', '折扣劵'];
                 if (!row.type) return '';
                 return types[row.type - 1];
             },
@@ -277,7 +287,7 @@
                         .then((data) => {
                             self.$notify({
                                 title: '成功',
-                                message: data,
+                                message: '执行成功',
                                 type: 'success'
                             })
                         }, (err) => {
