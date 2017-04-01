@@ -5,10 +5,10 @@
                 <el-button  @click="()=> $router.go(-1)">返回</el-button>
             </el-col>
             <el-col :span="2">
-                <el-input v-model="execlInfo.start" type="number" placeholder="请输入开始值"></el-input>
+                <el-input v-model="execlInfo.start" type="number" min="1" placeholder="请输入开始值"></el-input>
             </el-col>
             <el-col :span="2">
-                <el-input v-model="execlInfo.length" type="number" max="20000" placeholder="请输入条数"></el-input>
+                <el-input v-model="execlInfo.length" type="number" min="1" max="20000" placeholder="请输入条数"></el-input>
             </el-col>
             <el-col :span="2">
                 <el-button  type="info" @click="outToExcel">导出excel</el-button>
@@ -199,8 +199,8 @@
                     batchId: this.$route.query.id
                 },
                 execlInfo: {
-                	start: '',
-                    length: '',
+                	start: 1,
+                    length: 1,
                     batchId: this.$route.query.id
                 }
             }
@@ -219,7 +219,7 @@
             ]),
             outToExcel() {
             	let self = this;
-            	if(!self.execlInfo.start && self.execlInfo.start==0) {
+            	if(!self.execlInfo.start && self.execlInfo.start!=0) {
             		self.$notify({
                         title: '提示',
                         message: '请输入开始值',
@@ -279,13 +279,13 @@
         },
         watch: {
         	'execlInfo.start' : function (val) {
-                if(val < 0) {
+                if(val < 1) {
                     this.$notify({
                         title: '提示',
-                        message: '不能小于0',
+                        message: '不能小于1',
                         type: 'info'
                     });
-                    this.execlInfo.start = 0;
+                    this.execlInfo.start = 1;
                 }
                 if (!this.isInt(val)) {
                     this.$notify({
@@ -293,17 +293,17 @@
                         message: '数值为整数',
                         type: 'info'
                     });
-                    this.execlInfo.start = 0;
+                    this.execlInfo.start = 1;
                 }
             },
             'execlInfo.length' : function (val) {
-                if(val < 0) {
+                if(val < 1) {
                     this.$notify({
                         title: '提示',
-                        message: '不能小于0',
+                        message: '不能小于1',
                         type: 'info'
                     });
-                    this.execlInfo.length = 0;
+                    this.execlInfo.length = 1;
                 }
                 if (!this.isInt(val)) {
                     this.$notify({
@@ -311,7 +311,7 @@
                         message: '数值为整数',
                         type: 'info'
                     });
-                    this.execlInfo.length = 0;
+                    this.execlInfo.length = 1;
                 }
             }
 
