@@ -107,7 +107,7 @@
         }
     }
 </script>
-<style>
+<style scoped>
     .el-dialog{
         position: relative;
         width: 800px;
