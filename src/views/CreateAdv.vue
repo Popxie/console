@@ -52,8 +52,13 @@
                             </el-dialog>
                         </el-form-item>
                     </template>
+                    <!--首屏页-->
+                    <template v-if="form.viewPosition == 1">
+                        <div class="tip">尺寸要求：1242*2208</div>
+                    </template>
                     <!--首页弹框-->
                     <template v-if="form.viewPosition == 2">
+                        <div class="tip">尺寸要求：660*880</div>
                         <el-form-item label="展现设置：" prop="viewSet">
                             <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
                                 <el-option label="关闭后当天不展现" :value="1"></el-option>
@@ -74,6 +79,7 @@
                     </template>
                     <!--骑行结束页-->
                     <template v-if="form.viewPosition == 3">
+                        <div class="tip">尺寸要求：690*160</div>
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
@@ -358,19 +364,33 @@
             handleRemove(file, fileList) {
                 this.form.adsPicUrl = '';
             },
-            handleSuccess(res) {
+            handleSuccess(res,file) {
                 let self = this;
                 if (res.statusCode == 200) {
                     self.form.adsPicUrl = res.data;
                 }
+                let w,h;
+                switch(self.form.viewPosition){
+                    case 1:
+                        w = 1242;
+                        h = 2208;
+                        break;
+                    case 2:
+                        w = 660;
+                        h = 880;
+                        break;
+                    case 3:
+                        w = 690;
+                        h = 160;
+                        break;
+                }
+                self.checkImgPX(file.url, w, h);
             },
             beforeUpload(file) {
                 let self = this;
                 if (self.form.adsPicUrl) {
                     return false;
                 }
-                //img = require(`../assets/img/${file.name}`);
-                //self.checkImgPX(img, 512, 512);
             },
             checkImgPX(path, width, height) {
                 let img = null,
@@ -379,15 +399,18 @@
                 document.body.insertAdjacentElement("beforeEnd", img);
                 img.style.visibility = "hidden";
                 img.src = path;
-                let imgwidth = img.offsetWidth;
-                let imgheight = img.offsetHeight;
-                if (imgwidth != width || imgheight != height) {
-                    self.$notify({
-                        title: '警告',
-                        message: '图的尺寸应该是' + width + "x" + height,
-                        type: 'warning'
-                    })
-                    return false;
+                img.onload = function () {
+                    let imgwidth = img.width;
+                    let imgheight = img.height;
+                    console.log(imgwidth);
+                    if (imgwidth != width || imgheight != height) {
+                        self.$notify({
+                            title: '警告',
+                            message: '图的尺寸应该是' + width + "x" + height,
+                            type: 'warning'
+                        })
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -399,8 +422,11 @@
         background-color: #fff;
         font-size: 14px;
     }
-
     .mt40 {
         margin-top: 40px;
+    }
+    .tip{
+        margin-left: 150px;
+        margin-bottom: 5px;
     }
 </style>
