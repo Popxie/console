@@ -6,7 +6,7 @@ import VueResource from 'vue-resource'
 import {settings} from '../config/settings';
 Vue.use(VueResource);
 
-/**
+/*
  *  拦截器
  */
 Vue.http.interceptors.push(function (request, next) {

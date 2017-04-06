@@ -2,7 +2,7 @@
  * Created by chengfei on 2017/3/6.
  */
 import * as types from '../mutation-types';
-import {_get} from '../../utils/fetch';
+import {_get, _post} from '../../utils/fetch';
 
 const state = {
     userInfo: null
@@ -30,7 +30,20 @@ const actions = {
     },
     loginOut ({commit}) {
         commit(types.LOGIN_OUT)
-    }
+    },
+    updatePwd({commit, state}, params) {
+        const url = '/updateAdminPwd';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if (json.statusCode == 200) {
+                    return Promise.resolve(json.data);
+                }
+                return Promise.reject(json.message || '修改失败');
+            })
+            .catch((error) => {
+                return Promise.reject(error)
+            })
+    },
 };
 
 // mutations

@@ -133,7 +133,7 @@
 <script>
     import {mapGetters, mapActions} from 'vuex';
     import TapSelect from '../components/TapSelect.vue';
-    import SelectAreas from '../components/SelectSimpleArea1.vue';
+    import SelectAreas from '../components/SelectSimpleArea.vue';
     import {settings} from '../config/settings';
     export default{
         components: {
