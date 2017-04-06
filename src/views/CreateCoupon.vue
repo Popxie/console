@@ -142,13 +142,13 @@
         data() {
             return {
                 taps: [{
-                    task: '充值卷',
+                    task: '充值券',
                     value: 1
                 }, {
-                    task: '抵扣卷',
+                    task: '抵扣券',
                     value: 2
                 }, {
-                    task: '折扣卷',
+                    task: '折扣券',
                     value: 3
                 }],
                 pickerOptions: {
