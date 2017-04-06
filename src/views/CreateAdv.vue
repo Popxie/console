@@ -406,7 +406,7 @@
                     if (imgwidth != width || imgheight != height) {
                         self.$notify({
                             title: '警告',
-                            message: '图的尺寸应该是' + width + "x" + height,
+                            message: '图的尺寸应该是' + width + "" + height,
                             type: 'warning'
                         })
                         return false;
