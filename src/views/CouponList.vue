@@ -277,7 +277,7 @@
                 };
                 self.operationType = type;
                 self.showConfirm = true;
-                type == 'edit' ? self.message = '是否确定执行此操作？' : self.message = '是否确定删除该广告？';
+                type == 'edit' ? self.message = '是否确定执行此操作？' : self.message = '是否确定删除该优惠券？';
             },
             updateStatus() {
                 let self = this;
