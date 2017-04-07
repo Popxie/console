@@ -44,7 +44,7 @@
 
                         </el-button>
                     </el-form-item>
-                    <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required>
+                    <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required class="setcoupon">
                         <div class="row-wrap">
                             <template v-for="(item, index)  in form.coupon">
                                 <div class="wid row">
@@ -65,7 +65,7 @@
                         </div>
                     </el-form-item>
                     <template v-if="form.type == 3">
-                        <el-form-item label="设置券的面额&数量：" required>
+                        <el-form-item label="设置券的面额&数量：" required class="setcoupon">
                             <div class="row-wrap">
                                 <template v-for="(item, index)  in form.coupon">
                                     <div class="wid row">
@@ -162,7 +162,7 @@
                 maxMoney: 0,
                 form: {
                     type: 0,
-                    isNewuserUse: 1,
+                    isNewuserUse: 0,
                     limitSize: 1,
                     topic: '',
                     couponName: '',
@@ -416,14 +416,17 @@
                 }
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(i, 1)
+                let obj = this.form.coupon[i];
+                obj.denomination = Number(val).toFixed(2);
+                this.form.coupon.splice(i, 1, obj);
                 items.map((c)=> {
-                	if(c.denomination == val) {
+                	if(c.denomination == Number(val).toFixed(2)) {
                         this.$notify({
                             title: '提示',
                             message: '劵不能重复',
                             type: 'info'
                         });
-                        e.target.value = 0;
+                        obj.denomination = 0;
                     }
                 })
             },
@@ -501,6 +504,11 @@
     }
 </script>
 <style scoped>
+    @media screen and (max-width: 2000px) {
+        .setcoupon{
+            width:850px;
+        }
+    }
     .container {
         background-color: #fff;
     }
