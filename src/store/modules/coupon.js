@@ -58,6 +58,20 @@ const actions = {
                 return Promise.reject(error);
             });
     },
+    // 获取地区信息
+    getArea({commit, state}, query) {
+        const url = '/selectAllArea';
+        return _get({url, query}, commit)
+            .then((json) => {
+                if (json.statusCode == 200) {
+                    return Promise.resolve(json.data);
+                }
+                return Promise.reject(json.message || '获取失败');
+            })
+            .catch((error) => {
+                return Promise.reject(error)
+            })
+    },
     // 执行上下线
     updateConponStatusById({commit, state}, query) {
         const url = '/updateBatchCouponStatusById';

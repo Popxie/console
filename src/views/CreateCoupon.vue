@@ -359,7 +359,7 @@
                 	return
                 }
                 let obj = this.form.coupon[index];
-                obj.denomination = val;
+                obj.denomination = Number(val).toFixed(2);
                 this.form.coupon.splice(index, 1, obj);
             },
             checkValue(e, index) {

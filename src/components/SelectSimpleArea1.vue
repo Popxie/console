@@ -5,7 +5,7 @@
             <el-form label-position="right">
                 <el-form-item>
                     <el-checkbox-group v-model="districts" @change="selectProvince">
-                        <el-checkbox v-for="area in areas" :label="area.name"></el-checkbox>
+                        <el-checkbox v-for="area in areas" :label="area.name+'  ▼'" class="provinceSelect"></el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
             </el-form>
@@ -18,16 +18,6 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <div class="region" v-show="isChecked">
-                <el-form >
-                    <el-form-item>
-                        <el-checkbox-group v-model="qu" >
-                            <el-checkbox v-for="region in regions" :label="region"></el-checkbox>
-                        </el-checkbox-group>
-                    </el-form-item>
-                </el-form>
-            </div>
-
             <span slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>
             <el-button type="info" @click="confirm">确 定</el-button>
@@ -107,10 +97,15 @@
         }
     }
 </script>
-<style scoped>
-    .el-dialog{
-        position: relative;
-        width: 800px;
+<style>
+    @media screen and (max-width: 2000px) {
+        .el-dialog{
+            position: relative;
+            width: 750px;
+        }
+    }
+    .provinceSelect::after{
+        content: '';
     }
     .el-checkbox{
         width: 150px;
