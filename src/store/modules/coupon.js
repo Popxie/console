@@ -5,7 +5,8 @@ import * as types from '../mutation-types';
 import {_get, _post} from '../../utils/fetch';
 
 const state = {
-    couponList: [],
+    couponList:[],
+    areaList:[],
     couponMap: {},
     recordsTotal: 0,
     couponInfo: [],
@@ -14,6 +15,7 @@ const state = {
 
 const getters = {
     getCouList: state => state.couponList,
+    getAreaList:state => state.areaList,
     getCouInfo: state => state.couponInfo,
     getConRecordsTotal: state => state.recordsTotal,
     getConInfoRecordsTotal: state => state.infoRecordsTotal,
@@ -58,19 +60,18 @@ const actions = {
                 return Promise.reject(error);
             });
     },
-    // 获取地区信息
+    //获取地区信息
     getArea({commit, state}, query) {
         const url = '/selectAllArea';
         return _get({url, query}, commit)
             .then((json) => {
                 if (json.statusCode == 200) {
-                    return Promise.resolve(json.data);
+                    return commit(types.CHECKOUT_AREAS_SUCCESS, json.data);
                 }
-                return Promise.reject(json.message || '获取失败');
-            })
-            .catch((error) => {
-                return Promise.reject(error)
-            })
+                return Promise.reject(json.message);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
     },
     // 执行上下线
     updateConponStatusById({commit, state}, query) {
@@ -128,6 +129,9 @@ const mutations = {
     [types.DELETE_CONPON_SUCCESS] (state, id) {
         state.couponList = state.couponList.filter(a => a.id != id);
 
+    },
+    [types.CHECKOUT_AREAS_SUCCESS] (state, data) {
+        state.areaList = data;
     }
 };
 export default {

@@ -155,10 +155,6 @@
                                                    @click="handleEdit(scope.$index, scope.row, 'edit')">执行再次上线
 
                                         </el-button>
-                                        <el-button v-if="scope.row.status == 3"
-                                                   size="small">已过期
-
-                                        </el-button>
                                         <el-button
                                             v-if="scope.row.status != 4 && scope.row.status != 1"
                                             size="small"
@@ -327,7 +323,7 @@
                 self.page.currentPage = val;
                 self.getConponList(self.page);
             },
-            getConponL() {
+            getConponL(){
             	let self = this;
                 self.getConponList(self.page);
             }

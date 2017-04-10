@@ -20,15 +20,19 @@
                     <div style="line-height: 20px; height: 20px; font-size: 12px">
                         <template v-if="couponMap.total">
                             总生成张数：{{couponMap.total.totalNum}}张
-                            (<template  v-for="(cou, index) in couponMap.total.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张
-                            </template>)&nbsp;&nbsp;
+                            <a class="moneyInfo">
+                                <template  v-for="(cou, index) in couponMap.total.coupons" class="moneyInfo">
+                                (<template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张)
+                                </template>&nbsp;&nbsp;
+                            </a>
                         </template>
                         <template v-if="couponMap.received">
                             总领用张数: {{couponMap.received.totalNum}}张
-                            (<template  v-for="(cou, index) in couponMap.received.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张
-                            </template>)
+                            <a class="moneyInfo">
+                                <template  v-for="(cou, index) in couponMap.received.coupons" class="moneyInfo">
+                                    (<template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张)
+                                </template>
+                            </a>
                         </template>
                     </div>
                 </el-col>
@@ -38,15 +42,19 @@
                     <div style="line-height: 36px; height: 36px;font-size: 12px">
                         <template v-if="couponMap.exchanged">
                             总兑换张数：{{couponMap.exchanged.totalNum}}张
-                            (<template v-for="(cou, index) in couponMap.exchanged.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张
-                            </template>)&nbsp;&nbsp;
+                            <a class="moneyInfo">
+                                <template v-for="(cou, index) in couponMap.exchanged.coupons" class="moneyInfo">
+                                    (<template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张)
+                                </template>&nbsp;&nbsp;
+                            </a>
                         </template>
                         <template v-if="couponMap.used">
                             总充值张数: {{couponMap.used.totalNum}}张
-                            (<template v-for="(cou, index) in couponMap.used.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张
-                            </template>)
+                        <a class="moneyInfo">
+                            <template v-for="(cou, index) in couponMap.used.coupons" class="moneyInfo">
+                                (<template v-if="index != 0">、</template>{{cou.denomination}}元面额{{cou.couponNum}}张)
+                            </template>
+                        </a>
                         </template>
                     </div>
                 </el-col>
@@ -58,15 +66,19 @@
                     <div style="line-height: 20px; height: 20px; font-size: 12px">
                         <template v-if="couponMap.total">
                             总生成张数：{{couponMap.total.totalNum}}张
-                            (<template  v-for="(cou, index) in couponMap.total.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张
-                            </template>) &nbsp;&nbsp;
+                        <a class="moneyInfo">
+                            <template  v-for="(cou, index) in couponMap.total.coupons" class="moneyInfo">
+                                (<template v-if="index != 0"></template>{{cou.denomination}}折劵{{cou.couponNum}}张)
+                            </template> &nbsp;&nbsp;
+                        </a>
                         </template>
                         <template v-if="couponMap.received">
                            总领用张数: {{couponMap.received.totalNum}}张
-                            (<template  v-for="(cou, index) in couponMap.received.coupons">
-                            <template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张
-                            </template>)
+                            <a class="moneyInfo">
+                                <template  v-for="(cou, index) in couponMap.received.coupons" class="moneyInfo">
+                                (<template v-if="index != 0"></template>{{cou.denomination}}折劵{{cou.couponNum}}张)
+                                </template>
+                            </a>
                         </template>
                     </div>
                 </el-col>
@@ -75,15 +87,19 @@
                 <el-col>
                     <div style="line-height: 36px; height: 36px;font-size: 12px">
                         <template v-if="couponMap.exchanged">总兑换张数：{{couponMap.exchanged.totalNum}}张
-                            (<template v-for="(cou, index) in couponMap.exchanged.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张
-                            </template>)&nbsp;&nbsp;
+                        <a class="moneyInfo">
+                            <template v-for="(cou, index) in couponMap.exchanged.coupons" class="moneyInfo">
+                                (<template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张)
+                            </template>&nbsp;&nbsp;
+                        </a>
                         </template>
                         <template v-if="couponMap.used">
                              总充值张数: {{couponMap.used.totalNum}}张
-                            (<template v-for="(cou, index) in couponMap.used.coupons">
-                                <template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张
-                            </template>)
+                             <a class="moneyInfo">
+                                <template v-for="(cou, index) in couponMap.used.coupons" class="moneyInfo">
+                                    (<template v-if="index != 0">、</template>{{cou.denomination}}折劵{{cou.couponNum}}张)
+                                </template>
+                            </a>
                         </template>
                     </div>
                 </el-col>
@@ -322,6 +338,9 @@
     }
 </script>
 <style>
+    .moneyInfo{
+        color: #999;
+    }
     .container {
         padding-top: 10px;
         background-color: #fff;

@@ -39,10 +39,6 @@
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
                         </el-radio-group>
-                        <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
-                            {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
-
-                        </el-button>
                     </el-form-item>
                     <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required class="setcoupon">
                         <div class="row-wrap">
@@ -133,7 +129,7 @@
 <script>
     import {mapGetters, mapActions} from 'vuex';
     import TapSelect from '../components/TapSelect.vue';
-    import SelectAreas from '../components/SelectSimpleArea.vue';
+    import SelectAreas from '../components/SelectSimpleArea1.vue';
     import {settings} from '../config/settings';
     export default{
         components: {
@@ -212,7 +208,7 @@
                 this.showNext = false;
                 this.form = {
                     type: 0,
-                    isNewuserUse: 1,
+                    isNewuserUse: 0,
                     limitSize: 1,
                     topic: '',
                     couponName: '',
@@ -287,7 +283,7 @@
             },
             setAreas(form) {
                 let self = this;
-                if (!form.provinceName) {
+                if (!form) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -482,7 +478,6 @@
                 }
                 self.$refs['form'].validate((valid) => {
                     if (valid) {
-
                         self.createConpon(self.form)
                             .then((res) => {
                                 self.$router.push('couponList');
