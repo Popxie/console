@@ -4,10 +4,10 @@
             <el-col :span="2">
                 <el-button  @click="()=> $router.go(-1)">返回</el-button>
             </el-col>
-            <el-col :span="2">
+            <el-col :span="4">
                 <el-input v-model="execlInfo.start" type="number" min="1" placeholder="请输入开始值"></el-input>
             </el-col>
-            <el-col :span="2">
+            <el-col :span="3">
                 <el-input v-model="execlInfo.length" type="number" min="1" max="20000" placeholder="请输入条数"></el-input>
             </el-col>
             <el-col :span="2">
@@ -17,7 +17,7 @@
         <div class="btn-m20" v-if="type != 3">
             <el-row>
                 <el-col>
-                    <div style="line-height: 20px; height: 20px; font-size: 12px">
+                    <div style="line-height: 20px; height: 20px; font-size: 14px">
                         <template v-if="couponMap.total">
                             总生成张数：{{couponMap.total.totalNum}}张
                             <a class="moneyInfo">
@@ -39,7 +39,7 @@
             </el-row>
             <el-row>
                 <el-col>
-                    <div style="line-height: 36px; height: 36px;font-size: 12px">
+                    <div style="line-height: 36px; height: 36px;font-size: 14px">
                         <template v-if="couponMap.exchanged">
                             总兑换张数：{{couponMap.exchanged.totalNum}}张
                             <a class="moneyInfo">
@@ -63,7 +63,7 @@
         <div class="btn-m20" v-if="type == 3">
             <el-row>
                 <el-col>
-                    <div style="line-height: 20px; height: 20px; font-size: 12px">
+                    <div style="line-height: 20px; height: 20px; font-size: 14px">
                         <template v-if="couponMap.total">
                             总生成张数：{{couponMap.total.totalNum}}张
                         <a class="moneyInfo">
@@ -85,7 +85,7 @@
             </el-row>
             <el-row>
                 <el-col>
-                    <div style="line-height: 36px; height: 36px;font-size: 12px">
+                    <div style="line-height: 36px; height: 36px;font-size: 14px">
                         <template v-if="couponMap.exchanged">总兑换张数：{{couponMap.exchanged.totalNum}}张
                         <a class="moneyInfo">
                             <template v-for="(cou, index) in couponMap.exchanged.coupons" class="moneyInfo">
