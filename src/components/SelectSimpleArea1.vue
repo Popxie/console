@@ -7,14 +7,14 @@
                         <template v-for="area in areaList" class="province">
                             <el-checkbox :label="area.code" class="provinceSelect">{{area.areaName}}
                             </el-checkbox>
-                            <!--<a class="showNum1" v-show="!(area.cityDtos.length&&citys.length)">-->
-                            <!--</a>-->
-                            <!--<a class="showNum" v-show="area.cityDtos.length&&citys.length">-->
-                                <!--(<span v-model="citys">{{citys.length}}</span>-->
-                                <!--<span>/</span>-->
-                                <!--<span>{{area.cityDtos.length}}</span>)-->
-                            <!--</a>-->
-                            <a @click="showCity(area.code)" class="tri" v-show="area.cityDtos.length">▼</a>
+                                <a class="showNum1" v-show="!(provinces[area.code] && provinces[area.code].length)">
+                                </a>
+                                <a class="showNum" v-show="provinces[area.code] && provinces[area.code].length">
+                                    (<span>{{provinces[area.code] && provinces[area.code].length}}</span>
+                                    <span>/</span>
+                                    <span>{{area.cityDtos.length}}</span>)
+                                </a>
+                            <a @click="showCity(area.code)" class="tri">▼</a>
                         </template>
                     </el-checkbox-group>
                 </el-form-item>
@@ -22,8 +22,8 @@
             <div class="city" v-show="isSelected" @click="hideCity">
                 <el-form>
                     <el-form-item>
-                        <el-checkbox-group v-model="citys" @change="selectCity">
-                            <template v-for="city in cityList" class="city1">
+                        <el-checkbox-group v-model="citys" @change="selectCity" class="city1">
+                            <template v-for="city in cityList" >
                                 <el-checkbox :label="city.code">{{city.areaName}}</el-checkbox>
                             </template>
                         </el-checkbox-group>
@@ -82,6 +82,7 @@
                         self.cityList = self.areaList[i].cityDtos;
                     }
                 }
+                self.citys = self.provinces[val] || []
             },
             hideCity(){
                 let self = this;
@@ -92,6 +93,7 @@
             selectProvince(val) {
                 let self = this;
                 let temp;
+                self.areaCode = event.target._value
                 self.provinceList = val;
                 for (let i = 0, len = self.areaList.length; i < len; i++) {
                     if (self.provinceList[val.length - 1] == self.areaList[i].code) {
@@ -114,17 +116,17 @@
             },
             selectCity(val){
                 let self = this;
-                let newCity = [];
-                self.checkCity = val;
-                for(let i = 0;i<val.length;i++){
-                    let newC = val[i].substr(0,2);
-                    newCity.push(newC);
-                }
-                let index = newCity.indexOf(newCity[newCity.length-1]);
-                val = val.slice(index);
+                self.citys = val
                 Object.assign(self.provinces,{
                     [self.areaCode]:val
                 });
+                if(!val.length || val.length != event.target.parentNode.parentNode.parentNode.childElementCount){
+                    if(self.provinceList.indexOf(self.areaCode)>-1){
+                        self.provinceList.splice(self.provinceList.indexOf(self.areaCode),1)
+                    }
+                }else {
+                    self.provinceList.push(self.areaCode)
+                }
             },
             closePop(){
                 self.isSelected = false;
@@ -135,6 +137,7 @@
             },
             confirm() {
                 let self = this;
+                self.form.provinces = [];
                 if(JSON.stringify(self.form.provinces) == "{}"){
                     alert('请至少选择一个省！！！');
                 }
@@ -161,7 +164,6 @@
                         }
                     }
                 }
-                console.log(self.form.provinces);
                 self.$emit('confirm', self.form);
             },
             cancel() {
@@ -180,7 +182,19 @@
     @media screen and (max-width: 2000px) {
         .el-dialog {
             position: relative;
-            width: 800px;
+            width: 950px;
+        }
+        .el-checkbox {
+            width: 100px;
+        }
+    }
+    @media screen and (min-width: 2000px) {
+        .el-dialog {
+            position: relative;
+            width: 1000px;
+        }
+        .el-checkbox {
+            width: 100px;
         }
     }
     .province{
@@ -189,22 +203,17 @@
     .provinceSelect::after {
         content: '';
     }
-    .el-checkbox {
-        width: 130px;
-        margin-right: 5px;
-        color: #666;
-    }
     .showNum,.showNum1{
         display: inline-block;
         width: 50px;
-        margin-left: 5px;
+        margin-left: 32px;
         color: #aaa;
         font-size:10px;
     }
     .tri {
         color: #aaa;
         font-size:6px;
-        margin-right: 32px;
+        margin-right: 20px;
     }
     .city{
         position: absolute;
@@ -215,11 +224,17 @@
         top:0;
         background-color:rgba(0,0,0,0.2);
     }
+    .city1 .el-checkbox{
+        width: 22%;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        overflow:hidden;
+    }
     .city .el-form{
         position: absolute;
         width:60%;
         max-height:60%;
-        padding:10px;
+        padding:5px;
         left:0;
         right:0;
         top:0;

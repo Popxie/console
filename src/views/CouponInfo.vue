@@ -135,10 +135,13 @@
                             <div v-show="scope.row.areaType == 0">
                                 全域
                             </div>
-                            <div v-show="!(scope.row.areaType == 0)">
-                                <div class="citys">
-                                    {{scope.row.cityName}}
-                                            </div>
+                            <div v-show="!(scope.row.areaType == 0)" class="citys">
+                                <el-tooltip placement="top">
+                                    <div slot="content">
+                                        <div style="width: 200px;font-size: 13px;">{{scope.row.cityName}}</div>
+                                    </div>
+                                    <span>{{scope.row.cityName}}</span>
+                                </el-tooltip>
                             </div>
                         </template>
                     </el-table-column>
@@ -354,8 +357,8 @@
         height: 100%;
     }
     .citys{
-        height:60px;
-        overflow: scroll;
+        height:25px;
+        overflow: hidden;
     }
     .btn-m {
         margin-bottom: 10px;

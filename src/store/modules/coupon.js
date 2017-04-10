@@ -115,7 +115,6 @@ const mutations = {
         state.couponMap = data.couponMap;
     },
     [types.UPDATE_CONPON_SUCCESS] (state, id) {
-        console.log(id);
         let a = state.couponList.find(a => a.id === id);
         switch (Number(a.status)) {
             case 1:
@@ -132,7 +131,6 @@ const mutations = {
     },
     [types.CHECKOUT_AREAS_SUCCESS] (state, data) {
         state.areaList = data;
-        console.log(data);
     }
 };
 export default {
