@@ -7,13 +7,13 @@
                         <template v-for="area in areaList" class="province">
                             <el-checkbox :label="area.code" class="provinceSelect">{{area.areaName}}
                             </el-checkbox>
-                            <a class="showNum1" v-show="!(area.cityDtos.length&&citys.length)">
-                            </a>
-                            <a class="showNum" v-show="area.cityDtos.length&&citys.length">
-                                (<span v-model="citys">{{citys.length}}</span>
-                                <span>/</span>
-                                <span>{{area.cityDtos.length}}</span>)
-                            </a>
+                            <!--<a class="showNum1" v-show="!(area.cityDtos.length&&citys.length)">-->
+                            <!--</a>-->
+                            <!--<a class="showNum" v-show="area.cityDtos.length&&citys.length">-->
+                                <!--(<span v-model="citys">{{citys.length}}</span>-->
+                                <!--<span>/</span>-->
+                                <!--<span>{{area.cityDtos.length}}</span>)-->
+                            <!--</a>-->
                             <a @click="showCity(area.code)" class="tri" v-show="area.cityDtos.length">▼</a>
                         </template>
                     </el-checkbox-group>
@@ -161,7 +161,6 @@
                         }
                     }
                 }
-                console.log(self.areaList);
                 console.log(self.form.provinces);
                 self.$emit('confirm', self.form);
             },
@@ -219,7 +218,7 @@
     .city .el-form{
         position: absolute;
         width:60%;
-        max-height:50%;
+        max-height:60%;
         padding:10px;
         left:0;
         right:0;

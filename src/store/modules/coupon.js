@@ -132,6 +132,7 @@ const mutations = {
     },
     [types.CHECKOUT_AREAS_SUCCESS] (state, data) {
         state.areaList = data;
+        console.log(data);
     }
 };
 export default {

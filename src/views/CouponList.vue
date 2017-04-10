@@ -59,8 +59,14 @@
                                     label="有效地域"
                                     width="150">
                                     <template scope="scope">
-                                        {{scope.row.areaType == 0 ? '全域' : scope.row.provinceName + '-' + scope.row.cityName + '-' + scope.row.areaName}}
-
+                                        <div v-show="scope.row.areaType == 0">
+                                            全域
+                                        </div>
+                                        <div v-show="!(scope.row.areaType == 0)" class="showcitys">
+                                            <div class="citys">
+                                                {{scope.row.cityName}}
+                                            </div>
+                                        </div>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -206,6 +212,7 @@
                     value: '3'
                 }],
                 query: {},
+                isShowCitys:false,
                 operationType: '',
                 showConfirm: false,
                 message: '',
@@ -232,6 +239,9 @@
                 'updateConponStatusById',
                 'deleteConponById'
             ]),
+            showCitys(){
+              this.isShowCitys = ! this.isShowCitys;
+            },
             cancel() {
                 this.showConfirm = false;
             },
@@ -340,7 +350,10 @@
         background-color: #fff;
         height: 100%;
     }
-
+    .citys{
+        height:60px;
+        overflow: scroll;
+    }
     .btn-m {
         margin-bottom: 10px;
         margin-left: 10px !important;
