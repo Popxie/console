@@ -107,6 +107,7 @@ const actions = {
 const mutations = {
     [types.CHECKOUT_CONPON_SUCCESS] (state, data) {
         state.couponList = data.content;
+        console.log(data.content);
         state.recordsTotal = data.recordsTotal;
     },
     [types.CHECKOUT_CONPONINFO_SUCCESS] (state, data) {

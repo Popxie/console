@@ -347,6 +347,11 @@
         }
     }
 </script>
+<style>
+    .cell {
+        visibility: visible !important;
+    }
+</style>
 <style scoped>
     .container {
         padding-top: 10px;

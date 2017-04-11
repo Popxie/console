@@ -56,7 +56,7 @@ export const _get = function ({url, query}, commit) {
             }
             if(res.status == 203) {
                 sessionStorage.removeItem('userInfo');
-                return null
+                return Promise.reject('登陆已失效！');
             }
             return Promise.reject(new Error(res.status))
         }, (res) => {
@@ -90,7 +90,7 @@ export const _post = function ({url, query}, params, commit) {
             }
             if(res.status == 203) {
                 sessionStorage.removeItem('userInfo');
-                return null
+                return Promise.reject('登陆已失效！');
             }
             return Promise.reject(new Error(res.status));
         }, (res) => {
