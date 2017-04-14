@@ -12,6 +12,7 @@
                 <el-menu-item index="createCoupon">创建优惠券</el-menu-item>
                 <el-menu-item index="couponList">优惠券列表</el-menu-item>
             </el-submenu>
+            <el-menu-item index="test"><i class="icon fa fa-tachometer"></i>测试</el-menu-item>
         </el-menu>
     </div>
 </template>
