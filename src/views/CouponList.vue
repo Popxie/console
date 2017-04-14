@@ -242,6 +242,16 @@
                 'updateConponStatusById',
                 'deleteConponById'
             ]),
+            getCoupons(params) {
+                this.getConponList(params).then(()=> {
+                },(()=> {
+                    this.$notify({
+                        title: '登陆已失效',
+                        message: err,
+                        type: 'error'
+                    })
+                }))
+            },
             showCitys(){
               this.isShowCitys = ! this.isShowCitys;
             },
@@ -252,7 +262,7 @@
                 let self = this;
                 self.page.currentPage = 1;
                 self.page.pageSize = 10;
-                self.getConponList(self.page);
+                self.getCoupons(self.page);
             },
             routeToEdit(index, row) {
                 let self = this;
@@ -329,21 +339,21 @@
             handleSizeChange(val) {
                 let self = this;
                 self.page.pageSize = val;
-                self.getConponList(self.page);
+                self.getCoupons(self.page);
             },
             handleCurrentChange(val) {
                 let self = this;
                 self.page.currentPage = val;
-                self.getConponList(self.page);
+                self.getCoupons(self.page);
             },
             getConponL(){
             	let self = this;
-                self.getConponList(self.page);
+                self.getCoupons(self.page);
             }
         },
         mounted() {
             let self = this;
-            self.getConponList(self.page);
+            self.getCoupons(self.page);
         }
     }
 </script>

@@ -143,21 +143,31 @@
                 'updateAdvertStatusById',
                 'deleteAdvertById'
             ]),
+            getAds(params) {
+                this.getAdsList(params).then(()=> {
+                },(()=> {
+                    this.$notify({
+                        title: '登陆已失效',
+                        message: err,
+                        type: 'error'
+                    })
+                }))
+            },
             handleSizeChange(val) {
                 let self = this;
                 self.page.pageSize = val;
-                self.getAdsList(self.page);
+                self.getAds(self.page);
             },
             handleCurrentChange(val) {
                 let self = this;
                 self.page.currentPage = val;
-                self.getAdsList(self.page);
+                self.getAds(self.page);
             },
             searchByTopic() {
                 let self = this;
                 self.page.currentPage = 1;
                 self.page.pageSize = 10;
-                self.getAdsList(self.page);
+                self.getAds(self.page);
             },
             routeToEdit(index, row) {
                 let self = this;
@@ -239,7 +249,7 @@
         },
         created() {
             let self = this;
-            self.getAdsList(self.page);
+            self.getAds(self.page);
         }
     }
 </script>
