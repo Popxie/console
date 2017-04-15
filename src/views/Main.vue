@@ -160,7 +160,7 @@
         components: {
             NavBar
         },
-        beforeCreated() {
+        created() {
             var self = this;
             self.checkLogin();
         }
