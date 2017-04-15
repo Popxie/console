@@ -243,7 +243,7 @@
             ...mapActions([
                 'getConponInfo'
             ]),
-            getConpons(parsms) {
+            getConpons(params) {
                 this.getConponInfo(params).then(()=> {
                 },((err)=> {
                     this.$notify({
