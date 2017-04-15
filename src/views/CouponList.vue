@@ -244,12 +244,12 @@
             ]),
             getCoupons(params) {
                 this.getConponList(params).then(()=> {
-                },(()=> {
+                },((err)=> {
                     this.$notify({
                         title: '登陆已失效',
                         message: err,
                         type: 'error'
-                    })
+                    });
                 }))
             },
             showCitys(){
