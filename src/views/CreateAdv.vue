@@ -237,7 +237,7 @@
                     ],
                     adsContext: [
                         {required: true, message: '请填写正文', trigger: 'blur'},
-                        {max: 40, message: '字数不能超过40个字符', trigger: 'blur'}
+                        {max: 100000, message: '字数不能超过100000个字符', trigger: 'blur'}
                     ],
                     adsTitle: [
                         {required: true, message: '请填标题', trigger: 'blur'}

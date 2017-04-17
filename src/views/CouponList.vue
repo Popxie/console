@@ -169,7 +169,6 @@
                                             size="small"
                                             type="danger"
                                             @click="handleEdit(scope.$index, scope.row, 'delete')">删除
-
                                         </el-button>
                                     </template>
                                 </el-table-column>
