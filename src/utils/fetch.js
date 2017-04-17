@@ -11,7 +11,7 @@ Vue.use(VueResource);
  */
 Vue.http.interceptors.push(function (request, next) {
 
-    let user = JSON.parse(sessionStorage.getItem('userInfo'));
+    let user = JSON.parse(localStorage.getItem('userInfo'));
     if (user && user.token) {
         // modify headers
         request.headers.set('token', user.token);
@@ -55,7 +55,7 @@ export const _get = function ({url, query}, commit) {
                 return res.data
             }
             if(res.status == 203) {
-                sessionStorage.removeItem('userInfo');
+                localStorage.removeItem('userInfo');
                 return Promise.reject('登陆已失效！');
             }
             return Promise.reject(new Error(res.status))
@@ -89,7 +89,7 @@ export const _post = function ({url, query}, params, commit) {
                 return res.data;
             }
             if(res.status == 203) {
-                sessionStorage.removeItem('userInfo');
+                localStorage.removeItem('userInfo');
                 return Promise.reject('登陆已失效！');
             }
             return Promise.reject(new Error(res.status));

@@ -145,7 +145,7 @@
             ]),
             getAds(params) {
                 this.getAdsList(params).then(()=> {
-                },(()=> {
+                },((err)=> {
                     this.$notify({
                         title: '登陆已失效',
                         message: err,

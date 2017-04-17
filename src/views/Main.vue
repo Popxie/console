@@ -79,8 +79,7 @@
                 modifyPwd: {
                     newPwd: '',
                     oldPwd: '',
-                    checkPass:'',
-                    username:JSON.parse(sessionStorage.getItem('userInfo')).username
+                    checkPass:''
                 },
                 rules2: {
                     newPwd: [
@@ -141,7 +140,7 @@
             },
             checkLogin() {
                 var self = this;
-                var userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+                var userInfo = JSON.parse(localStorage.getItem('userInfo'));
                 if (!userInfo) {
                     self.$router.push('/login');
                 }
@@ -164,7 +163,6 @@
         created() {
             var self = this;
             self.checkLogin();
-
         }
     }
 </script>

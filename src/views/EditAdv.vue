@@ -308,7 +308,7 @@
                     },
                     (err) => self.$notify({
                         title: '错误',
-                        message: '错误',
+                        message: err ||'错误',
                         type: 'error'
                     })
                 );

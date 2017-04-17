@@ -1,44 +1,38 @@
 <template>
     <div>
-        <el-button @click="sendGet('get')">GET</el-button>
-        <el-button type="primary">GET用时{{getTime || '0'}}</el-button>
-        <el-button @click="sendGet('post')">POST</el-button>
-        <el-button type="primary">POST用时{{postTime || '0'}}</el-button>
-
+        <el-row>
+            <el-col :span="2">
+                <ExportExcel :btnType="primary" :excelData="excelData" :excelName="name"/>
+            </el-col>
+            <el-col :span="2">
+                <el-button @click="getData">获取数据</el-button>
+            </el-col>
+        </el-row>
     </div>
 
 </template>
 <script>
+    import ExportExcel from '../components/ExportExcel.vue';
     export default{
+        components: {
+            ExportExcel
+        },
         data() {
-        	return {
-                getTime: '',
-                postTime: ''
+            return {
+                primary: 'primary',
+                excelData: [],
+                name: 'console.xlsx'
             }
         },
         methods: {
-            sendGet(method) {
-                let self = this,
-                    beginTime = new Date().getTime(),
-                    endTime = '';
-                if (method == 'get') {
-                    self.$http.get('/config/getAvert.html').then((res) => {
-                        endTime = new Date().getTime();
-                        self.getTime = endTime - beginTime;
-                        console.log(endTime - beginTime);
-                    }, (err) => {
-
-                    })
-                } else {
-                    self.$http.post('/config/android', {}).then((res) => {
-                        endTime = new Date().getTime();
-                        self.postTime = endTime - beginTime;
-                        console.log(endTime - beginTime);
-                    }, (err) => {
-
-                    })
-                }
-
+            getData() {
+                this.$loading({ fullscreen: true });
+                this.$http.get('https://activity.mingbikes.com/api/vcp/getVirtualCarPileInfo?startTime=2017-04-12%2000:00:00&endTime=2017-04-12%2001:30:00')
+                    .then((res) => {
+                	    this.$loading().close();
+                        let data = res.data.data;
+                        this.excelData = data.bikeCarPileD
+                    });
             }
         }
     }

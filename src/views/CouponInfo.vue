@@ -243,6 +243,16 @@
             ...mapActions([
                 'getConponInfo'
             ]),
+            getConpons(params) {
+                this.getConponInfo(params).then(()=> {
+                },((err)=> {
+                    this.$notify({
+                        title: '登陆已失效',
+                        message: err,
+                        type: 'error'
+                    })
+                }))
+            },
             outToExcel() {
             	let self = this;
             	if(!self.execlInfo.start && self.execlInfo.start!=0) {
@@ -275,12 +285,12 @@
             handleSizeChange(val) {
                 let self = this;
                 self.page.pageSize = val;
-                self.getConponInfo(self.page);
+                self.getConpons(self.page);
             },
             handleCurrentChange(val) {
                 let self = this;
                 self.page.currentPage = val;
-                self.getConponInfo(self.page);
+                self.getConpons(self.page);
             },
             isNewuserUseFilter(row, column) {
                 let isNewuserUse = ['否', '是'];
@@ -343,7 +353,7 @@
 
         },
         created() {
-            this.getConponInfo(this.page);
+            this.getConpons(this.page);
         }
     }
 </script>
