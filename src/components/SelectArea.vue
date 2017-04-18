@@ -1,169 +1,250 @@
 <template>
     <div>
-        <el-dialog title="选择地区" v-model="show" size="small" :close-on-click-modal="false" :show-close="false"
-                   :close-on-press-escape="false">
-            <el-checkbox-group v-model="provinceList">
-                <div style="display: flex;flex-direction: row; flex-wrap: wrap;width: 100%">
-                    <template v-for="(area, index) in areas">
-                        <div class="area-col">
-                            <el-checkbox :label="area.name">
-                                {{area.name}}{{returnSelectProvince()}}({{area.city.length}})
+        <el-dialog title="选择地区" v-model="show" size="tiny" :close-on-click-modal="false" :show-close="false" :close-on-press-escape="false">
+            <el-form label-position="right">
+                <el-form-item>
+                    <el-checkbox-group v-model="provinceList" @change="selectProvince">
+                        <template v-for="area in areaList" class="province">
+                            <el-checkbox :label="area.code" class="provinceSelect">{{area.areaName}}
                             </el-checkbox>
-                            <i class="el-icon-edit" @click="selectCity(area.city,area.name)"></i>
-                        </div>
-                    </template>
-                </div>
-            </el-checkbox-group>
+                                <a class="showNum1" v-show="!(provinces[area.code] && provinces[area.code].length)">
+                                </a>
+                                <a class="showNum" v-show="provinces[area.code] && provinces[area.code].length">
+                                    (<span>{{provinces[area.code] && provinces[area.code].length}}</span>
+                                    <span>/</span>
+                                    <span>{{area.cityDtos.length}}</span>)
+                                </a>
+                            <a @click="showCity(area.code)" class="tri">▼</a>
+                        </template>
+                    </el-checkbox-group>
+                </el-form-item>
+            </el-form>
+            <div class="city" v-show="isSelected" @click="hideCity">
+                <el-form>
+                    <el-form-item>
+                        <el-checkbox-group v-model="citys" @change="selectCity" class="city1">
+                            <template v-for="city in cityList" >
+                                <el-checkbox :label="city.code">{{city.areaName}}</el-checkbox>
+                            </template>
+                        </el-checkbox-group>
+                    </el-form-item>
+                </el-form>
+            </div>
             <span slot="footer" class="dialog-footer">
-            <el-button @click="cancel">取 消</el-button>
-            <el-button type="info" @click="Confirm">确 定</el-button>
-        </span>
-        </el-dialog>
-        <el-dialog title="选择城市" v-model="showCity" size="tiny">
-            <el-checkbox-group v-model="cityList">
-                <div style="display: flex;flex-direction: row; flex-wrap: wrap;width: 100%">
-                    <template v-for="(city, index) in citys">
-                        <div class="area-col">
-                            <el-checkbox :label="city.name">{{returnSubStr(city.name,3)}}({{city.area.length}})
-                            </el-checkbox>
-                            <i class="el-icon-edit" @click="selectDistricts(city.area,city.name)"></i>
-                        </div>
-                    </template>
-                </div>
-            </el-checkbox-group>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="showCity = false">取 消</el-button>
-                <el-button type="primary" @click="showCity = false">确 定</el-button>
-            </span>
-        </el-dialog>
-        <el-dialog title="选择地区" v-model="showDistricts" size="tiny">
-            <el-checkbox-group v-model="districtsList">
-                <div style="display: flex;flex-direction: row; flex-wrap: wrap;width: 100%">
-                    <template v-for="(district, index) in districts">
-                        <div class="area-col">
-                            <el-checkbox :label="district.name">{{district}}
-                            </el-checkbox>
-                        </div>
-                    </template>
-                </div>
-            </el-checkbox-group>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="showDistricts = false">取 消</el-button>
-                <el-button type="primary" @click="showDistricts = false">确 定</el-button>
+                <el-button @click="cancel">取 消</el-button>
+                <el-button type="info" @click="confirm">确 定</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
-    import {Areas} from '../config/Areas';
+    import {mapGetters, mapActions} from 'vuex';
     export default{
-        data() {
-            return {
-                // 所有城市数据
-                areas: Areas,
-                citys: [],
-                districts: [],
-                showCity: false,
-                showDistricts: false,
-                provinceList: [],
-                cityList: [],
-                districtsList: [],
-                selectAreas: [],
-                aList: [],
-                provinces: [],
-                cityName: ''
-            }
-        },
         props: {
             selectArea: {
                 type: Boolean,
                 required: true
-            },
-            areaList: {
-                type: Array,
-                default: () => {
-                    return [];
-                }
             }
         },
-        watch: {
-            'provinceList': function (val) {
-                let self = this;
-                self.provinces = [];
-                for (let i = 0, len = val.length; i < len; i++) {
-                    let obj = {
-                        name: val[i],
-                        city: []
-                    }
-                    self.provinces.push(obj);
+        data() {
+            return {
+                provinceList: [],
+                checkCity:[],
+                cityCode:[],
+                citys: [],
+                cityList: [],
+                areaCode:'',
+                isSelected: false,
+                provinces:{},
+                form:{
+                    provinces:[]
                 }
-                self.areas.map(function (a) {
-                });
-                console.log(self.provinces);
-            },
-            'cityList': function (val) {
-//                let self = this,
-//                    items = [];
-//                self.areas.map((s)=> {
-//                    if(s.name == self.provinceName) {
-//                        items = s.city.filter((c)=> {
-//                            return val.indexOf(c.name) >=0
-//                        });
-//                    }
-//                });
-//                self.selectAreas.map((s)=> {
-//                	if(s.name == self.provinceName) {
-//                        s.city = items;
-//                    }
-//                });
-//                console.log(items);
-//                console.log(self.cityList);
-//                console.log(self.selectAreas);
             }
         },
         computed: {
             show(){
                 return this.selectArea;
-            }
+            },
+            ...mapGetters({
+                areaList: 'getAreaList'
+            })
         },
         methods: {
-            returnSubStr(val, len) {
-                if (val.length < len) {
-                    return val;
+            ...mapActions([
+                'getArea'
+            ]),
+            showCity(val){
+                let self = this;
+                self.isSelected = true;
+                self.areaCode = val;
+                for (let i = 0, len = self.areaList.length; i < len; i++) {
+                    if (val == self.areaList[i].code) {
+                        self.cityList = self.areaList[i].cityDtos;
+                    }
                 }
-                return val.substring(0, len) + '...';
+                self.citys = self.provinces[val] || []
+            },
+            hideCity(){
+                let self = this;
+                if(event.target.className === 'city'){
+                    self.isSelected = false;
+                }
+            },
+            selectProvince(val) {
+                let self = this;
+                let temp;
+                self.areaCode = event.target._value
+                self.provinceList = val;
+                for (let i = 0, len = self.areaList.length; i < len; i++) {
+                    if (self.provinceList[val.length - 1] == self.areaList[i].code) {
+                        self.cityList = self.areaList[i].cityDtos;
+                        self.citys = self.cityList.map(({code})=>(code))
+                        temp = self.cityList.map(({code})=>(code))
+                    }
+                }
+                if(event.target.checked){
+                    let index = self.provinceList[val.length -1]
+                    Object.assign(self.provinces,{
+                        [index]:temp
+                    })
+                    self.checkCity=self.cityList;
+                }else{
+                    delete self.provinces[event.target._value]
+                    self.citys=[]
+                    self.checkCity=[];
+                }
+            },
+            selectCity(val){
+                let self = this;
+                self.citys = val
+                Object.assign(self.provinces,{
+                    [self.areaCode]:val
+                });
+                if(!val.length || val.length != event.target.parentNode.parentNode.parentNode.childElementCount){
+                    if(self.provinceList.indexOf(self.areaCode)>-1){
+                        self.provinceList.splice(self.provinceList.indexOf(self.areaCode),1)
+                    }
+                }else {
+                    self.provinceList.push(self.areaCode)
+                }
+            },
+            closePop(){
+                self.isSelected = false;
+            },
+            getAreaL(){
+                let self = this;
+                self.getArea({type: "city"});
             },
             confirm() {
-                this.$emit('Confirm');
+                let self = this;
+                self.form.provinces = [];
+                if(JSON.stringify(self.form.provinces) == "{}"){
+                    alert('请至少选择一个省！！！');
+                }
+                for(let key in self.areaList){
+
+                    for(let i in self.provinces ){
+
+                        if(i == self.areaList[key].code){
+
+                            for(let j = 0;j<self.provinces[i].length;j++){
+
+                                for(let k = 0; k<self.areaList[key].cityDtos.length;k++){
+
+                                    if(self.provinces[i][j] == self.areaList[key].cityDtos[k].code){
+                                        self.form.provinces.push({
+                                            provinceCode:self.areaList[key].code,
+                                            cityCode:self.provinces[i][j],
+                                            provinceName:self.areaList[key].areaName,
+                                            cityName:self.areaList[key].cityDtos[k].areaName
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                self.$emit('confirm', self.form);
             },
             cancel() {
-                this.$emit('cancel');
-            },
-            cancelSelect() {
-
-            },
-            selectCity(citys, name) {
                 let self = this;
-                if (self.provinceList.indexOf(name) < 0) {
-                    return;
-                }
-                self.citys = citys;
-                self.provinceName = name;
-                self.showCity = true;
-            },
-            selectDistricts (districts, name) {
-                let self = this;
-                if (self.cityList.indexOf(name) < 0) {
-                    return;
-                }
-                self.districts = districts;
-                self.showDistricts = true;
-            },
-            returnSelectProvince() {
-
+                self.$emit('cancel');
+                self.provinces= [];
             }
+        },
+        mounted() {
+            let self = this;
+            self.getArea({type: "city"});
         }
     }
 </script>
-<style scoped>
+<style>
+    @media screen and (max-width: 2000px) {
+        .el-dialog {
+            position: relative;
+            width: 950px;
+        }
+        .el-checkbox {
+            width: 100px;
+        }
+    }
+    @media screen and (min-width: 2000px) {
+        .el-dialog {
+            position: relative;
+            width: 1000px;
+        }
+        .el-checkbox {
+            width: 100px;
+        }
+    }
+    .province{
+        width: 200px;
+    }
+    .provinceSelect::after {
+        content: '';
+    }
+    .showNum,.showNum1{
+        display: inline-block;
+        width: 50px;
+        margin-left: 32px;
+        color: #aaa;
+        font-size:10px;
+    }
+    .tri {
+        color: #aaa;
+        font-size:6px;
+        margin-right: 20px;
+    }
+    .city{
+        position: absolute;
+        z-index:3;
+        width: 100%;
+        height:100%;
+        left:0;
+        top:0;
+        background-color:rgba(0,0,0,0.2);
+    }
+    .city1 .el-checkbox{
+        width: 22%;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        overflow:hidden;
+    }
+    .city .el-form{
+        position: absolute;
+        width:60%;
+        max-height:60%;
+        padding:5px;
+        left:0;
+        right:0;
+        top:0;
+        bottom:0;
+        margin:auto;
+        border:1px solid #999;
+        background: #fff;
+        z-index:2;
+    }
+    .city .el-checkbox:first-child{
+        margin-left: 15px;
+    }
 </style>
