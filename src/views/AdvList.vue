@@ -31,14 +31,18 @@
                 <el-table-column
                     prop="viewPosition"
                     label="广告位置"
-                    width="110"
+                    width="130"
                     :formatter="viewPositionFilter"
+                    :filters="[{text: '开屏页',value:1},{text:'首页弹框',value:2},{text:'骑行结束页',value:3},{text:'首页顶部链',value:4},{text:'升级提示框',value:5}]"
+                    filter-placement="bottom-end"
+                    :filter-method="filterPosition"
                 >
                 </el-table-column>
                 <el-table-column
                     prop="beginTime"
                     label="广告发布时间段"
                     :formatter="beginTimeFilter"
+                    sortable
                 >
                 </el-table-column>
                 <el-table-column
@@ -46,6 +50,9 @@
                     label="投放平台"
                     width="180"
                     :formatter="putPositionFilter"
+                    :filters="[{text: 'iOS & Android',value:1},{text:'iOS',value:2},{text:'Android',value:3}]"
+                    filter-placement="bottom-end"
+                    :filter-method="filterPutPosition"
                 >
                 </el-table-column>
                 <!--<el-table-column-->
@@ -66,8 +73,11 @@
                 <el-table-column
                     prop="status"
                     label="状态"
-                    width="180"
+                    width="160"
                     :formatter="statusFilter"
+                    :filters="[{text: '已上线',value:1},{text:'未上线',value:2},{text:'已下线',value:3}]"
+                    filter-placement="bottom-end"
+                    :filter-method="filterStatus"
                 >
                 </el-table-column>
                 <el-table-column
@@ -143,6 +153,15 @@
                 'updateAdvertStatusById',
                 'deleteAdvertById'
             ]),
+            filterStatus(value, row) {
+                return row.status === value;
+            },
+            filterPutPosition(value, row) {
+                return row.putPosition === value;
+            },
+            filterPosition(value, row) {
+                return row.viewPosition === value;
+            },
             getAds(params) {
                 this.getAdsList(params).then(()=> {
                 },((err)=> {
