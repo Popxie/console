@@ -19,16 +19,16 @@
                             <el-option label="仅Android" :value="3"></el-option>
                         </el-select>
                     </el-form-item>
-                    <template v-if="form.viewPosition != 5">
-                        <el-form-item label="设置投放地域：" prop="areaType">
-                            <el-radio-group v-model="form.areaType" @change="selectArea">
-                                <el-radio :label="0">全域</el-radio>
-                                <el-radio :label="1">选择地域</el-radio>
-                            </el-radio-group>
-                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
-                                {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
+                    <el-form-item label="设置投放地域：" prop="areaType">
+                        <el-radio-group v-model="form.areaType" @change="selectArea">
+                            <el-radio :label="0">全域</el-radio>
+                            <el-radio :label="1">选择地域</el-radio>
+                        </el-radio-group>
+                        <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
+                            {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
                             </el-button>
-                        </el-form-item>
+                    </el-form-item>
+                    <template v-if="form.viewPosition != 5">
                         <el-form-item label="设置投放时间段：" prop="startTime">
                             <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
                                             v-model="form.startTime" @change="timeChange"
