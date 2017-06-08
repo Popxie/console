@@ -33,125 +33,127 @@
                                 </span>
                             </div>
                         </el-form-item>
-                        <el-form-item label="设置投放时间段：" prop="startTime">
-                            <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
-                                            v-model="form.startTime" @change="timeChange"
-                                            style="width: 100%;"></el-date-picker>
-                        </el-form-item>
-                    </template>
-                    <!--上传图片-->
-                    <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
-                        <el-form-item label="广告图片：" prop="adsPicUrl">
-                            <el-upload
-                                :action="url"
-                                list-type="picture-card"
-                                :on-preview="handlePictureCardPreview"
-                                :on-remove="handleRemove"
-                                :on-success="handleSuccess"
-                                :before-upload="beforeUpload">
-                                <i class="el-icon-plus"></i>
-                            </el-upload>
-                            <el-dialog v-model="dialogImg" size="tiny">
-                                <img width="100%" :src="dialogImageUrl" alt="">
-                            </el-dialog>
-                        </el-form-item>
-                    </template>
-                    <!--首屏页-->
-                    <template v-if="form.viewPosition == 1">
-                        <div class="tip">尺寸要求：1242*2208</div>
-                    </template>
-                    <!--首页弹框-->
-                    <template v-if="form.viewPosition == 2">
-                        <div class="tip">尺寸要求：660*880</div>
-                        <el-form-item label="展现设置：" prop="viewSet">
-                            <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
-                                <el-option label="关闭后当天不展现" :value="1"></el-option>
-                                <el-option label="关闭后不再展现" :value="2"></el-option>
-                                <el-option label="每次都展现" :value="3"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="轮播顺序设置：" prop="playOrder">
-                            <el-select style="width: 100%;" v-model="form.playOrder" placeholder="请选择">
-                                <el-option label="1" :value="1"></el-option>
-                                <el-option label="2" :value="2"></el-option>
-                                <el-option label="3" :value="3"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
-                        </el-form-item>
-                    </template>
-                    <!--骑行结束页-->
-                    <template v-if="form.viewPosition == 3">
-                        <div class="tip">尺寸要求：690*160</div>
-                        <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
-                        </el-form-item>
-                    </template>
-                    <!--首页顶部文字链-->
-                    <template v-if="form.viewPosition == 4">
-                        <el-form-item label="广告文案：" prop="adsContext">
-                            <el-input type="textarea" v-model="form.adsContext"></el-input>
-                        </el-form-item>
-                        <el-form-item label="展现设置：" prop="viewSet">
-                            <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
-                                <el-option label="关闭后当天不展现" :value="1"></el-option>
-                                <el-option label="关闭后不再展现" :value="2"></el-option>
-                                <el-option label="每次都展现" :value="3"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="轮播顺序设置：" prop="playOrder">
-                            <el-select style="width: 100%;" v-model="form.playOrder" placeholder="请选择">
-                                <el-option label="1" :value="1"></el-option>
-                                <el-option label="2" :value="2"></el-option>
-                                <el-option label="3" :value="3"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
-                        </el-form-item>
-                    </template>
-                    <!--升级提示框-->
-                    <template v-if="form.viewPosition == 5">
-                        <el-form-item label="升级提示标题：" prop="adsTitle">
-                            <el-input v-model="form.adsTitle"></el-input>
-                        </el-form-item>
-                        <el-form-item label="升级提示正文：" prop="adsContext">
-                            <el-input type="textarea" v-model="form.adsContext"></el-input>
-                        </el-form-item>
-                        <el-form-item label="升级提示类型：" prop="upgradeType">
-                            <el-radio-group v-model="form.upgradeType">
-                                <el-radio :label="0">非强制</el-radio>
-                                <el-radio :label="1">强制</el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                        <el-form-item label="展现设置：" prop="viewSet">
-                            <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
-                                <el-option label="每次都展现" :value="3"></el-option>
-                                <el-option label="当前升级版本不再展现" :value="4"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <template v-if="form.putPosition == 1 || form.putPosition == 2">
-                            <el-form-item label="ios版本：" prop="iosVer">
-                                <el-input type="textarea" v-model="form.iosVer"></el-input>
-                            </el-form-item>
-                            <el-form-item label="ios下载地址：" prop="iosDownloadUrl">
-                                <el-input type="textarea" v-model="form.iosDownloadUrl"></el-input>
+                        <template v-if="form.viewPosition != 5">
+                            <el-form-item label="设置投放时间段：" prop="startTime">
+                                <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
+                                                v-model="form.startTime" @change="timeChange"
+                                                style="width: 100%;"></el-date-picker>
                             </el-form-item>
                         </template>
-                        <template v-if="form.putPosition == 1 || form.putPosition == 3">
-                            <el-form-item label="andriod版本：" prop="androidVer">
-                                <el-input type="textarea" v-model="form.androidVer"></el-input>
-                            </el-form-item>
-                            <el-form-item label="andriod下载地址：" prop="androidDownloadUrl">
-                                <el-input type="textarea" v-model="form.androidDownloadUrl"></el-input>
+                        <!--上传图片-->
+                        <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
+                            <el-form-item label="广告图片：" prop="adsPicUrl">
+                                <el-upload
+                                    :action="url"
+                                    list-type="picture-card"
+                                    :on-preview="handlePictureCardPreview"
+                                    :on-remove="handleRemove"
+                                    :on-success="handleSuccess"
+                                    :before-upload="beforeUpload">
+                                    <i class="el-icon-plus"></i>
+                                </el-upload>
+                                <el-dialog v-model="dialogImg" size="tiny">
+                                    <img width="100%" :src="dialogImageUrl" alt="">
+                                </el-dialog>
                             </el-form-item>
                         </template>
+                        <!--首屏页-->
+                        <template v-if="form.viewPosition == 1">
+                            <div class="tip">尺寸要求：1242*2208</div>
+                        </template>
+                        <!--首页弹框-->
+                        <template v-if="form.viewPosition == 2">
+                            <div class="tip">尺寸要求：660*880</div>
+                            <el-form-item label="展现设置：" prop="viewSet">
+                                <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
+                                    <el-option label="关闭后当天不展现" :value="1"></el-option>
+                                    <el-option label="关闭后不再展现" :value="2"></el-option>
+                                    <el-option label="每次都展现" :value="3"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="轮播顺序设置：" prop="playOrder">
+                                <el-select style="width: 100%;" v-model="form.playOrder" placeholder="请选择">
+                                    <el-option label="1" :value="1"></el-option>
+                                    <el-option label="2" :value="2"></el-option>
+                                    <el-option label="3" :value="3"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="详情页超链接：" prop="hyperlinks">
+                                <el-input v-model="form.hyperlinks"></el-input>
+                            </el-form-item>
+                        </template>
+                        <!--骑行结束页-->
+                        <template v-if="form.viewPosition == 3">
+                            <div class="tip">尺寸要求：690*160</div>
+                            <el-form-item label="详情页超链接：" prop="hyperlinks">
+                                <el-input v-model="form.hyperlinks"></el-input>
+                            </el-form-item>
+                        </template>
+                        <!--首页顶部文字链-->
+                        <template v-if="form.viewPosition == 4">
+                            <el-form-item label="广告文案：" prop="adsContext">
+                                <el-input type="textarea" v-model="form.adsContext"></el-input>
+                            </el-form-item>
+                            <el-form-item label="展现设置：" prop="viewSet">
+                                <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
+                                    <el-option label="关闭后当天不展现" :value="1"></el-option>
+                                    <el-option label="关闭后不再展现" :value="2"></el-option>
+                                    <el-option label="每次都展现" :value="3"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="轮播顺序设置：" prop="playOrder">
+                                <el-select style="width: 100%;" v-model="form.playOrder" placeholder="请选择">
+                                    <el-option label="1" :value="1"></el-option>
+                                    <el-option label="2" :value="2"></el-option>
+                                    <el-option label="3" :value="3"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="详情页超链接：" prop="hyperlinks">
+                                <el-input v-model="form.hyperlinks"></el-input>
+                            </el-form-item>
+                        </template>
+                        <!--升级提示框-->
+                        <template v-if="form.viewPosition == 5">
+                            <el-form-item label="升级提示标题：" prop="adsTitle">
+                                <el-input v-model="form.adsTitle"></el-input>
+                            </el-form-item>
+                            <el-form-item label="升级提示正文：" prop="adsContext">
+                                <el-input type="textarea" v-model="form.adsContext"></el-input>
+                            </el-form-item>
+                            <el-form-item label="升级提示类型：" prop="upgradeType">
+                                <el-radio-group v-model="form.upgradeType">
+                                    <el-radio :label="0">非强制</el-radio>
+                                    <el-radio :label="1">强制</el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+                            <el-form-item label="展现设置：" prop="viewSet">
+                                <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
+                                    <el-option label="每次都展现" :value="3"></el-option>
+                                    <el-option label="当前升级版本不再展现" :value="4"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <template v-if="form.putPosition == 1 || form.putPosition == 2">
+                                <el-form-item label="ios版本：" prop="iosVer">
+                                    <el-input type="textarea" v-model="form.iosVer"></el-input>
+                                </el-form-item>
+                                <el-form-item label="ios下载地址：" prop="iosDownloadUrl">
+                                    <el-input type="textarea" v-model="form.iosDownloadUrl"></el-input>
+                                </el-form-item>
+                            </template>
+                            <template v-if="form.putPosition == 1 || form.putPosition == 3">
+                                <el-form-item label="andriod版本：" prop="androidVer">
+                                    <el-input type="textarea" v-model="form.androidVer"></el-input>
+                                </el-form-item>
+                                <el-form-item label="andriod下载地址：" prop="androidDownloadUrl">
+                                    <el-input type="textarea" v-model="form.androidDownloadUrl"></el-input>
+                                </el-form-item>
+                            </template>
+                        </template>
+                        <el-form-item>
+                            <el-button type="info" @click="toggleNext">返回</el-button>
+                            <el-button type="info" @click="finishCreate('form')">完成</el-button>
+                        </el-form-item>
                     </template>
-                    <el-form-item>
-                        <el-button type="info" @click="toggleNext">返回</el-button>
-                        <el-button type="info" @click="finishCreate('form')">完成</el-button>
-                    </el-form-item>
                 </el-form>
             </el-col>
         </el-row>
@@ -270,7 +272,9 @@
                         {required: true, message: '请填写android下载地址', trigger: 'blur'},
                         {max: 255, message: 'android下载地址不能超过255字符', trigger: 'blur'}
                     ]
-                }
+                },
+                //图片尺寸合法
+                isImageSafe: true
             }
         },
         computed: {},
@@ -295,6 +299,14 @@
                 let self = this;
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
+                        if(!self.isImageSafe) {
+                            self.$notify({
+                                title: '提示',
+                                message: '请上传适宜的图片',
+                                type: 'info'
+                            });
+                            return;
+                        }
                         if (self.form.viewPosition != 5 && !self.form.startTime[0]) {
                             self.$notify({
                                 title: '提示',
@@ -304,7 +316,7 @@
                             return;
                         }
                         //若为全域
-                        if(!self.form.areaType) {
+                        if (!self.form.areaType) {
                             Cities.forEach((item) => {
                                 self.selectCityInfos.push({
                                     cityName: item,
@@ -437,15 +449,17 @@
                     let imgwidth = img.width;
                     let imgheight = img.height;
                     console.log(imgwidth);
+                    self.isImageSafe = true;
                     if (imgwidth != width || imgheight != height) {
+                        self.isImageSafe = false;
                         self.$notify({
                             title: '警告',
                             message: '图的尺寸应该是' + width + "*" + height,
                             type: 'warning'
-                        })
+                        });
                         return false;
                     }
-                }
+                };
                 return true;
             },
 
