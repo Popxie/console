@@ -26,7 +26,7 @@
                                 <el-radio :label="1">选择地域</el-radio>
                             </el-radio-group>
                             <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">编辑</el-button>
-                            <div v-if="selectCityInfos.length>0">
+                            <div v-if="form.areaType && selectCityInfos.length>0">
                                 <span v-for="area in selectCityInfos" v-if="selectCityInfos.length>0"
                                       class="choose-area">
                                         {{area.provinceName}}-{{area.cityName}}
