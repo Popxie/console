@@ -2,9 +2,7 @@
     <div class="container">
         <!--选择广告类型-->
         <TapSelect v-if="showNext" title="广告管理" :taps="taps" @setValue="setViewPosition"/>
-        <!--选择地区-->
-        <SelectAreas :selectArea="areaDialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-
+        <!--多选地区-->
         <SelectCity :selectCity="dialogVisible" @cancel="cancelSelect" @confirm="setCities"/>
 
         <el-row v-if="!showNext">
@@ -27,10 +25,7 @@
                                 <el-radio :label="0">全域</el-radio>
                                 <el-radio :label="1">选择地域</el-radio>
                             </el-radio-group>
-                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
-                                修改
-
-                            </el-button>
+                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">编辑</el-button>
                             <div v-if="selectCityInfos.length>0">
                                 <span v-for="area in selectCityInfos" v-if="selectCityInfos.length>0"
                                       class="choose-area">
@@ -164,7 +159,6 @@
 </template>
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import SelectAreas from '../components/SelectSimpleArea.vue';
     import SelectCity from '../components/SelectCity.vue';
     import TapSelect from '../components/TapSelect.vue';
     import {settings} from '../config/settings';
@@ -172,7 +166,7 @@
     import {CityMaps} from '../config/City';
     export default {
         components: {
-            SelectAreas, TapSelect, SelectCity
+            TapSelect, SelectCity
         },
         data() {
             return {
@@ -320,12 +314,10 @@
                         }
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
                             let cityInfo = self.selectCityInfos[i];
-
-                            let formCopy = this.copyObj(self.form);
-                            formCopy.provinceName = cityInfo.provinceName;
-                            formCopy.cityName = cityInfo.cityName;
-                            formCopy.topic = formCopy.topic + "-" + cityInfo.cityName;
-                            self.createNewAds(formCopy)
+                            self.form.provinceName = cityInfo.provinceName;
+                            self.form.cityName = cityInfo.cityName;
+                            self.form.topic = self.form.topic + "-" + cityInfo.cityName;
+                            self.createNewAds(self.form)
                                 .then((data) => {
                                     self.$notify({
                                         title: '成功',
