@@ -29,6 +29,12 @@
                     </template>
                 </el-table-column>
                 <el-table-column
+                    prop="cityName"
+                    label="城市"
+                    width="100"
+                >
+                </el-table-column>
+                <el-table-column
                     prop="viewPosition"
                     label="广告位置"
                     width="110"
@@ -127,7 +133,7 @@
                 page: {
                     currentPage: 1,
                     pageSize: 10,
-                    topic: ''
+                    topic: '',
                 }
             }
         },

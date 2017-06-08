@@ -3,7 +3,9 @@
         <!--选择广告类型-->
         <TapSelect v-if="showNext" title="广告管理" :taps="taps" @setValue="setViewPosition"/>
         <!--选择地区-->
-        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+        <SelectAreas :selectArea="areaDialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+
+        <SelectCity :selectCity="dialogVisible" @cancel="cancelSelect" @confirm="setCities"/>
 
         <el-row v-if="!showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
@@ -156,11 +158,12 @@
 <script>
     import {mapGetters, mapActions} from 'vuex';
     import SelectAreas from '../components/SelectSimpleArea.vue';
+    import SelectCity from '../components/SelectCity.vue';
     import TapSelect from '../components/TapSelect.vue';
     import {settings} from '../config/settings';
     export default {
         components: {
-            SelectAreas, TapSelect
+            SelectAreas, TapSelect, SelectCity
         },
         data() {
             return {
@@ -181,6 +184,7 @@
                     value: 5
                 }],
                 dialogVisible: false,
+                areaDialogVisible: false,
                 url: `${settings.URL}/api/uploadImage`,
                 dialogImg: false,
                 dialogImageUrl: '',
@@ -204,8 +208,11 @@
                     iosVer: '',
                     iosDownloadUrl: '',
                     androidVer: '',
-                    androidDownloadUrl: ''
+                    androidDownloadUrl: '',
+
+
                 },
+                selectCityInfos: [],
                 rules: {
                     topic: [
                         {required: true, message: '请输入广告主题', trigger: 'blur'},
@@ -293,21 +300,46 @@
                             });
                             return;
                         }
-                        self.createNewAds(self.form)
-                            .then((data) => {
-                                self.$notify({
-                                    title: '成功',
-                                    message: '广告创建成功',
-                                    type: 'success'
+                        for (var i = 0; i < self.selectCityInfos.length; i++) {
+                            console.log(self.selectCityInfos[i])
+                            var cityInfo=self.selectCityInfos[i]
+
+                            var formCopy = this.copyObj(self.form)
+                            formCopy.provinceName=cityInfo.provinceName
+                            formCopy.cityName=cityInfo.cityName
+                            formCopy.topic=formCopy.topic+"-"+cityInfo.cityName
+                            self.createNewAds(formCopy)
+                                .then((data) => {
+                                    self.$notify({
+                                        title: '成功',
+                                        message: '广告创建成功',
+                                        type: 'success'
+                                    });
+                                    self.$router.push('advList');
+                                }, (err) => {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: err,
+                                        type: 'info'
+                                    })
                                 });
-                                self.$router.push('advList');
-                            }, (err) => {
-                                self.$notify({
-                                    title: '提示',
-                                    message: err,
-                                    type: 'info'
-                                })
-                            });
+                        }
+
+//                        self.createNewAds(self.form)
+//                            .then((data) => {
+//                                self.$notify({
+//                                    title: '成功',
+//                                    message: '广告创建成功',
+//                                    type: 'success'
+//                                });
+//                                self.$router.push('advList');
+//                            }, (err) => {
+//                                self.$notify({
+//                                    title: '提示',
+//                                    message: err,
+//                                    type: 'info'
+//                                })
+//                            });
                     } else {
                         return false
                     }
@@ -338,6 +370,15 @@
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
             },
+            setCities(selectCityInfos) {
+                let self = this;
+                console.log(selectCityInfos.length)
+                for (var i = 0; i < selectCityInfos.length; i++) {
+                    console.log(selectCityInfos[i])
+                }
+                self.selectCityInfos = selectCityInfos;
+                self.dialogVisible = false;
+            },
             reset() {
                 let self = this;
                 self.form.provinceName = '';
@@ -364,13 +405,13 @@
             handleRemove(file, fileList) {
                 this.form.adsPicUrl = '';
             },
-            handleSuccess(res,file) {
+            handleSuccess(res, file) {
                 let self = this;
                 if (res.statusCode == 200) {
                     self.form.adsPicUrl = res.data;
                 }
-                let w,h;
-                switch(self.form.viewPosition){
+                let w, h;
+                switch (self.form.viewPosition) {
                     case 1:
                         w = 1242;
                         h = 2208;
@@ -413,6 +454,14 @@
                     }
                 }
                 return true;
+            },
+
+            copyObj(obj) {
+                let res = {}
+                for (var key in obj) {
+                    res[key] = obj[key]
+                }
+                return res
             }
         }
     }
@@ -422,10 +471,12 @@
         background-color: #fff;
         font-size: 14px;
     }
+
     .mt40 {
         margin-top: 40px;
     }
-    .tip{
+
+    .tip {
         margin-left: 150px;
         margin-bottom: 5px;
     }
