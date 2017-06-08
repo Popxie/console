@@ -7,7 +7,4 @@ export const settings = {
     // URL: 'http://192.168.1.12
     // 1:8000',
     // URL: 'http://localhost:3000'
-
-    // URL: 'http://192.168.6.3:8000'
-
 }
