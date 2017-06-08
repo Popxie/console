@@ -21,16 +21,23 @@
                             <el-option label="仅Android" :value="3"></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="设置投放地域：" prop="areaType">
-                        <el-radio-group v-model="form.areaType" @change="selectArea">
-                            <el-radio :label="0">全域</el-radio>
-                            <el-radio :label="1">选择地域</el-radio>
-                        </el-radio-group>
-                        <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
-                            {{form.provinceName + '-' + form.cityName + '-' + form.areaName}}
-                            </el-button>
-                    </el-form-item>
                     <template v-if="form.viewPosition != 5">
+                        <el-form-item label="设置投放地域：" prop="areaType">
+                            <el-radio-group v-model="form.areaType" @change="selectArea">
+                                <el-radio :label="0">全域</el-radio>
+                                <el-radio :label="1">选择地域</el-radio>
+                            </el-radio-group>
+                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">
+                                修改
+
+                            </el-button>
+                            <div v-if="selectCityInfos.length>0">
+                                <span v-for="area in selectCityInfos" v-if="selectCityInfos.length>0"
+                                      class="choose-area">
+                                        {{area.provinceName}}-{{area.cityName}}
+                                </span>
+                            </div>
+                        </el-form-item>
                         <el-form-item label="设置投放时间段：" prop="startTime">
                             <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
                                             v-model="form.startTime" @change="timeChange"
@@ -161,6 +168,8 @@
     import SelectCity from '../components/SelectCity.vue';
     import TapSelect from '../components/TapSelect.vue';
     import {settings} from '../config/settings';
+    import {Cities} from '../config/City';
+    import {CityMaps} from '../config/City';
     export default {
         components: {
             SelectAreas, TapSelect, SelectCity
@@ -209,9 +218,8 @@
                     iosDownloadUrl: '',
                     androidVer: '',
                     androidDownloadUrl: '',
-
-
                 },
+                //设置投放地域所选
                 selectCityInfos: [],
                 rules: {
                     topic: [
@@ -288,6 +296,7 @@
                 var self = this;
                 self.showNext = true;
             },
+            //点击完成
             finishCreate(formName) {
                 let self = this;
                 self.$refs[formName].validate((valid) => {
@@ -300,14 +309,22 @@
                             });
                             return;
                         }
-                        for (var i = 0; i < self.selectCityInfos.length; i++) {
-                            console.log(self.selectCityInfos[i])
-                            var cityInfo=self.selectCityInfos[i]
+                        //若为全域
+                        if(!self.form.areaType) {
+                            Cities.forEach((item) => {
+                                self.selectCityInfos.push({
+                                    cityName: item,
+                                    provinceName: CityMaps[item]
+                                })
+                            });
+                        }
+                        for (let i = 0; i < self.selectCityInfos.length; i++) {
+                            let cityInfo = self.selectCityInfos[i];
 
-                            var formCopy = this.copyObj(self.form)
-                            formCopy.provinceName=cityInfo.provinceName
-                            formCopy.cityName=cityInfo.cityName
-                            formCopy.topic=formCopy.topic+"-"+cityInfo.cityName
+                            let formCopy = this.copyObj(self.form);
+                            formCopy.provinceName = cityInfo.provinceName;
+                            formCopy.cityName = cityInfo.cityName;
+                            formCopy.topic = formCopy.topic + "-" + cityInfo.cityName;
                             self.createNewAds(formCopy)
                                 .then((data) => {
                                     self.$notify({
@@ -324,22 +341,6 @@
                                     })
                                 });
                         }
-
-//                        self.createNewAds(self.form)
-//                            .then((data) => {
-//                                self.$notify({
-//                                    title: '成功',
-//                                    message: '广告创建成功',
-//                                    type: 'success'
-//                                });
-//                                self.$router.push('advList');
-//                            }, (err) => {
-//                                self.$notify({
-//                                    title: '提示',
-//                                    message: err,
-//                                    type: 'info'
-//                                })
-//                            });
                     } else {
                         return false
                     }
@@ -479,5 +480,9 @@
     .tip {
         margin-left: 150px;
         margin-bottom: 5px;
+    }
+
+    .choose-area {
+        margin-right: 4px;
     }
 </style>
