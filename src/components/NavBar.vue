@@ -12,6 +12,10 @@
                 <el-menu-item index="createCoupon">创建优惠券</el-menu-item>
                 <el-menu-item index="couponList">优惠券列表</el-menu-item>
             </el-submenu>
+            <el-submenu index="3">
+                <template slot="title"><i class="icon fa fa-jpy"></i>智能调度</template>
+                <el-menu-item index="griding">城市调度运营</el-menu-item>
+            </el-submenu>
             <!--<el-menu-item index="test"><i class="icon fa fa-tachometer"></i>测试</el-menu-item>-->
         </el-menu>
     </div>

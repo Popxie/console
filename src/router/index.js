@@ -11,7 +11,7 @@ const CreateCoupon = resolve => require(['views/CreateCoupon'], resolve);
 const CouponList = resolve => require(['views/CouponList'], resolve);
 const CouponInfo = resolve => require(['views/CouponInfo'], resolve);
 const Test = resolve => require(['views/Test'], resolve);
-
+const Griding = resolve => require(['views/Griding'],resolve);
 
 
 Vue.use(Router);
@@ -65,6 +65,10 @@ export default new Router({
                 {
                     path: 'test',
                     component: Test
+                },
+                {
+                    path: 'griding',
+                    component: Griding
                 }
             ]
         }
