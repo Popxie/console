@@ -13,14 +13,16 @@ const state = {
         riddingInNum: '',
         riddingOutNum: '',
         bikesInfo: []
-    }]
+    }],
+    areaBikeInfoList: []
 };
 
 const getters = {
     curCity: state => state.curCity,
     coordinates: state => state.coordinates,
     isCityDivision: state => state.isCityDivision,
-    areaBikeList: state => state.areaBikeList
+    areaBikeList: state => state.areaBikeList,
+    areaBikeInfoList: state => state.areaBikeInfoList
 };
 
 const actions = {
@@ -95,13 +97,19 @@ const actions = {
             });
     },
     //获取区域内 每辆自行车的骑行状态情况
-    getAreaBike({commit}, data) {
+    getAreaBikeStatus({commit}, data) {
         let url = '/bikes/riding';
-        return _post({url}, data, commit)
+        let params = {
+            pageIndex: '1',
+            totalPage: '20',
+            coordinates: data
+        };
+        return _post({url}, params, commit)
             .then((data) => {
-                // if (data.status == 1) {
-                // }
-                // return Promise.reject(data.msg);
+                if (data.status == 1) {
+                    return commit(types.SET_AREA_BIKE_INFO_LIST, data.data);
+                }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -119,6 +127,9 @@ const mutations = {
     },
     [types.SET_AREA_BIKE_LIST] (state, data) {
         state.areaBikeList.push(data);
+    },
+    [types.SET_AREA_BIKE_INFO_LIST] (state, data) {
+        state.areaBikeInfoList.push(data);
     }
 };
 export default {

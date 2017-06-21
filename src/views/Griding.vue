@@ -5,7 +5,9 @@
             <el-button @click="toJudgeCityDivision">当前城市是否已划分调度网格</el-button>
             <el-button @click="toSetCurCityDivision">将当前城市划分调度网格</el-button>
             <el-button @click="toGetAreaDivisionInfo">获取区域内的网格划分情况</el-button>
+            <el-button @click="clearMap">清除地图上覆盖物</el-button>
             <el-button @click="toGetAreaAllBikes">获取区域内自行车流量情况，以及自行车详情</el-button>
+            <el-button @click="toGetAreaBikeInfo">获取区域内 每辆自行车的骑行状态情况</el-button>
         </div>
         <div class="bikes-table">
             <el-table
@@ -53,14 +55,15 @@
         },
         components: {},
         computed: {
-            ...mapGetters(['isCityDivision', 'coordinates','areaBikeList'])
+            ...mapGetters(['isCityDivision', 'coordinates','areaBikeList','areaBikeInfoList'])
         },
         methods: {
             ...mapActions([
                 'getCityIsDivision',
                 'setCityDivision',
                 'getAreaDivisionInfo',
-                'getAreaAllBikes'
+                'getAreaAllBikes',
+                'getAreaBikeStatus'
             ]),
             //初始化
             init() {
@@ -79,6 +82,15 @@
                     // 比例尺<500m
                     if (curZoom >= self.typicalZoom) {
 
+                    }
+                });
+
+                self.map.addEventListener('moveend', function (e) {
+                    // 比例尺<500m
+                    self.clearMap();
+                    let curZoom = this.getZoom();
+                    if (curZoom >= self.typicalZoom) {
+                        self.toGetAreaDivisionInfo();
                     }
                 });
 
@@ -103,7 +115,11 @@
                 }
                 return coordinates;
             },
-
+            //clear
+            clearMap() {
+                let self = this;
+                self.map.clearOverlays();
+            },
             //将当前城市 划分调度网格
             toSetCurCityDivision() {
                 let self = this;
@@ -147,13 +163,25 @@
                         new BMap.Point(points[3][0], points[3][1])
                     ], {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
                     self.map.addOverlay(rectangle);
+                });
+            },
+            //获取区域内自行车流量情况，以及自行车详情
+            toGetAreaAllBikes() {
+                let self = this;
+                self.coordinates.forEach((item) => {
+                    let points = item.coordinates;
                     self.getAreaAllBikes(points);
                 });
             },
-            //
-            toGetAreaAllBikes() {
+            //获取区域内 每辆自行车的骑行状态情况。
+            toGetAreaBikeInfo() {
                 let self = this;
-                self.getAreaAllBikes();
+//                self.coordinates.forEach((item) => {
+//                    let points = item.coordinates;
+//                    self.getAreaBikeStatus(points);
+//                });
+                    let points = self.coordinates[0].coordinates;
+                    self.getAreaBikeStatus(points);
             }
 
         },
