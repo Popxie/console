@@ -30,7 +30,8 @@ export const parseParams = function (obj) {
 };
 
 // 基础URL
-const baseUrl = `${settings.URL}/api`;
+// const baseUrl = `${settings.URL}/api`;
+const baseUrl = `${settings.URL}`;
 
 /**
  *
