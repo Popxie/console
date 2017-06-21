@@ -5,6 +5,26 @@
             <el-button @click="toJudgeCityDivision">当前城市是否已划分调度网格</el-button>
             <el-button @click="toSetCurCityDivision">将当前城市划分调度网格</el-button>
             <el-button @click="toGetAreaDivisionInfo">获取区域内的网格划分情况</el-button>
+            <el-button @click="toGetAreaAllBikes">获取区域内自行车流量情况，以及自行车详情</el-button>
+        </div>
+        <div class="bikes-table">
+            <el-table
+                :data="areaBikeList"
+                stripe
+                style="width: 100%">
+                <el-table-column
+                    prop="blockNum"
+                    label="区块编号">
+                </el-table-column>
+                <el-table-column
+                    prop="riddingInNum"
+                    label="进入单车数量">
+                </el-table-column>
+                <el-table-column
+                    prop="riddingOutNum"
+                    label="出行单车数量">
+                </el-table-column>
+            </el-table>
         </div>
     </div>
 </template>
@@ -17,6 +37,10 @@
         width: 100%;
         height: 600px;
     }
+
+    .bikes-table {
+        margin: 30px 0;
+    }
 </style>
 <script>
     import {mapGetters, mapActions} from 'vuex'
@@ -24,18 +48,19 @@
         data(){
             return {
                 map: {},
-                typicalZomm: 15 //对应500m的百度地图显示等级
+                typicalZoom: 15 //对应500m的百度地图显示等级
             }
         },
         components: {},
         computed: {
-            ...mapGetters(['isCityDivision', 'coordinates'])
+            ...mapGetters(['isCityDivision', 'coordinates','areaBikeList'])
         },
         methods: {
             ...mapActions([
                 'getCityIsDivision',
                 'setCityDivision',
-                'getAreaDivisionInfo'
+                'getAreaDivisionInfo',
+                'getAreaAllBikes'
             ]),
             //初始化
             init() {
@@ -116,14 +141,21 @@
                 self.coordinates.forEach((item) => {
                     let points = item.coordinates;
                     let rectangle = new BMap.Polygon([
-                        new BMap.Point(points[0][0],points[0][1]),
-                        new BMap.Point(points[1][0],points[1][1]),
-                        new BMap.Point(points[2][0],points[2][1]),
-                        new BMap.Point(points[3][0],points[3][1])
+                        new BMap.Point(points[0][0], points[0][1]),
+                        new BMap.Point(points[1][0], points[1][1]),
+                        new BMap.Point(points[2][0], points[2][1]),
+                        new BMap.Point(points[3][0], points[3][1])
                     ], {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
                     self.map.addOverlay(rectangle);
+                    self.getAreaAllBikes(points);
                 });
+            },
+            //
+            toGetAreaAllBikes() {
+                let self = this;
+                self.getAreaAllBikes();
             }
+
         },
         mounted() {
             let self = this;

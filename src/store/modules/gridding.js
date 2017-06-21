@@ -7,13 +7,20 @@ import {_get, _post} from '../../utils/fetch';
 const state = {
     curCity: 'hangzhou',
     coordinates: [],
-    isCityDivision: false
+    isCityDivision: false,
+    areaBikeList: [{
+        blockNum: '',
+        riddingInNum: '',
+        riddingOutNum: '',
+        bikesInfo: []
+    }]
 };
 
 const getters = {
     curCity: state => state.curCity,
     coordinates: state => state.coordinates,
-    isCityDivision: state => state.isCityDivision
+    isCityDivision: state => state.isCityDivision,
+    areaBikeList: state => state.areaBikeList
 };
 
 const actions = {
@@ -55,7 +62,6 @@ const actions = {
             cityCode: state.curCity,
             coordinates: query
         };
-        console.log(data);
         return _post({url}, data, commit)
             .then((data) => {
                 console.log(data);
@@ -68,14 +74,22 @@ const actions = {
             });
     },
     //获取区域内自行车流量情况，以及自行车详情
-    getAreaAllBikes({commit}, data) {
+    getAreaAllBikes({commit, state},data) {
         let url = '/block/gridding/bikes';
-        return _post({url}, data, commit)
+        let date = +new Date(); //获取当前日期时间戳
+        let before = date - 1000 * 60 * 60 * 24;//当前日期时间戳减去一天时间戳
+        let params = {
+            cityCode: state.curCity,
+            startTime: parseInt(before / 1000).toString(),
+            endTime: (Date.parse(new Date()) / 1000).toString(),
+            coordinates: data
+        };
+        return _post({url}, params, commit)
             .then((data) => {
-                console.log(data);
-                // if (data.status == 1) {
-                // }
-                // return Promise.reject(data.msg);
+                if (data.status == 1) {
+                    return commit(types.SET_AREA_BIKE_LIST, data.data);
+                }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -85,7 +99,6 @@ const actions = {
         let url = '/bikes/riding';
         return _post({url}, data, commit)
             .then((data) => {
-                console.log(data);
                 // if (data.status == 1) {
                 // }
                 // return Promise.reject(data.msg);
@@ -103,6 +116,9 @@ const mutations = {
     },
     [types.SET_CITY_DIVISION] (state, data) {
         state.isCityDivision = data;
+    },
+    [types.SET_AREA_BIKE_LIST] (state, data) {
+        state.areaBikeList.push(data);
     }
 };
 export default {
