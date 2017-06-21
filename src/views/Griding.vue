@@ -78,7 +78,6 @@
                 }
                 return coordinates;
             },
-            //
 
             //将当前城市 划分调度网格
             toSetCurCityDivision() {
@@ -107,7 +106,23 @@
             toGetAreaDivisionInfo() {
                 let self = this;
                 let coordinates = self.getBounds(1);
-                self.getAreaDivisionInfo(coordinates);
+                self.getAreaDivisionInfo(coordinates).then(() => {
+                    self.addMarkder();
+                });
+            },
+            //画出 网格划分矩形
+            addMarkder() {
+                let self = this;
+                self.coordinates.forEach((item) => {
+                    let points = item.coordinates;
+                    let rectangle = new BMap.Polygon([
+                        new BMap.Point(points[0][0],points[0][1]),
+                        new BMap.Point(points[1][0],points[1][1]),
+                        new BMap.Point(points[2][0],points[2][1]),
+                        new BMap.Point(points[3][0],points[3][1])
+                    ], {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
+                    self.map.addOverlay(rectangle);
+                });
             }
         },
         mounted() {
