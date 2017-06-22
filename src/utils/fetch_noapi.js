@@ -1,5 +1,5 @@
 /**
- * Created by chengfei on 2017/2/21.
+ * Created by chenyike on 2017/6/22.
  */
 import Vue from 'vue'
 import VueResource from 'vue-resource'
@@ -30,7 +30,7 @@ export const parseParams = function (obj) {
 };
 
 // 基础URL
-const baseUrl = `${settings.URL}/api`;
+const baseUrl = `${settings.URL}`;
 
 /**
  *

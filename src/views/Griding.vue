@@ -5,29 +5,69 @@
             <el-button @click="toJudgeCityDivision">当前城市是否已划分调度网格</el-button>
             <el-button @click="toSetCurCityDivision">将当前城市划分调度网格</el-button>
             <el-button @click="toGetAreaDivisionInfo">获取区域内的网格划分情况</el-button>
-            <el-button @click="clearMap">清除地图上覆盖物</el-button>
             <el-button @click="toGetAreaAllBikes">获取区域内自行车流量情况，以及自行车详情</el-button>
             <el-button @click="toGetAreaBikeInfo">获取区域内 每辆自行车的骑行状态情况</el-button>
         </div>
-        <div class="bikes-table">
-            <el-table
-                :data="areaBikeList"
-                stripe
-                style="width: 100%">
-                <el-table-column
-                    prop="blockNum"
-                    label="区块编号">
-                </el-table-column>
-                <el-table-column
-                    prop="riddingInNum"
-                    label="进入单车数量">
-                </el-table-column>
-                <el-table-column
-                    prop="riddingOutNum"
-                    label="出行单车数量">
-                </el-table-column>
-            </el-table>
-        </div>
+        <el-tabs v-model="activeTab" @tab-click="handleClick">
+            <el-tab-pane label="区域调度" name="area-dispatch">
+                <el-table
+                    :data="areaBikeList"
+                    stripe
+                    style="width: 100%">
+                    <el-table-column
+                        prop="blockNum"
+                        label="区块编号">
+                    </el-table-column>
+                    <el-table-column
+                        prop="riddingInfo.riddingInNum"
+                        label="进入单车数量">
+                    </el-table-column>
+                    <el-table-column
+                        prop="riddingInfo.riddingOutNum"
+                        label="出行单车数量">
+                    </el-table-column>
+                </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="单车调度" name="bike-dispatch">
+                <el-table
+                    :data="areaBikeInfo"
+                    stripe
+                    style="width: 100%">
+                    <el-table-column
+                        prop="bike_id"
+                        label="单车编号">
+                    </el-table-column>
+                    <!--<el-table-column-->
+                    <!--prop="riddingInNum"-->
+                    <!--label="所在区块">-->
+                    <!--</el-table-column>-->
+                    <el-table-column
+                        prop="todayCount"
+                        label="今天骑行次数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="weekCount"
+                        label="最近7天骑行次数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="monthCount"
+                        label="最近30天骑行次数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="lock_status"
+                        label="状态">
+                    </el-table-column>
+                    <!--<el-table-column-->
+                    <!--prop="lock_status"-->
+                    <!--label="活动状态">-->
+                    <!--</el-table-column>-->
+                    <el-table-column
+                        label="操作">
+                        <a href="javascript:;">详情</a>
+                    </el-table-column>
+                </el-table>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 <style scoped>
@@ -40,9 +80,6 @@
         height: 600px;
     }
 
-    .bikes-table {
-        margin: 30px 0;
-    }
 </style>
 <script>
     import {mapGetters, mapActions} from 'vuex'
@@ -50,12 +87,22 @@
         data(){
             return {
                 map: {},
-                typicalZoom: 15 //对应500m的百度地图显示等级
+                typicalZoom: 15, //对应500m的百度地图显示等级
+                activeTab: 'area-dispatch',
+                areaBikeInfo: [{
+                    "lock_status": 1,
+                    "latitude": "30.300126185616",
+                    "todayCount": 0,
+                    "bike_id": 191812,
+                    "weekCount": 0,
+                    "monthCount": 0,
+                    "longitude": "120.12368005957"
+                }]
             }
         },
         components: {},
         computed: {
-            ...mapGetters(['isCityDivision', 'coordinates','areaBikeList','areaBikeInfoList'])
+            ...mapGetters(['isCityDivision', 'coordinates', 'areaBikeList', 'areaBikeInfoList'])
         },
         methods: {
             ...mapActions([
@@ -169,8 +216,7 @@
             toGetAreaAllBikes() {
                 let self = this;
                 self.coordinates.forEach((item) => {
-                    let points = item.coordinates;
-                    self.getAreaAllBikes(points);
+                    self.getAreaAllBikes(item);
                 });
             },
             //获取区域内 每辆自行车的骑行状态情况。
@@ -180,8 +226,11 @@
 //                    let points = item.coordinates;
 //                    self.getAreaBikeStatus(points);
 //                });
-                    let points = self.coordinates[0].coordinates;
-                    self.getAreaBikeStatus(points);
+                let points = self.coordinates[0];
+                self.getAreaBikeStatus(points);
+            },
+            handleClick(tab, event) {
+                let self = this;
             }
 
         },

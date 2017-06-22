@@ -2,18 +2,13 @@
  * Created by chenyike on 2017/6/21.
  */
 import * as types from '../mutation-types';
-import {_get, _post} from '../../utils/fetch';
+import {_get, _post} from '../../utils/fetch_noapi';
 
 const state = {
     curCity: 'hangzhou',
     coordinates: [],
     isCityDivision: false,
-    areaBikeList: [{
-        blockNum: '',
-        riddingInNum: '',
-        riddingOutNum: '',
-        bikesInfo: []
-    }],
+    areaBikeList: [],
     areaBikeInfoList: []
 };
 
@@ -80,16 +75,21 @@ const actions = {
         let url = '/block/gridding/bikes';
         let date = +new Date(); //获取当前日期时间戳
         let before = date - 1000 * 60 * 60 * 24;//当前日期时间戳减去一天时间戳
+        let blockNum = data.blockNum;
         let params = {
             cityCode: state.curCity,
             startTime: parseInt(before / 1000).toString(),
             endTime: (Date.parse(new Date()) / 1000).toString(),
-            coordinates: data
+            coordinates: data.coordinates
         };
         return _post({url}, params, commit)
             .then((data) => {
                 if (data.status == 1) {
-                    return commit(types.SET_AREA_BIKE_LIST, data.data);
+                    let info = {
+                        riddingInfo: data.data,
+                        blockNum: blockNum
+                    };
+                    return commit(types.SET_AREA_BIKE_LIST,info);
                 }
                 return Promise.reject(data.msg);
             }).catch((error) => {
@@ -101,12 +101,13 @@ const actions = {
         let url = '/bikes/riding';
         let params = {
             pageIndex: '1',
-            totalPage: '20',
-            coordinates: data
+            totalPage: '20',//一次请求20条数据
+            coordinates: data.coordinates
         };
         return _post({url}, params, commit)
             .then((data) => {
                 if (data.status == 1) {
+                    console.log(data);
                     return commit(types.SET_AREA_BIKE_INFO_LIST, data.data);
                 }
                 return Promise.reject(data.msg);
