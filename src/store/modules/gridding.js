@@ -102,7 +102,7 @@ const actions = {
         let params = {
             pageIndex: '1',
             totalPage: '20',//一次请求20条数据
-            coordinates: data.coordinates
+            coordinates: data
         };
         return _post({url}, params, commit)
             .then((data) => {
@@ -133,7 +133,8 @@ const mutations = {
         state.areaBikeList = [];
     },
     [types.SET_AREA_BIKE_INFO_LIST] (state, data) {
-        state.areaBikeInfoList.push(data);
+        console.log(data);
+        state.areaBikeInfoList = state.areaBikeInfoList.concat(data.bikesinfo);
     }
 };
 export default {

@@ -31,7 +31,7 @@
             </el-tab-pane>
             <el-tab-pane label="单车调度" name="bike-dispatch">
                 <el-table
-                    :data="areaBikeInfo"
+                    :data="areaBikeInfoList"
                     stripe
                     style="width: 100%">
                     <el-table-column
@@ -67,6 +67,16 @@
                         <a href="javascript:;">详情</a>
                     </el-table-column>
                 </el-table>
+                <div class="block">
+                    <span class="demonstration">显示总数</span>
+                    <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="currentPage1"
+                        layout="total, prev, pager, next"
+                        :total="bikesTotalPage">
+                    </el-pagination>
+                </div>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -90,17 +100,11 @@
                 map: {},
                 typicalZoom: 15, //对应500m的百度地图显示等级
                 activeTab: 'area-dispatch',
-                areaBikeInfo: [{
-                    "lock_status": 1,
-                    "latitude": "30.300126185616",
-                    "todayCount": 0,
-                    "bike_id": 191812,
-                    "weekCount": 0,
-                    "monthCount": 0,
-                    "longitude": "120.12368005957"
-                }],
+                areaBikeInfo: [],
                 pageLength: 0,
-                defaultSize: 20 // 区域调度一次请求数
+                defaultSize: 20, // 区域调度一次请求数
+                currentPage1: 5,
+                bikesTotalPage: 10
             }
         },
         components: {},
@@ -177,11 +181,12 @@
                 }
                 return coordinates;
             },
-            //clear
+            //清除页面覆盖物、数据
             clearMap() {
                 let self = this;
-                console.log('clear');
+                console.log('清除页面覆盖物');
                 self.map.clearOverlays();
+                self.clearAreaBikeList();
             },
             //将当前城市 划分调度网格
             toSetCurCityDivision() {
@@ -241,19 +246,16 @@
                     self.getAreaAllBikes(item);
                 });
             },
-            //获取区域内 每辆自行车的骑行状态情况。
+            //获取区域内 每辆自行车的骑行状态情况。暂时先取页面可视区域的四个坐标
             toGetAreaBikeInfo() {
                 let self = this;
-//                self.coordinates.forEach((item) => {
-//                    let points = item.coordinates;
-//                    self.getAreaBikeStatus(points);
-//                });
-                let points = self.coordinates[0];
-
+                let points = self.getBounds(1);
                 self.getAreaBikeStatus(points);
             },
             handleClick(tab, event) {
                 let self = this;
+                console.log(tab);
+                console.log(tab,event);
             },
             //加载更多
             loadMore() {
@@ -271,6 +273,12 @@
                     self.getAreaAllBikes(item);
                     self.pageLength++;
                 }
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
             }
 
         },
