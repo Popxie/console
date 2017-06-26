@@ -19,7 +19,7 @@
                             <el-option label="仅Android" :value="3"></el-option>
                         </el-select>
                     </el-form-item>
-                    <template v-if="form.viewPosition != 5">
+                    <template>
                         <el-form-item label="设置投放地域：" prop="areaType">
                             <el-radio-group v-model="form.areaType" @change="selectArea">
                                 <el-radio :label="0">全域</el-radio>
