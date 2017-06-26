@@ -23,5 +23,4 @@ exports.assertion = function (selector, count) {
       cb.call(self, res)
     })
   }
-
 }
