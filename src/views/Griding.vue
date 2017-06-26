@@ -27,6 +27,7 @@
                         label="出行单车数量">
                     </el-table-column>
                 </el-table>
+                <el-button @click="loadMore">加载更多</el-button>
             </el-tab-pane>
             <el-tab-pane label="单车调度" name="bike-dispatch">
                 <el-table
@@ -82,7 +83,7 @@
 
 </style>
 <script>
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapGetters, mapActions, mapMutations} from 'vuex'
     export default{
         data(){
             return {
@@ -97,12 +98,23 @@
                     "weekCount": 0,
                     "monthCount": 0,
                     "longitude": "120.12368005957"
-                }]
+                }],
+                pageLength: 0,
+                defaultSize: 20 // 区域调度一次请求数
             }
         },
         components: {},
         computed: {
-            ...mapGetters(['isCityDivision', 'coordinates', 'areaBikeList', 'areaBikeInfoList'])
+            ...mapGetters([
+                'isCityDivision',
+                'coordinates',
+                'areaBikeList',
+                'areaBikeInfoList'
+            ]),
+            valueDiff() {
+                let self = this;
+                return (self.coordinates.length - self.pageLength) > self.defaultSize ? self.defaultSize : (self.coordinates.length - self.pageLength);
+            }
         },
         methods: {
             ...mapActions([
@@ -112,6 +124,9 @@
                 'getAreaAllBikes',
                 'getAreaBikeStatus'
             ]),
+            ...mapMutations({
+                clearAreaBikeList: 'CLEAR_AREA_BIKE_LIST'
+            }),
             //初始化
             init() {
                 let self = this;
@@ -165,6 +180,7 @@
             //clear
             clearMap() {
                 let self = this;
+                console.log('clear');
                 self.map.clearOverlays();
             },
             //将当前城市 划分调度网格
@@ -196,7 +212,12 @@
                 let coordinates = self.getBounds(1);
                 self.getAreaDivisionInfo(coordinates).then(() => {
                     self.addMarkder();
+//                  self.toGetAreaAllBikes();
                 });
+                //加载一部分区域调度表格
+                setTimeout(function () {
+                    self.loadMore();
+                },1000)
             },
             //画出 网格划分矩形
             addMarkder() {
@@ -215,6 +236,7 @@
             //获取区域内自行车流量情况，以及自行车详情
             toGetAreaAllBikes() {
                 let self = this;
+                self.clearAreaBikeList();
                 self.coordinates.forEach((item) => {
                     self.getAreaAllBikes(item);
                 });
@@ -227,10 +249,28 @@
 //                    self.getAreaBikeStatus(points);
 //                });
                 let points = self.coordinates[0];
+
                 self.getAreaBikeStatus(points);
             },
             handleClick(tab, event) {
                 let self = this;
+            },
+            //加载更多
+            loadMore() {
+                let self = this;
+                if (self.valueDiff < 1) {
+                    this.$notify.info({
+                        title: '消息',
+                        message: '数据已经加载完了哦'
+                    });
+                    return;
+                }
+                for (let i = 0; i < self.valueDiff; i++) {
+                    let index = self.pageLength;
+                    let item = self.coordinates[index];
+                    self.getAreaAllBikes(item);
+                    self.pageLength++;
+                }
             }
 
         },

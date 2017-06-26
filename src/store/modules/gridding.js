@@ -129,6 +129,9 @@ const mutations = {
     [types.SET_AREA_BIKE_LIST] (state, data) {
         state.areaBikeList.push(data);
     },
+    [types.CLEAR_AREA_BIKE_LIST] (state) {
+        state.areaBikeList = [];
+    },
     [types.SET_AREA_BIKE_INFO_LIST] (state, data) {
         state.areaBikeInfoList.push(data);
     }
