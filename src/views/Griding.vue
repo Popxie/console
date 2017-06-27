@@ -241,13 +241,29 @@
             addMarkder() {
                 let self = this;
                 self.coordinates.forEach((item) => {
+                    console.log(item);
                     let points = item.coordinates;
+                    //画矩形
                     let rectangle = new BMap.Polygon([
                         new BMap.Point(points[0][0], points[0][1]),
                         new BMap.Point(points[1][0], points[1][1]),
                         new BMap.Point(points[2][0], points[2][1]),
                         new BMap.Point(points[3][0], points[3][1])
                     ], {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
+                    //加文字
+                    let opts = {
+                        position : point,    // 指定文本标注所在的地理位置
+                        offset   : new BMap.Size(30, -30)    //设置文本偏移量
+                    };
+                    let label = new BMap.Label("eaf", opts);  // 创建文本标注对象
+                    label.setStyle({
+                        color : "red",
+                        fontSize : "12px",
+                        height : "20px",
+                        lineHeight : "20px",
+                        fontFamily:"微软雅黑"
+                    });
+
                     self.map.addOverlay(rectangle);
                 });
             },
