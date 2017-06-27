@@ -9,7 +9,11 @@ const state = {
     coordinates: [],
     isCityDivision: false,
     areaBikeList: [],
-    areaBikeInfoList: []
+    areaBikeInfoList: [],
+    bikesDetailPages: {
+        totalPage: 1,
+        index: 0
+    }
 };
 
 const getters = {
@@ -17,7 +21,8 @@ const getters = {
     coordinates: state => state.coordinates,
     isCityDivision: state => state.isCityDivision,
     areaBikeList: state => state.areaBikeList,
-    areaBikeInfoList: state => state.areaBikeInfoList
+    areaBikeInfoList: state => state.areaBikeInfoList,
+    bikesDetailPages: state => state.bikesDetailPages,
 };
 
 const actions = {
@@ -100,14 +105,17 @@ const actions = {
     getAreaBikeStatus({commit}, data) {
         let url = '/bikes/riding';
         let params = {
-            pageIndex: '1',
-            totalPage: '20',//一次请求20条数据
-            coordinates: data
+            // pageIndex: index,
+            pageIndex: data.index.toString(),
+            pageSize: '20',//一次请求20条数据
+            coordinates: data.points
         };
         return _post({url}, params, commit)
             .then((data) => {
+                console.log(data);
                 if (data.status == 1) {
-                    console.log(data);
+                    commit(types.CLEAR_AREA_BIKE_INFO_LIST);
+                    commit(types.SET_BIKES_DETAIL_INFO,data.data);
                     return commit(types.SET_AREA_BIKE_INFO_LIST, data.data);
                 }
                 return Promise.reject(data.msg);
@@ -133,8 +141,16 @@ const mutations = {
         state.areaBikeList = [];
     },
     [types.SET_AREA_BIKE_INFO_LIST] (state, data) {
-        console.log(data);
         state.areaBikeInfoList = state.areaBikeInfoList.concat(data.bikesinfo);
+    },
+    [types.CLEAR_AREA_BIKE_INFO_LIST] (state) {
+        state.areaBikeInfoList = []
+    },
+    [types.SET_BIKES_DETAIL_INFO] (state, data) {
+        state.bikesDetailPages = {
+            totalPage: data.totalPage,
+            index: data.pageIndex
+        };
     }
 };
 export default {

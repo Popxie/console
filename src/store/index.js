@@ -12,7 +12,7 @@ import createAds from './modules/createAds';
 import adsList from './modules/adsList';
 import couponList from './modules/coupon';
 import createLogger from 'vuex/dist/logger';
-import griding from './modules/gridding'
+import griding from './modules/griding'
 Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== 'production';
 

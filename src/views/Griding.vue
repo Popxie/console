@@ -6,9 +6,8 @@
             <el-button @click="toSetCurCityDivision">将当前城市划分调度网格</el-button>
             <el-button @click="toGetAreaDivisionInfo">获取区域内的网格划分情况</el-button>
             <el-button @click="toGetAreaAllBikes">获取区域内自行车流量情况，以及自行车详情</el-button>
-            <el-button @click="toGetAreaBikeInfo">获取区域内 每辆自行车的骑行状态情况</el-button>
         </div>
-        <el-tabs v-model="activeTab" @tab-click="handleClick">
+        <el-tabs v-model="activeTab" @tab-click="switchTab">
             <el-tab-pane label="区域调度" name="area-dispatch">
                 <el-table
                     :data="areaBikeList"
@@ -64,16 +63,18 @@
                     <!--</el-table-column>-->
                     <el-table-column
                         label="操作">
-                        <a href="javascript:;">详情</a>
+                        <template scope="scope">
+                            <el-button type="text" size="small">详情</el-button>
+                            <el-button type="text" size="small">设置</el-button>
+                        </template>
                     </el-table-column>
                 </el-table>
-                <div class="block">
-                    <span class="demonstration">显示总数</span>
+                <div class="pagination-block">
                     <el-pagination
-                        @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
-                        :current-page.sync="currentPage1"
                         layout="total, prev, pager, next"
+                        :page-size="1"
+                        :current-page.sync="currentPage"
                         :total="bikesTotalPage">
                     </el-pagination>
                 </div>
@@ -85,12 +86,20 @@
     .content {
         width: 100%;
     }
-
+    .btns {
+        margin: 20px 0;
+    }
     #map {
         width: 100%;
         height: 600px;
     }
-
+    .pagination-block {
+        margin: 20px 0;
+        text-align: right;
+    }
+    .el-pagination {
+        display: inline-block;
+    }
 </style>
 <script>
     import {mapGetters, mapActions, mapMutations} from 'vuex'
@@ -102,9 +111,8 @@
                 activeTab: 'area-dispatch',
                 areaBikeInfo: [],
                 pageLength: 0,
-                defaultSize: 20, // 区域调度一次请求数
-                currentPage1: 5,
-                bikesTotalPage: 10
+                currentPage: 1,
+                defaultSize: 20 // 区域调度一次请求数
             }
         },
         components: {},
@@ -113,11 +121,16 @@
                 'isCityDivision',
                 'coordinates',
                 'areaBikeList',
-                'areaBikeInfoList'
+                'areaBikeInfoList',
+                'bikesDetailPages'
             ]),
             valueDiff() {
                 let self = this;
                 return (self.coordinates.length - self.pageLength) > self.defaultSize ? self.defaultSize : (self.coordinates.length - self.pageLength);
+            },
+            bikesTotalPage() {
+                let self = this;
+                return self.bikesDetailPages.totalPage
             }
         },
         methods: {
@@ -222,19 +235,35 @@
                 //加载一部分区域调度表格
                 setTimeout(function () {
                     self.loadMore();
-                },1000)
+                }, 1000)
             },
             //画出 网格划分矩形
             addMarkder() {
                 let self = this;
                 self.coordinates.forEach((item) => {
+                    console.log(item);
                     let points = item.coordinates;
+                    //画矩形
                     let rectangle = new BMap.Polygon([
                         new BMap.Point(points[0][0], points[0][1]),
                         new BMap.Point(points[1][0], points[1][1]),
                         new BMap.Point(points[2][0], points[2][1]),
                         new BMap.Point(points[3][0], points[3][1])
                     ], {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
+                    //加文字
+                    let opts = {
+                        position : point,    // 指定文本标注所在的地理位置
+                        offset   : new BMap.Size(30, -30)    //设置文本偏移量
+                    };
+                    let label = new BMap.Label("eaf", opts);  // 创建文本标注对象
+                    label.setStyle({
+                        color : "red",
+                        fontSize : "12px",
+                        height : "20px",
+                        lineHeight : "20px",
+                        fontFamily:"微软雅黑"
+                    });
+
                     self.map.addOverlay(rectangle);
                 });
             },
@@ -247,15 +276,14 @@
                 });
             },
             //获取区域内 每辆自行车的骑行状态情况。暂时先取页面可视区域的四个坐标
-            toGetAreaBikeInfo() {
+            toGetAreaBikeInfo(index) {
                 let self = this;
                 let points = self.getBounds(1);
-                self.getAreaBikeStatus(points);
-            },
-            handleClick(tab, event) {
-                let self = this;
-                console.log(tab);
-                console.log(tab,event);
+                let data = {
+                    points: points,
+                    index: index
+                };
+                self.getAreaBikeStatus(data);
             },
             //加载更多
             loadMore() {
@@ -274,11 +302,17 @@
                     self.pageLength++;
                 }
             },
-            handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
-            },
+            //换页，当前页数:val
             handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
+                let self = this;
+                self.toGetAreaBikeInfo(val);
+            },
+            //切换tab
+            switchTab() {
+                let self = this;
+                if(self.activeTab === 'bike-dispatch') {
+                    self.toGetAreaBikeInfo(self.currentPage);
+                }
             }
 
         },
