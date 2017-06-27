@@ -11,7 +11,7 @@ const CreateCoupon = resolve => require(['views/CreateCoupon'], resolve);
 const CouponList = resolve => require(['views/CouponList'], resolve);
 const CouponInfo = resolve => require(['views/CouponInfo'], resolve);
 const Test = resolve => require(['views/Test'], resolve);
-const Griding = resolve => require(['views/Griding'],resolve);
+const Gridding = resolve => require(['views/Gridding'],resolve);
 const CreatePricing = resolve => require(['views/CreatePricing'],resolve);
 const PricingRuleList = resolve => require(['views/PricingRuleList'],resolve);
 

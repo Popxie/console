@@ -33,13 +33,13 @@
                                     <el-input v-model="form.unitPrice" placeholder='请输入计费单价，单位"元"'></el-input>
                                 </el-col>
                                 <el-col :span="1">
-                                    元，每
+                                    <span class="intro">元，每</span>
                                 </el-col>
                                 <el-col :span="6">
                                     <el-input v-model="form.unitTime" placeholder='请输入计费单价，单位"分钟"'></el-input>
                                 </el-col>
                                 <el-col :span="6">
-                                    <span>不输入则默认为0.5元/30分钟</span>
+                                    <span class="intro">不输入则默认为0.5元/30分钟</span>
                                 </el-col>
                             </el-form-item>
                         </section>
@@ -54,19 +54,19 @@
                                 </el-date-picker>
                             </el-form-item>
                             <el-form-item label="阶段计费：" required>
-                                <span>计费单位时间为30分钟；</span>
+                                <span class="intro">计费单位时间为30分钟；</span>
                                 <div class="ladder-pricing-unit" v-for="(item,index) in ladderPricingList">
                                     <el-col :span="4">
                                         <el-input v-model="item.minute"></el-input>
                                     </el-col>
                                     <el-col :span="2">
-                                        分钟，按
+                                        <span class="intro">分钟，按</span>
                                     </el-col>
                                     <el-col :span="4">
                                         <el-input v-model="item.value"></el-input>
                                     </el-col>
                                     <el-col :span="1">
-                                        元
+                                        <span class="intro">元</span>
                                     </el-col>
                                     <el-col :span="2" v-if="index !== 0">
                                         <el-button type="danger" @click="deleteLadderPricing(index)">删除</el-button>
@@ -86,7 +86,7 @@
                                 </el-date-picker>
                             </el-form-item>
                             <el-form-item label="阶段计费">
-                                <span>可单选和多选时间（天），计费单位时间默认30分钟，超出之后按照相应的收费规则收取；</span>
+                                <span class="intro">可单选和多选时间（天），计费单位时间默认30分钟，超出之后按照相应的收费规则收取；</span>
                                 <el-checkbox-group v-model="weekdayList">
                                     <el-checkbox label="周日"></el-checkbox>
                                     <el-checkbox label="周一"></el-checkbox>
@@ -120,13 +120,13 @@
                                         <el-input v-model="weekPricing.value" placeholder='请输入计费单价，单位"元"'></el-input>
                                     </el-col>
                                     <el-col :span="2">
-                                        元，每
+                                        <span class="intro">元，每</span>
                                     </el-col>
                                     <el-col :span="5">
                                         <el-input v-model="weekPricing.minute" placeholder='请输入计费单价，单位"分钟"'></el-input>
                                     </el-col>
                                     <el-col :span="2">
-                                        分钟
+                                        <span class="intro">分钟</span>
                                     </el-col>
                                     <el-col :span="2">
                                         <el-button @click="addweekPricingTime">+新增</el-button>
@@ -142,32 +142,35 @@
                                     <el-input v-model="form.unitPrice" placeholder='请输入计费单价，单位"元"'></el-input>
                                 </el-col>
                                 <el-col :span="1">
-                                    元，每
+                                    <span class="intro">元，每</span>
                                 </el-col>
                                 <el-col :span="6">
                                     <el-input v-model="form.unitTime" placeholder='请输入计费单价，单位"分钟"'></el-input>
                                 </el-col>
                                 <el-col :span="6">
-                                    <span>不输入则默认为0.5元/30分钟</span>
+                                    <span class="intro">不输入则默认为0.5元/30分钟</span>
                                 </el-col>
                             </el-form-item>
                             <el-form-item label="阶段计费" required>
-                                <div>可单选和多选时间（天），计费单位时间默认30分钟</div>
-                                <div>
+                                <div class="intro">可单选和多选时间（天），计费单位时间默认30分钟</div>
+                                <div v-for="(item,index) in dayPricingList" class="mb20">
                                     <el-date-picker
-                                        v-model="value3"
+                                        v-model="item.time"
                                         type="datetimerange"
                                         placeholder="选择时间范围">
                                     </el-date-picker>
                                     <el-col :span="2">
-                                        <el-input v-model="value3" placeholder="单价"></el-input>
+                                        <el-input v-model="item.price" placeholder="单价"></el-input>
                                     </el-col>
-                                    <span>元，每30分钟</span>
+                                    <span class="intro">元，每30分钟</span>
+                                    <el-button @click="deleteDayPricing" v-if="index > 0 " type="danger">删除</el-button>
+                                    <el-button @click="addDayPricing(index)" v-if="index === 0">新增</el-button>
                                 </div>
                             </el-form-item>
                         </section>
                     </el-tab-pane>
                 </el-tabs>
+                <el-button type="primary" class="mt20">保存</el-button>
             </el-form>
         </div>
     </div>
@@ -198,6 +201,15 @@
         float: left;
         margin-right: 10px;
     }
+    .intro {
+        color: #999;
+    }
+    .mb20 {
+        margin-bottom: 20px;
+    }
+    .mt20 {
+        margin-top: 20px;
+    }
 </style>
 <script>
     export default{
@@ -208,6 +220,7 @@
                 ladderPricingList: [{}],//阶梯计价规则列表
                 weekPricingList: [[{}]],
                 weekPricing: {},
+                dayPricingList: [{}],
                 form: {
                     name: '',
                     area: '',
@@ -232,15 +245,25 @@
                 self.ladderPricingList.push({});
             },
             //删除阶梯计价 规则
-            deleteLadderPricing(item) {
+            deleteLadderPricing(index) {
                 let self = this;
-                self.ladderPricingList.splice(item,1);
+                self.ladderPricingList.splice(index,1);
             },
             //新增周惠计价 选定日期下时间 规则
             addweekPricingTime() {
                 let self = this;
                 console.log(self.weekPricingList);
 //                self.weekPricingList[self.weekPricingList.length - 1].push({});
+            },
+            //新增优惠日计价 选定日期+时间 规则
+            addDayPricing() {
+                let self = this;
+                self.dayPricingList.push({});
+            },
+            //删除优惠日计价 选定日期+时间 规则
+            deleteDayPricing(index) {
+                let self = this;
+                self.dayPricingList.splice(index,1);
             }
         }
     }
