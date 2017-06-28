@@ -1,6 +1,7 @@
 <template>
     <div class="create-pricing">
         <TapSelect v-if="!isSetRule" :taps="taps" title="计费规则设置" @setValue="setRule"/>
+        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <div class="intro-page" v-show="!isSetRule">
             <div class="tips">
                 规则执行优先级： 1、优惠日（时期+时间）2、周惠（周+时间）3、阶梯计价 4、统一计价
@@ -13,10 +14,11 @@
                     <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                 </el-form-item>
                 <el-form-item label="地区" required>
-                    <el-input v-model="form.name" placeholder="请选择相同计费规则的区域"></el-input>
+                    <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
+                    <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                 </el-form-item>
                 <el-form-item label="加盟商编号">
-                    <el-input v-model="form.name" placeholder="请填写加盟商编号、并用；分隔开"></el-input>
+                    <el-input v-model="form.franchiseeNum" placeholder="请填写加盟商编号、并用；分隔开"></el-input>
                 </el-form-item>
                 <!--统一计价-->
                 <template class="unified-pricing" v-if="form.type === 1">
@@ -93,42 +95,34 @@
                             <el-checkbox label="周五"></el-checkbox>
                             <el-checkbox label="周六"></el-checkbox>
                         </el-checkbox-group>
-                        <span>累积骑行时间，累加各阶段的金额</span>
-                        <div>
+                        <span class="intro">累积骑行时间，累加各阶段的金额</span>
+                        <el-row v-for="(item,index) in weekPricingList" class="mb20">
                             <el-col :span="6">
                                 <el-time-picker
                                     is-range
-                                    v-model="value3"
+                                    v-model="item.time"
                                     :picker-options="{
                                                 format: 'HH:mm'
                                             }"
                                     placeholder="选择时间范围">
                                 </el-time-picker>
                             </el-col>
-                            <!--<el-col :span="3">-->
-                            <!--<el-input v-model="weekPricing.startTime" placeholder="起始时间"></el-input>-->
-                            <!--</el-col>-->
-                            <!--<el-col :span="1">-</el-col>-->
-                            <!--<el-col :span="3">-->
-                            <!--<el-input v-model="weekPricing.endTime" placeholder="结束时间"></el-input>-->
-                            <!--</el-col>-->
-                            <el-col :span="1">-</el-col>
                             <el-col :span="6">
-                                <el-input v-model="weekPricing.value" placeholder='请输入计费单价，单位"元"'></el-input>
+                                <el-input v-model="item.value" placeholder='请输入计费单价，单位"元"'></el-input>
                             </el-col>
                             <el-col :span="2">
                                 <span class="intro">元，每</span>
                             </el-col>
                             <el-col :span="5">
-                                <el-input v-model="weekPricing.minute" placeholder='请输入计费单价，单位"分钟"'></el-input>
+                                <el-input v-model="item.minute" placeholder='请输入计费单价，单位"分钟"'></el-input>
                             </el-col>
                             <el-col :span="2">
                                 <span class="intro">分钟</span>
                             </el-col>
                             <el-col :span="2">
-                                <el-button @click="addweekPricingTime">+新增</el-button>
+                                <el-button @click="addWeekPricingTime">+新增</el-button>
                             </el-col>
-                        </div>
+                        </el-row>
                     </el-form-item>
                 </section>
                 <!--优惠日计价-->
@@ -206,9 +200,15 @@
     .mt20 {
         margin-top: 20px;
     }
+    .choose-city {
+        margin-right: 10px;
+    }
 </style>
 <script>
     import TapSelect from '../components/TapSelect.vue'
+    import SelectCity from '../components/SelectCity.vue'
+    import SelectAreas from '../components/SelectArea.vue'
+    import {settings} from '../config/settings'
     export default{
         data(){
             return {
@@ -225,33 +225,57 @@
                     task: '优惠日（时期+时间）',
                     value: 4
                 }],
+                dialogVisible: false,
                 isSetRule: false,
                 value3: [],
                 ladderPricingList: [{}],//阶梯计价规则列表
-                weekPricingList: [[{}]],
-                weekPricing: {},
                 dayPricingList: [{}],
                 form: {
                     name: '',
                     area: '',
-                    franchiseeNum: '',
+                    franchiseeNum: '',//加盟商
                     date1: '',
                     validPeriod: '',
                     type: ''
                 },
-                weekdayList: [
-                    '周日'
-                ]
+                weekPricingList: [{}],
+                weekdayList: ['周日']
             }
         },
         components: {
-            TapSelect
+            TapSelect,
+            SelectCity,
+            SelectAreas
         },
         methods: {
+            showAreaSelect() {
+                let self = this;
+                self.dialogVisible = true;
+            },
             setRule(val) {
                 let self = this;
                 self.isSetRule = true;
                 self.form.type = val;
+            },
+            cancelSelect () {
+                let self = this;
+                self.dialogVisible = false;
+                self.form.areaType = 0;
+                self.reset();
+            },
+            setAreas(form) {
+                let self = this;
+                if (!form) {
+                    self.$notify({
+                        title: '提示',
+                        message: '请选择省份',
+                        type: 'info'
+                    });
+                    return;
+                }
+                console.log(form);
+                self.form = Object.assign({}, self.form, form);
+                self.dialogVisible = false;
             },
             //新增阶梯计价 规则
             addLadderPricing() {
@@ -264,10 +288,9 @@
                 self.ladderPricingList.splice(index,1);
             },
             //新增周惠计价 选定日期下时间 规则
-            addweekPricingTime() {
+            addWeekPricingTime() {
                 let self = this;
-                console.log(self.weekPricingList);
-//                self.weekPricingList[self.weekPricingList.length - 1].push({});
+                self.weekPricingList.push({});
             },
             //新增优惠日计价 选定日期+时间 规则
             addDayPricing() {
