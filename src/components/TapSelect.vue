@@ -89,8 +89,8 @@
     }
 
     .tap {
-        width: 100px;
-        height: 100px;
+        width: 120px;
+        height: 120px;
         margin-bottom: 20px;
         background-color: #18bffd;
         border-radius: 10px;
