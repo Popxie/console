@@ -3,10 +3,10 @@
         <div class="block">
             <el-row :gutter="10">
                 <el-col :span="4">
-                    <el-button type="primary" @click="toCreatePricing">创建计费规则</el-button>
+                    <el-button type="primary" @click="toCreatePrice">创建计费规则</el-button>
                 </el-col>
                 <el-col :span="4">
-                    <el-input placeholder="请输入内容">
+                    <el-input placeholder="请输入内容" v-model="searchForm.nameContent">
                         <el-button icon="search"></el-button>
                     </el-input>
                 </el-col>
@@ -28,7 +28,7 @@
                     </el-date-picker>
                 </el-col>
                 <el-col :span="4">
-                    <el-button>搜索</el-button>
+                    <el-button @click="searchPriceRule">搜索</el-button>
                 </el-col>
             </el-row>
         </div>
@@ -48,12 +48,12 @@
         <el-table
             :data="tableData">
             <el-table-column
-                prop="number"
+                prop="id"
                 label="序号"
-                width="180">
+                width="80">
             </el-table-column>
             <el-table-column
-                prop="rule"
+                prop="name"
                 label="规则名称"
                 width="180">
             </el-table-column>
@@ -62,11 +62,11 @@
                 label="优惠时间">
             </el-table-column>
             <el-table-column
-                prop="city"
+                prop="cityName"
                 label="城市">
             </el-table-column>
             <el-table-column
-                prop="operation"
+                prop="operateWay"
                 label="运营方式">
             </el-table-column>
             <el-table-column
@@ -108,7 +108,8 @@
     }
 </style>
 <script>
-    import {Cities} from '../config/City';
+    import {Cities} from '../config/City'
+    import {mapActions} from 'vuex'
     export default{
         data(){
             return {
@@ -118,20 +119,39 @@
                 statusList: ['已上线'],
                 operationList: ['自营'],
                 tableData: [{
-                    number: 1,
-                    rule: '可爱卡',
                     time: '2016-444-44',
-                    city: 'hangzhou',
-                    operation: 'fsaf',
-                    type: 'gds',
-                    status: 'in'
-                }]
+                    "id":"5",
+                    "name":"七夕活动计价规则",
+                    "startTime":"1498809228",
+                    "endTime":"1498809228",
+                    "cityName":"杭州市",
+                    "operateWay":"1",
+                    "status":"1",
+                    "type":"3"
+                }],
+                searchForm: {
+                    nameContent: '',
+                    cityName: '',
+                    startTime: '',
+                    endTime: '',
+                    status: '',
+                    operateWay: '',
+                    count: '10'
+                }
             }
         },
         methods: {
-            toCreatePricing() {
+            ...mapActions([
+                'getPriceList'
+            ]),
+            toCreatePrice() {
                 let self = this;
-                self.$router.push({path: 'createPricing'})
+                self.$router.push({path: 'createPrice'})
+            },
+            //检索计费规则
+            searchPriceRule() {
+                let self = this;
+                self.getPriceList();
             }
         }
     }

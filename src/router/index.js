@@ -12,8 +12,8 @@ const CouponList = resolve => require(['views/CouponList'], resolve);
 const CouponInfo = resolve => require(['views/CouponInfo'], resolve);
 const Test = resolve => require(['views/Test'], resolve);
 const Gridding = resolve => require(['views/Gridding'],resolve);
-const CreatePricing = resolve => require(['views/CreatePricing'],resolve);
-const PricingRuleList = resolve => require(['views/PricingRuleList'],resolve);
+const CreatePrice = resolve => require(['views/CreatePrice'],resolve);
+const PriceRuleList = resolve => require(['views/PriceRuleList'],resolve);
 
 
 Vue.use(Router);
@@ -69,12 +69,12 @@ export default new Router({
                     component: Test
                 },
                 {
-                    path: 'createPricing',
-                    component: CreatePricing
+                    path: 'createPrice',
+                    component: CreatePrice
                 },
                 {
-                    path: 'pricingRuleList',
-                    component: PricingRuleList
+                    path: 'priceList',
+                    component: PriceRuleList
                 }
             ]
         }

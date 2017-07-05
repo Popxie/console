@@ -18,8 +18,8 @@
             </el-submenu>
             <el-submenu index="4">
                 <template slot="title"><i class="icon fa fa-jpy"></i>计费规则管理</template>
-                <el-menu-item index="createPricing">创建计费</el-menu-item>
-                <el-menu-item index="pricingRuleList">规则列表</el-menu-item>
+                <el-menu-item index="createPrice">创建计费</el-menu-item>
+                <el-menu-item index="priceList">规则列表</el-menu-item>
             </el-submenu>
             <!--<el-menu-item index="test"><i class="icon fa fa-tachometer"></i>测试</el-menu-item>-->
         </el-menu>

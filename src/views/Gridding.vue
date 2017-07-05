@@ -55,7 +55,7 @@
                     </el-table-column>
                     <el-table-column
                         prop="lock_status"
-                        label="状态">
+                        label="状态(1:正常，7:异常)">
                     </el-table-column>
                     <!--<el-table-column-->
                     <!--prop="lock_status"-->
@@ -316,6 +316,7 @@
                 if(self.activeTab === 'bike-dispatch') {
                     self.toGetAreaBikeInfo(self.currentPage);
                 }
+
             }
 
         },
