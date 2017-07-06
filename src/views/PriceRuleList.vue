@@ -22,7 +22,7 @@
                 </el-col>
                 <el-col :span="6">
                     <el-date-picker
-                        v-model="value6"
+                        v-model="timePeriod"
                         type="daterange"
                         placeholder="选择日期范围">
                     </el-date-picker>
@@ -34,16 +34,16 @@
         </div>
         <div class="status-type-block">
             <span class="title">状态:</span>
-            <el-checkbox-group v-model="statusList" class="status-checkbox">
-                <el-checkbox label="已上线"></el-checkbox>
-                <el-checkbox label="已过期"></el-checkbox>
-                <el-checkbox label="未上线"></el-checkbox>
-            </el-checkbox-group>
+            <div class="status-checkbox">
+                <el-radio class="radio" v-model="searchForm.status" label="0">未上线</el-radio>
+                <el-radio class="radio" v-model="searchForm.status" label="1">已上线</el-radio>
+                <el-radio class="radio" v-model="searchForm.status" label="2">已过期</el-radio>
+            </div>
             <span class="title">运营方式:</span>
-            <el-checkbox-group v-model="operationList" class="operation-checkbox">
-                <el-checkbox label="自营"></el-checkbox>
-                <el-checkbox label="加盟商"></el-checkbox>
-            </el-checkbox-group>
+            <div class="operation-checkbox">
+                <el-radio class="radio" v-model="searchForm.operateWay" label="1">自营</el-radio>
+                <el-radio class="radio" v-model="searchForm.operateWay" label="0">加盟商</el-radio>
+            </div>
         </div>
         <el-table
             :data="priceList">
@@ -88,6 +88,7 @@
                     <el-button type="text" size="small">编辑</el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
                                @click="offlineRule(scope.row.id)">停止
+
                     </el-button>
                 </template>
             </el-table-column>
@@ -98,7 +99,7 @@
             :current-page.sync="currentPage"
             :page-size="1"
             layout="total, prev, pager, next"
-            :total="100">
+            :total="totalPages">
         </el-pagination>
         <el-dialog
             title="当前规则模板详情"
@@ -131,10 +132,12 @@
         display: inline-block;
         margin: 0 20px;
     }
+
     .el-pagination {
         margin-top: 10px;
     }
-    .el-dialog .name{
+
+    .el-dialog .name {
         text-align: center;
         font-weight: bold;
         margin-bottom: 10px;
@@ -147,21 +150,23 @@
         data(){
             return {
                 dialogVisible: false,
+                currentPage: 1, //当前第几页
+                totalPages: 1,//总页数
                 value: '',
                 cities: Cities,
-                value6: '',
+                timePeriod: '',
+                priceList: [],
                 statusName: ['已上线', '未上线', '已过期'],
-                operateWayName: ['自营', '加盟商'],
                 searchForm: {
                     nameContent: '',
                     cityName: '',
                     startTime: '',
                     endTime: '',
                     status: '',
+                    count: '10',
                     operateWay: '',
-                    count: '10'
+                    page: 0
                 },
-                currentPage: 5,
                 currentPriceDetail: {
                     name: '',
                     valueArray: []
@@ -170,12 +175,29 @@
         },
         created() {
             let self = this;
-            self.getPriceList();
+
+            self.getPriceList(self.searchForm).then((res) => {
+                console.log(res);
+                self.priceList = self.priceList.concat(res.data.priceListData);
+                self.totalPages = res.data.totalCount;
+                self.$notify({
+                    title: '成功',
+                    message: res.msg,
+                    type: 'success'
+                });
+            }, (err) => {
+                self.$notify({
+                    title: '失败',
+                    message: err,
+                    type: 'error'
+                });
+            });
+
         },
         computed: {
-            ...mapGetters([
-                'priceList'
-            ])
+//            ...mapGetters([
+//                'priceList'
+//            ])
         },
         methods: {
             handleClose(done) {
@@ -183,7 +205,8 @@
                     .then(_ => {
                         done();
                     })
-                    .catch(_ => {});
+                    .catch(_ => {
+                    });
             },
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);
@@ -203,7 +226,13 @@
             //检索计费规则
             searchPriceRule() {
                 let self = this;
-                self.getPriceList();
+                if(self.timePeriod) {
+                    self.searchForm.startTime = new Date(self.timePeriod[0]).getTime()/1000;
+                    self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
+                }
+                self.searchForm.page = 0;
+//                console.log(self.searchForm);
+                self.getPriceList(self.searchForm);
             },
             //状态
             statusFilter(row, column) {
@@ -238,20 +267,22 @@
             //下线
             offlinePrice(id) {
                 let self = this;
-                self.offlineRule(id)
-                    .then((res) => {
-                        self.$notify({
-                            title: '成功',
-                            message: res.msg,
-                            type: 'success'
-                        });
-                    }, (err) => {
-                        self.$notify({
-                            title: '失败',
-                            message: err,
-                            type: 'error'
-                        });
+                self.offlineRule(id).then((res) => {
+                    let data = res.data;
+                    console.log(data);
+                    self.$notify({
+                        title: '成功',
+                        message: res.msg,
+                        type: 'success'
                     });
+                }, (err) => {
+                    self.$notify({
+                        title: '失败',
+                        message: err,
+                        type: 'error'
+                    });
+                });
+
             },
             //获取详情
             getModelDetail(id) {
@@ -261,7 +292,7 @@
                     let data = res.data;
                     console.log(data);
                     let valueArray = data.value.split('-');
-                    let minute = valueArray[0]/60;
+                    let minute = valueArray[0] / 60;
                     let value = valueArray[1];
                     console.log(minute);
                     self.currentPriceDetail = {
@@ -269,7 +300,7 @@
                         valueArray: [{
                             value: value,
                             minute: minute,
-                            }]
+                        }]
                     };
                     self.$notify({
                         title: '成功',
