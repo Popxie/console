@@ -46,7 +46,7 @@
             </el-checkbox-group>
         </div>
         <el-table
-            :data="tableData">
+            :data="priceList">
             <el-table-column
                 prop="id"
                 label="序号"
@@ -58,8 +58,9 @@
                 width="180">
             </el-table-column>
             <el-table-column
-                prop="time"
-                label="优惠时间">
+                prop="startTime"
+                :formatter="timeFilter"
+                label="活动时间">
             </el-table-column>
             <el-table-column
                 prop="cityName"
@@ -67,14 +68,17 @@
             </el-table-column>
             <el-table-column
                 prop="operateWay"
+                :formatter="operateFilter"
                 label="运营方式">
             </el-table-column>
             <el-table-column
                 prop="type"
+                :formatter="typeFilter"
                 label="类型">
             </el-table-column>
             <el-table-column
                 prop="status"
+                :formatter="statusFilter"
                 label="状态">
             </el-table-column>
             <el-table-column
@@ -82,7 +86,7 @@
                 <template scope="scope">
                     <el-button type="text" size="small">详情</el-button>
                     <el-button type="text" size="small">编辑</el-button>
-                    <el-button type="text" size="small">停止</el-button>
+                    <el-button type="text" size="small" v-show="scope.row.status == 1" @click="offlineRule(scope.row.id)">停止</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -109,26 +113,15 @@
 </style>
 <script>
     import {Cities} from '../config/City'
-    import {mapActions} from 'vuex'
+    import {mapGetters,mapActions} from 'vuex'
     export default{
         data(){
             return {
                 value: '',
                 cities: Cities,
                 value6: '',
-                statusList: ['已上线'],
-                operationList: ['自营'],
-                tableData: [{
-                    time: '2016-444-44',
-                    "id":"5",
-                    "name":"七夕活动计价规则",
-                    "startTime":"1498809228",
-                    "endTime":"1498809228",
-                    "cityName":"杭州市",
-                    "operateWay":"1",
-                    "status":"1",
-                    "type":"3"
-                }],
+                statusName: ['已上线','未上线','已过期'],
+                operateWayName: ['自营','加盟商'],
                 searchForm: {
                     nameContent: '',
                     cityName: '',
@@ -140,9 +133,19 @@
                 }
             }
         },
+        created() {
+            let self = this;
+            self.getPriceList();
+        },
+        computed: {
+          ...mapGetters([
+              'priceList'
+            ])
+        },
         methods: {
             ...mapActions([
-                'getPriceList'
+                'getPriceList',
+                'offlineRule'
             ]),
             toCreatePrice() {
                 let self = this;
@@ -152,6 +155,41 @@
             searchPriceRule() {
                 let self = this;
                 self.getPriceList();
+            },
+            //状态
+            statusFilter(row, column) {
+                let status = ['未上线', '已上线', '已过期'];
+                if (!row.status) return '';
+                return status[row.status];
+            },
+            //运营方式
+            operateFilter(row, column) {
+                let status = ['加盟商', '自营'];
+                if (!row.operateWay) return '';
+                return status[row.operateWay];
+            },
+            //计费type
+            typeFilter(row, column) {
+                let status = ['统一计价', '周惠','优惠日'];
+                if (!row.type) return '';
+                return status[row.type];
+            },
+            //
+            timeFilter(row, column) {
+                let timeList = [row.startTime,row.endTime];
+                return row.startTime
+                return new Date(parseInt(row.startTime)*1000);
+                let formatTime = '';
+                timeList.forEach((item) => {
+                    let time = new Date(item);
+                    formatTime +=  time.getFullYear() + '-' + time.getMonth() + 1 + '-' +  time.getDate() + ' ' + time.getHours() + ':' + time.getMinutes()+ '';
+                });
+                return formatTime;
+            },
+            //下线
+            offlinePrice(id) {
+                let self = this;
+                self.offlineRule(id);
             }
         }
     }

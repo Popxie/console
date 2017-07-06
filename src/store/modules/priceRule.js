@@ -5,11 +5,13 @@ import * as types from '../mutation-types';
 import {_get, _post} from '../../utils/fetch';
 
 const state = {
-    priceModelList: [] //计费模型
+    priceModelList: [], //计费模型
+    priceList: []//计费规则列表
 };
 
 const getters = {
-    priceModelList: state => state.priceModelList
+    priceModelList: state => state.priceModelList,
+    priceList: state => state.priceList
 };
 
 const actions = {
@@ -23,9 +25,8 @@ const actions = {
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data);
+                    return Promise.resolve(data);
                 }
-                return Promise.resolve(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -34,16 +35,12 @@ const actions = {
     getPriceList({commit},data) {
         let url = '/riding_price/price_list';
         let formData = new FormData();
-        formData.append('cityName', '');
-        formData.append('nameContent', '');
-        formData.append('count', '10');
         return _get({url,formData},commit)
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data)
+                    return commit(types.SET_PRICE_LIST, data.data);
                 }
-                return Promise.resolve(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -65,9 +62,8 @@ const actions = {
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data)
+                    return Promise.resolve(data.msg);
                 }
-                return Promise.resolve(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -85,9 +81,8 @@ const actions = {
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data)
+                    return Promise.resolve(data.msg);
                 }
-                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -102,26 +97,23 @@ const actions = {
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data)
+                    return Promise.resolve(data.msg);
                 }
-                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
     },
     //下线计费规则
-    editRule({commit}, data) {
+    offlineRule({commit}, data) {
         let url = '/riding_price/offline_price';
         let formData = new FormData();
-        formData.append('name', data);
-        console.log(formData);
+        formData.append('id', data);
         return _post({url}, formData, commit)
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    alert(data.data)
+                    return Promise.resolve(data.msg);
                 }
-                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -145,6 +137,9 @@ const actions = {
 const mutations = {
     [types.SET_PRICE_MODEL_LIST] (state, data) {
         state.priceModelList = data;
+    },
+    [types.SET_PRICE_LIST] (state, data) {
+        state.priceList = data;
     }
 };
 export default {
