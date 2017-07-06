@@ -368,7 +368,6 @@
                 });
                 self.form.cityList = cityArray.toString();
                 self.formatPartner();
-                console.log(self.form);
                 if (type !== 3) {
                     let timeArray = self.validPeriod;
                     startTime = timeArray[0].getTime() / 1000;
@@ -396,7 +395,6 @@
                             priceModelId: item.priceModelId
                         })
                     });
-                    console.log(ruleValue);
                     self.form.billingModule.weekPricing = {
                         startTime: startTime.toString(),
                         endTime: endTime.toString(),
@@ -424,6 +422,7 @@
                         message: res,
                         type: 'success'
                     });
+                    self.$router.push({path: 'priceList'});
                 }, (err) => {
                     self.$notify({
                         title: '失败',

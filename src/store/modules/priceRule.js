@@ -43,7 +43,6 @@ const actions = {
                 return;
             }
             if(data[key]) {
-                console.log(key);
                 formData.append(key,data[key]);
             }
         }
@@ -86,10 +85,9 @@ const actions = {
         let formData = new FormData();
         for (let key in data) {
             if(key === 'provinces') {
-                return;
+                break;
             }
             if(data[key]) {
-                console.log(key + ':'+data[key]);
                 formData.append(key,data[key]);
             }
         }

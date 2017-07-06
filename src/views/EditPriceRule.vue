@@ -62,14 +62,14 @@
             saveEdit(){
                 let self = this;
                 self.formatCityName();
-//                self.form.cityName = self.selectedCity;
+                self.formatTime();
                 self.editRule(self.form).then((res) => {
                     self.$notify({
                         title: '成功',
                         message: res,
                         type: 'success'
                     });
-//                    self.$router.push({path: 'priceList'});
+                    self.$router.push({path: 'priceList'});
                 }, (err) => {
                     self.$notify({
                         title: '失败',
@@ -112,12 +112,20 @@
                     cityArray.push(item.cityName);
                 });
                 self.form.cityName = cityArray.toString();
+            },
+            //
+            formatTime() {
+                let self = this;
+                console.log(self.form.startTime);
+                self.form.startTime = new Date(self.validPeriod[0]).getTime()/1000;
+                self.form.endTime = new Date(self.validPeriod[1]).getTime()/1000;
             }
         },
         computed: {
             ...mapGetters([
                 'curPriceModel'
             ]),
+            //选中城市
             selectedCity() {
                 let self = this;
                 if(self.form.hasOwnProperty('provinces')) {
