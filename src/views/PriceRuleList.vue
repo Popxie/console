@@ -84,12 +84,33 @@
             <el-table-column
                 label="操作">
                 <template scope="scope">
-                    <el-button type="text" size="small">详情</el-button>
+                    <el-button type="text" size="small" @click="getModelDetail(scope.row.id)">详情</el-button>
                     <el-button type="text" size="small">编辑</el-button>
-                    <el-button type="text" size="small" v-show="scope.row.status == 1" @click="offlineRule(scope.row.id)">停止</el-button>
+                    <el-button type="text" size="small" v-show="scope.row.status == 1"
+                               @click="offlineRule(scope.row.id)">停止
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
+        <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage"
+            :page-size="1"
+            layout="total, prev, pager, next"
+            :total="100">
+        </el-pagination>
+        <el-dialog
+            title="当前规则模板详情"
+            :visible.sync="dialogVisible"
+            size="tiny"
+            :before-close="handleClose">
+            <div class="name">{{currentPriceDetail.name}}</div>
+            <div class="intro" v-for="item in currentPriceDetail.valueArray">每{{item.minute}}分钟，需要{{item.value}}元</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <style scoped>
@@ -110,18 +131,27 @@
         display: inline-block;
         margin: 0 20px;
     }
+    .el-pagination {
+        margin-top: 10px;
+    }
+    .el-dialog .name{
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 </style>
 <script>
     import {Cities} from '../config/City'
-    import {mapGetters,mapActions} from 'vuex'
+    import {mapGetters, mapActions} from 'vuex'
     export default{
         data(){
             return {
+                dialogVisible: false,
                 value: '',
                 cities: Cities,
                 value6: '',
-                statusName: ['已上线','未上线','已过期'],
-                operateWayName: ['自营','加盟商'],
+                statusName: ['已上线', '未上线', '已过期'],
+                operateWayName: ['自营', '加盟商'],
                 searchForm: {
                     nameContent: '',
                     cityName: '',
@@ -130,6 +160,11 @@
                     status: '',
                     operateWay: '',
                     count: '10'
+                },
+                currentPage: 5,
+                currentPriceDetail: {
+                    name: '',
+                    valueArray: []
                 }
             }
         },
@@ -138,14 +173,28 @@
             self.getPriceList();
         },
         computed: {
-          ...mapGetters([
-              'priceList'
+            ...mapGetters([
+                'priceList'
             ])
         },
         methods: {
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+            },
             ...mapActions([
                 'getPriceList',
-                'offlineRule'
+                'offlineRule',
+                'getRuleModelDetail'
             ]),
             toCreatePrice() {
                 let self = this;
@@ -170,26 +219,70 @@
             },
             //计费type
             typeFilter(row, column) {
-                let status = ['统一计价', '周惠','优惠日'];
+                let status = ['统一计价', '周惠', '优惠日'];
                 if (!row.type) return '';
-                return status[row.type];
+                return status[row.type - 1];
             },
             //
             timeFilter(row, column) {
-                let timeList = [row.startTime,row.endTime];
+                let timeList = [row.startTime, row.endTime];
                 return row.startTime
-                return new Date(parseInt(row.startTime)*1000);
+                return new Date(parseInt(row.startTime) * 1000);
                 let formatTime = '';
                 timeList.forEach((item) => {
                     let time = new Date(item);
-                    formatTime +=  time.getFullYear() + '-' + time.getMonth() + 1 + '-' +  time.getDate() + ' ' + time.getHours() + ':' + time.getMinutes()+ '';
+                    formatTime += time.getFullYear() + '-' + time.getMonth() + 1 + '-' + time.getDate() + ' ' + time.getHours() + ':' + time.getMinutes() + '';
                 });
                 return formatTime;
             },
             //下线
             offlinePrice(id) {
                 let self = this;
-                self.offlineRule(id);
+                self.offlineRule(id)
+                    .then((res) => {
+                        self.$notify({
+                            title: '成功',
+                            message: res.msg,
+                            type: 'success'
+                        });
+                    }, (err) => {
+                        self.$notify({
+                            title: '失败',
+                            message: err,
+                            type: 'error'
+                        });
+                    });
+            },
+            //获取详情
+            getModelDetail(id) {
+                let self = this;
+                self.getRuleModelDetail(id).then((res) => {
+                    self.dialogVisible = true;
+                    let data = res.data;
+                    console.log(data);
+                    let valueArray = data.value.split('-');
+                    let minute = valueArray[0]/60;
+                    let value = valueArray[1];
+                    console.log(minute);
+                    self.currentPriceDetail = {
+                        name: data.name,
+                        valueArray: [{
+                            value: value,
+                            minute: minute,
+                            }]
+                    };
+                    self.$notify({
+                        title: '成功',
+                        message: res.msg,
+                        type: 'success'
+                    });
+                }, (err) => {
+                    self.$notify({
+                        title: '失败',
+                        message: err,
+                        type: 'error'
+                    });
+                });
             }
         }
     }

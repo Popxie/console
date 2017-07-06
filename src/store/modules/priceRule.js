@@ -88,16 +88,15 @@ const actions = {
             });
     },
     //获取阶梯模型 详情
-    getRuleModel({commit}, data) {
+    getRuleModelDetail({commit}, data) {
         let url = '/riding_price/model_detail';
         let formData = new FormData();
         formData.append('id', data);
-        console.log(formData);
         return _post({url}, formData, commit)
             .then((data) => {
                 console.log(data);
                 if (data.status == 1) {
-                    return Promise.resolve(data.msg);
+                    return Promise.resolve(data);
                 }
             }).catch((error) => {
                 return Promise.reject(error);
@@ -110,9 +109,10 @@ const actions = {
         formData.append('id', data);
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
+                console.log(data.status);
                 if (data.status == 1) {
-                    return Promise.resolve(data.msg);
+                    alert('成功');
+                    return Promise.resolve(data);
                 }
             }).catch((error) => {
                 return Promise.reject(error);
