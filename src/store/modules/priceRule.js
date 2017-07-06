@@ -6,12 +6,15 @@ import {_get, _post} from '../../utils/fetch';
 
 const state = {
     priceModelList: [], //计费模型
-    priceList: []//计费规则列表
+    priceList: [],//计费规则列表
+    curPriceModel: {
+    }
 };
 
 const getters = {
     priceModelList: state => state.priceModelList,
-    priceList: state => state.priceList
+    priceList: state => state.priceList,
+    curPriceModel: state => state.curPriceModel
 };
 
 const actions = {
@@ -60,8 +63,6 @@ const actions = {
     setNewRule({commit}, data) {
         let url = '/riding_price/create_riding_price';
         let formData = new FormData();
-        formData.append('name', data.name);
-        formData.append('value', JSON.stringify(data.value));
         for (let key in data) {
             if(key === 'billingModule') {
                 formData.append(key, JSON.stringify(data[key]));
@@ -83,11 +84,15 @@ const actions = {
     editRule({commit}, data) {
         let url = '/riding_price/edit_riding_price';
         let formData = new FormData();
-        console.log(data.value);
-        formData.append('name', data.name);
-        formData.append('value', JSON.stringify(data.value));
-        console.log(formData);
-        return;
+        for (let key in data) {
+            if(key === 'provinces') {
+                return;
+            }
+            if(data[key]) {
+                console.log(key + ':'+data[key]);
+                formData.append(key,data[key]);
+            }
+        }
         return _post({url}, formData, commit)
             .then((data) => {
                 console.log(data);
@@ -151,6 +156,9 @@ const mutations = {
     },
     [types.SET_PRICE_LIST] (state, data) {
         state.priceList = data;
+    },
+    [types.SET_CUR_PRICE_MODEL] (state, data) {
+        state.curPriceModel = data;
     }
 };
 export default {

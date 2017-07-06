@@ -3,7 +3,7 @@
         <div class="block">
             <el-row :gutter="10">
                 <el-col :span="4">
-                    <el-button type="primary" @click="toCreatePrice">创建计费规则</el-button>
+                    <el-button type="primary" @click="routeToCreatePrice">创建计费规则</el-button>
                 </el-col>
                 <el-col :span="4">
                     <el-input placeholder="请输入内容" v-model="searchForm.nameContent">
@@ -49,6 +49,7 @@
             </el-table-column>
             <el-table-column
                 prop="startTime"
+                width="320"
                 :formatter="timeFilter"
                 label="活动时间">
             </el-table-column>
@@ -75,7 +76,7 @@
                 label="操作">
                 <template scope="scope">
                     <el-button type="text" size="small" @click="getModelDetail(scope.row.id)">详情</el-button>
-                    <el-button type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small" @click="routeToEditPriceRule(scope.row)">编辑</el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
                                @click="offlineRule(scope.row.id)">停止
                     </el-button>
@@ -132,7 +133,7 @@
     }
 </style>
 <script>
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapGetters, mapActions,mapMutations} from 'vuex'
     export default{
         data(){
             return {
@@ -163,6 +164,9 @@
             self.getPriceRuleList();
         },
         methods: {
+            ...mapMutations({
+               setCurPriceModel: 'SET_CUR_PRICE_MODEL'
+            }),
             ...mapActions([
                 'getPriceList',
                 'offlineRule',
@@ -182,9 +186,15 @@
                 self.getPriceRuleList();
             },
             //路由跳转到创建规则页面
-            toCreatePrice() {
+            routeToCreatePrice() {
                 let self = this;
                 self.$router.push({path: 'createPrice'})
+            },
+            //路由跳转到编辑规则页面
+            routeToEditPriceRule(item) {
+                let self = this;
+                self.setCurPriceModel(item);
+                self.$router.push({path: 'editPriceRule'})
             },
             //
             getPriceRuleList() {
@@ -237,15 +247,7 @@
             },
             //时间格式化
             timeFilter(row, column) {
-                let timeList = [row.startTime, row.endTime];
-                return new Date(parseInt(row.startTime));
-                return new Date(parseInt(row.startTime) * 1000);
-                let formatTime = '';
-                timeList.forEach((item) => {
-                    let time = new Date(item);
-                    formatTime += time.getFullYear() + '-' + time.getMonth() + 1 + '-' + time.getDate() + ' ' + time.getHours() + ':' + time.getMinutes() + '';
-                });
-                return formatTime;
+                return row.startDate + ' - ' + row.endDate;
             },
             //下线
             offlinePrice(id) {
