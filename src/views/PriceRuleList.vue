@@ -14,7 +14,6 @@
                     <el-date-picker
                         v-model="timePeriod"
                         type="daterange"
-                        clearable="true"
                         placeholder="选择日期范围">
                     </el-date-picker>
                 </el-col>
@@ -79,15 +78,13 @@
                     <el-button type="text" size="small">编辑</el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
                                @click="offlineRule(scope.row.id)">停止
-
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
         <el-pagination
-            @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page.sync="currentPage"
+            :current-page.sync="searchForm.page"
             :page-size="1"
             layout="total, prev, pager, next"
             :total="totalPages">
@@ -140,7 +137,6 @@
         data(){
             return {
                 dialogVisible: false,
-                currentPage: 1, //当前第几页
                 totalPages: 1,//总页数
                 value: '',
                 timePeriod: '',
@@ -154,7 +150,7 @@
                     status: '',
                     count: '10',
                     operateWay: '',
-                    page: 0
+                    page: 1
                 },
                 currentPriceDetail: {
                     name: '',
@@ -164,31 +160,14 @@
         },
         created() {
             let self = this;
-
-            self.getPriceList(self.searchForm).then((res) => {
-                console.log(res);
-                self.priceList = self.priceList.concat(res.data.priceListData);
-                self.totalPages = res.data.totalCount;
-                self.$notify({
-                    title: '成功',
-                    message: '加载完成',
-                    type: 'success'
-                });
-            }, (err) => {
-                self.$notify({
-                    title: '失败',
-                    message: err,
-                    type: 'error'
-                });
-            });
-
-        },
-        computed: {
-//            ...mapGetters([
-//                'priceList'
-//            ])
+            self.getPriceRuleList();
         },
         methods: {
+            ...mapActions([
+                'getPriceList',
+                'offlineRule',
+                'getRuleModelDetail'
+            ]),
             handleClose(done) {
                 this.$confirm('确认关闭？')
                     .then(_ => {
@@ -197,34 +176,24 @@
                     .catch(_ => {
                     });
             },
-            handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
-            },
             handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
+                let self = this;
+                self.searchForm.page = val;
+                self.getPriceRuleList();
             },
-            ...mapActions([
-                'getPriceList',
-                'offlineRule',
-                'getRuleModelDetail'
-            ]),
+            //路由跳转到创建规则页面
             toCreatePrice() {
                 let self = this;
                 self.$router.push({path: 'createPrice'})
             },
-            //检索计费规则
-            searchPriceRule() {
+            //
+            getPriceRuleList() {
                 let self = this;
-                if(self.timePeriod) {
-                    self.searchForm.startTime = new Date(self.timePeriod[0]).getTime()/1000;
-                    self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
-                }
-                self.searchForm.page = 0;
                 self.getPriceList(self.searchForm).then((res) => {
-                    console.log(res);
                     self.priceList = [];
                     self.priceList = self.priceList.concat(res.data.priceListData);
-                    self.totalPages = res.data.totalCount;
+                    self.totalPages = Math.ceil(res.data.totalCount/self.searchForm.count);
+//                    self.totalPages = parseInt(res.data.totalCount);
                     self.$notify({
                         title: '成功',
                         message: res.msg,
@@ -237,6 +206,16 @@
                         type: 'error'
                     });
                 });
+            },
+            //增加 搜索计费规则条件
+            searchPriceRule() {
+                let self = this;
+                if(self.timePeriod) {
+                    self.searchForm.startTime = new Date(self.timePeriod[0]).getTime()/1000;
+                    self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
+                }
+                self.searchForm.page = 0;
+                self.getPriceRuleList();
             },
             //状态
             statusFilter(row, column) {
@@ -256,10 +235,10 @@
                 if (!row.type) return '';
                 return status[row.type - 1];
             },
-            //
+            //时间格式化
             timeFilter(row, column) {
                 let timeList = [row.startTime, row.endTime];
-                return row.startTime
+                return new Date(parseInt(row.startTime));
                 return new Date(parseInt(row.startTime) * 1000);
                 let formatTime = '';
                 timeList.forEach((item) => {
@@ -273,7 +252,6 @@
                 let self = this;
                 self.offlineRule(id).then((res) => {
                     let data = res.data;
-                    console.log(data);
                     self.$notify({
                         title: '成功',
                         message: res.msg,
@@ -294,11 +272,9 @@
                 self.getRuleModelDetail(id).then((res) => {
                     self.dialogVisible = true;
                     let data = res.data;
-                    console.log(data);
                     let valueArray = data.value.split('-');
                     let minute = valueArray[0] / 60;
                     let value = valueArray[1];
-                    console.log(minute);
                     self.currentPriceDetail = {
                         name: data.name,
                         valueArray: [{
