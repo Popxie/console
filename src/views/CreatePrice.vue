@@ -18,7 +18,11 @@
                     <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                 </el-form-item>
                 <el-form-item label="加盟商编号">
-                    <el-input v-model="form.partnerCode" placeholder="请填写加盟商编号、并用；分隔开"></el-input>
+                    <div class="partner-block" v-for="(item,index) in partnerArray">
+                        <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
+                        <el-button @click="deletePartner(index)">删除</el-button>
+                        <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
+                    </div>
                 </el-form-item>
                 <!--统一计价-->
                 <template class="unified-pricing" v-if="form.type === 1">
@@ -250,6 +254,7 @@
                     name: '',
                     value: [{}],//阶梯计价规则列表
                 },
+                partnerArray: [{partnerCode: ''}]
             }
         },
         created() {
@@ -362,6 +367,8 @@
                     cityArray.push(item.cityName);
                 });
                 self.form.cityList = cityArray.toString();
+                self.formatPartner();
+                console.log(self.form);
                 if (type !== 3) {
                     let timeArray = self.validPeriod;
                     startTime = timeArray[0].getTime() / 1000;
@@ -414,7 +421,7 @@
                 self.setNewRule(self.form).then((res) => {
                     self.$notify({
                         title: '成功',
-                        message: res.msg,
+                        message: res,
                         type: 'success'
                     });
                 }, (err) => {
@@ -424,6 +431,28 @@
                         type: 'error'
                     });
                 });
+            },
+            //删除加盟商
+            deletePartner(index) {
+                let self = this;
+                self.partnerArray.splice(index, 1);
+            },
+            //添加加盟商
+            addPartner(index) {
+                let self = this;
+                self.partnerArray.push({partnerCode: ''});
+            },
+            //格式化加盟商格式
+            formatPartner() {
+                let self = this;
+                let partners = [];
+                if(!self.partnerArray) {
+                    return;
+                }
+                self.partnerArray.forEach((item) => {
+                    partners.push(item.partnerCode);
+                });
+                self.form.partnerCode = partners.toString();
             }
         }
     }
