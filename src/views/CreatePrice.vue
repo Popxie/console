@@ -10,108 +10,115 @@
         </div>
         <div class="create-page" v-show="isSetRule">
             <div class="title">计费规则设置/<span class="sub-title">{{taps[form.type - 1].task}}</span></div>
-            <el-form :model="form" label-width="120px" v-if="form.type < 4">
-                <el-form-item label="活动名称" required>
-                    <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
-                </el-form-item>
-                <el-form-item label="地区" required>
-                    <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
-                    <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
-                </el-form-item>
-                <el-form-item label="加盟商编号">
-                    <div class="partner-block" v-for="(item,index) in partnerArray">
-                        <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
-                        <el-button @click="deletePartner(index)">删除</el-button>
-                        <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
-                    </div>
-                </el-form-item>
-                <!--统一计价-->
-                <template class="unified-pricing" v-if="form.type === 1">
-                    <el-form-item label="有效期" required>
-                        <el-date-picker
-                            v-model="validPeriod"
-                            type="daterange"
-                            placeholder="选择开始时间-结束时间">
-                        </el-date-picker>
+            <div v-if="form.type < 4">
+                <el-form :model="form" :rules="formRules" ref="form" label-width="120px">
+                    <el-form-item label="活动名称" prop="name">
+                        <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
-                    <el-form-item label="规则选择" required>
-                        <el-select v-model="priceModelId" placeholder="规则选择">
-                            <el-option :label="item.name" :value="item.id" v-for="item in priceModelList"></el-option>
-                        </el-select>
+                    <el-form-item label="地区" required>
+                        <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
+                        <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                     </el-form-item>
-                </template>
-                <!--周惠计价-->
-                <section class="week-pricing" v-if="form.type === 2">
-                    <el-form-item label="有效期：" required>
-                        <el-date-picker
-                            v-model="validPeriod"
-                            type="daterange"
-                            placeholder="选择开始时间-结束时间">
-                        </el-date-picker>
-                    </el-form-item>
-                    <el-form-item label="阶段计费" required>
-                        <span class="intro">单选时间（天），计费单位时间默认30分钟，超出之后按照相应的收费规则收取；</span>
-                        <div>
-                            <el-radio class="radio" v-model="weekday" label="1">周一</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="2">周二</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="3">周三</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="4">周四</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="5">周五</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="6">周六</el-radio>
-                            <el-radio class="radio" v-model="weekday" label="7">周日</el-radio>
+                    <el-form-item label="加盟商编号">
+                        <div class="partner-block" v-for="(item,index) in partnerArray">
+                            <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
+                            <el-button @click="deletePartner(index)">删除</el-button>
+                            <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
                         </div>
-                        <span class="intro">累积骑行时间，累加各阶段的金额</span>
-                        <div v-for="(item,index) in weekPricingList" class="mb20 weekday-list">
-                            <div>
-                                <el-time-select
-                                    placeholder="起始时间"
-                                    v-model="item.startTime"
-                                    :picker-options="{
+                    </el-form-item>
+                    <!--统一计价-->
+                    <template class="unified-pricing" v-if="form.type === 1">
+                        <el-form-item label="有效期" prop="time" required>
+                            <el-date-picker
+                                v-model="validPeriod"
+                                type="daterange"
+                                placeholder="选择开始时间-结束时间">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="规则选择" prop="model" required>
+                            <el-select v-model="priceModelId" placeholder="规则选择">
+                                <el-option :label="item.name" :value="item.id"
+                                           v-for="item in priceModelList"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </template>
+                    <!--周惠计价-->
+                    <section class="week-pricing" v-if="form.type === 2">
+                        <el-form-item label="有效期：" prop="time" required>
+                            <el-date-picker
+                                v-model="validPeriod"
+                                type="daterange"
+                                placeholder="选择开始时间-结束时间">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="阶段计费" required>
+                            <span class="intro">单选时间（天），计费单位时间默认30分钟，超出之后按照相应的收费规则收取；</span>
+                            <el-form-item prop="weekday">
+                                <el-radio class="radio" v-model="weekday" label="1">周一</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="2">周二</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="3">周三</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="4">周四</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="5">周五</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="6">周六</el-radio>
+                                <el-radio class="radio" v-model="weekday" label="7">周日</el-radio>
+                            </el-form-item>
+                            <span class="intro">累积骑行时间，累加各阶段的金额</span>
+                            <div v-for="(item,index) in weekPricingList" class="mb20 weekday-list">
+                                <div>
+                                    <el-time-select
+                                        placeholder="起始时间"
+                                        v-model="item.startTime"
+                                        :picker-options="{
                                       start: '00:00',
                                       step: '00:30',
                                       end: '23:30'
                                     }">
-                                </el-time-select>
-                                <el-time-select
-                                    placeholder="结束时间"
-                                    v-model="item.endTime"
-                                    :picker-options="{
+                                    </el-time-select>
+                                    <el-time-select
+                                        placeholder="结束时间"
+                                        v-model="item.endTime"
+                                        :picker-options="{
                                     start: '00:30',
                                     step: '00:30',
                                     end: '24:00',
                                     minTime: startTime
                                     }">
-                                </el-time-select>
+                                    </el-time-select>
+                                </div>
+                                <el-form-item prop="model">
+                                    <el-select v-model="item.priceModelId" placeholder="规则选择">
+                                        <el-option :label="item.name" :value="item.id"
+                                                   v-for="item in priceModelList"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-button @click="addWeekPricingTime" v-show="index === 0">新增</el-button>
                             </div>
-                            <el-select v-model="item.priceModelId" placeholder="规则选择">
-                                <el-option :label="item.name" :value="item.id"
-                                           v-for="item in priceModelList"></el-option>
-                            </el-select>
-                            <el-button @click="addWeekPricingTime" v-show="index === 0">新增</el-button>
-                        </div>
-                    </el-form-item>
-                </section>
-                <!--优惠日计价-->
-                <section class="day-pricing" v-if="form.type === 3">
-                    <el-form-item label="阶段计费" required>
-                        <div class="intro">可单选时间（天），计费单位时间默认30分钟</div>
-                        <div v-for="(item,index) in dayPricingList" class="mb20">
-                            <el-date-picker
-                                v-model="item.time"
-                                type="datetimerange"
-                                placeholder="选择时间范围">
-                            </el-date-picker>
-                            <el-select v-model="item.priceModelId" placeholder="规则选择">
-                                <el-option :label="model.name" :value="model.id"
-                                           v-for="model in priceModelList"></el-option>
-                            </el-select>
-                            <el-button @click="deleteDayPricing" v-if="index > 0 " type="danger">删除</el-button>
-                            <el-button @click="addDayPricing(index)" v-if="index === 0">新增</el-button>
-                        </div>
-                    </el-form-item>
-                </section>
-                <el-button type="primary" class="mt20" @click="submitRule()">保存</el-button>
-            </el-form>
+                        </el-form-item>
+                    </section>
+                    <!--优惠日计价-->
+                    <section class="day-pricing" v-if="form.type === 3">
+                        <el-form-item label="阶段计费" required>
+                            <div class="intro">可单选时间（天），计费单位时间默认30分钟</div>
+                            <div v-for="(item,index) in dayPricingList" class="mb20">
+                                <el-date-picker
+                                    v-model="item.time"
+                                    type="datetimerange"
+                                    placeholder="选择时间范围">
+                                </el-date-picker>
+                                <el-form-item prop="model">
+                                    <el-select v-model="item.priceModelId" placeholder="规则选择">
+                                        <el-option :label="model.name" :value="model.id"
+                                                   v-for="model in priceModelList"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-button @click="deleteDayPricing" v-if="index > 0 " type="danger">删除</el-button>
+                                <el-button @click="addDayPricing(index)" v-if="index === 0">新增</el-button>
+                            </div>
+                        </el-form-item>
+                    </section>
+                    <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
+                </el-form>
+            </div>
             <!--阶梯计价规则-->
             <div v-if="form.type === 4">
                 <el-form :model="ruleForm" :rules="ruleFormRules" ref="ruleForm" label-width="120px">
@@ -232,7 +239,6 @@
                 priceModelId: '',//模型id，针对统一计价
                 dialogVisible: false,
                 isSetRule: false,
-                value3: [],
                 dayPricingList: [{
                     time: [new Date(), new Date()],
                     priceModelId: ''
@@ -262,7 +268,21 @@
                         {required: true, message: '请输入活动名称', trigger: 'blur'},
                         {min: 1, max: 24, message: '长度在 1 到 24 个字符', trigger: 'blur'}
                     ]
-
+                },
+                formRules: {
+                    name: [
+                        {required: true, message: '请输入活动名称', trigger: 'blur'},
+                        {min: 1, max: 24, message: '长度在 1 到 24 个字符', trigger: 'blur'}
+                    ],
+                    model: [
+                        {required: true, message: '请选择规则模型', trigger: 'change'}
+                    ],
+                    time: [
+                        {required: true, message: '请选择有效期', trigger: 'change'}
+                    ],
+                    weekday: [
+                        {required: true, message: '请在七天中选择一天', trigger: 'change'}
+                    ]
                 }
             }
         },
@@ -351,7 +371,7 @@
             //提交模型
             submitModel(formName) {
                 let self = this;
-                //验证
+                //表单验证
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
                         self.setNewRuleModel(self.ruleForm).then((res) => {
@@ -374,77 +394,97 @@
                 });
             },
             //提交规则
-            submitRule() {
+            submitRule(formName) {
                 let self = this;
                 let type = self.form.type;
                 let startTime, endTime;
                 let cityArray = [];
-                self.form.provinces.forEach((item) => {
-                    cityArray.push(item.cityName);
-                });
-                self.form.cityList = cityArray.toString();
-                self.formatPartner();
-                if (type !== 3) {
-                    let timeArray = self.validPeriod;
-                    startTime = timeArray[0].getTime() / 1000;
-                    endTime = timeArray[1].getTime() / 1000;
-                }
-                //统一计价
-                if (type === 1) {
-                    self.form.billingModule.unitePricing = {
-                        startTime: startTime.toString(),
-                        endTime: endTime.toString(),
-                        priceModelId: self.priceModelId
-                    };
-                }
-                //周惠
-                if (type === 2) {
-                    let ruleValue = [];
-                    self.weekPricingList.forEach((item) => {
-                        let startTimeArray = item.startTime.split(':');
-                        let endTimeArray = item.endTime.split(':');
-                        let startTime = parseInt(startTimeArray[0]) * 60 * 60 + parseInt(startTimeArray[1]) * 60;
-                        let endTime = parseInt(endTimeArray[0]) * 60 * 60 + parseInt(endTimeArray[1]) * 60;
-                        ruleValue.push({
-                            periodStartTime: startTime.toString(),
-                            periodEndTime: endTime.toString(),
-                            priceModelId: item.priceModelId
-                        })
-                    });
-                    self.form.billingModule.weekPricing = {
-                        startTime: startTime.toString(),
-                        endTime: endTime.toString(),
-                        weekday: self.weekday,
-                        ruleValue: ruleValue
+                //表单验证
+                self.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        if (!self.form.provinces) {
+                            self.$notify({
+                                title: '请选择城市',
+                                message: '选择城市为空',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        self.form.provinces.forEach((item) => {
+                            cityArray.push(item.cityName);
+                        });
+                        self.form.cityList = cityArray.toString();
+                        self.formatPartner();
+                        if (type !== 3) {
+                            let timeArray = self.validPeriod;
+                            startTime = timeArray[0].getTime() / 1000;
+                            endTime = timeArray[1].getTime() / 1000;
+                        }
+                        //统一计价
+                        if (type === 1) {
+                            self.form.billingModule.unitePricing = {
+                                startTime: startTime.toString(),
+                                endTime: endTime.toString(),
+                                priceModelId: self.priceModelId
+                            };
+                        }
+                        //周惠
+                        if (type === 2) {
+                            let ruleValue = [];
+                            self.weekPricingList.forEach((item) => {
+                                let startTimeArray = item.startTime.split(':');
+                                let endTimeArray = item.endTime.split(':');
+                                let startTime = parseInt(startTimeArray[0]) * 60 * 60 + parseInt(startTimeArray[1]) * 60;
+                                let endTime = parseInt(endTimeArray[0]) * 60 * 60 + parseInt(endTimeArray[1]) * 60;
+                                ruleValue.push({
+                                    periodStartTime: startTime.toString(),
+                                    periodEndTime: endTime.toString(),
+                                    priceModelId: item.priceModelId
+                                })
+                            });
+                            self.form.billingModule.weekPricing = {
+                                startTime: startTime.toString(),
+                                endTime: endTime.toString(),
+                                weekday: self.weekday,
+                                ruleValue: ruleValue
+                            }
+                        }
+                        //优惠日
+                        if (type === 3) {
+                            let dayPriceList = [];
+                            self.dayPricingList.forEach((item) => {
+                                let startTime = parseInt(item.time[0].getTime() / 1000);
+                                let endTime = parseInt(item.time[1].getTime() / 1000);
+                                dayPriceList.push({
+                                    startTime: startTime.toString(),
+                                    endTime: endTime.toString(),
+                                    priceModelId: item.priceModelId
+                                })
+                            });
+                            self.form.billingModule.dayPricing = dayPriceList;
+                        }
+                        self.setNewRule(self.form).then((res) => {
+                            self.$notify({
+                                title: '成功',
+                                message: res,
+                                type: 'success'
+                            });
+                            self.$router.push({path: 'priceList'});
+                        }, (err) => {
+                            self.$notify({
+                                title: '失败',
+                                message: err,
+                                type: 'error'
+                            });
+                        });
+                    } else {
+                        self.$notify({
+                            title: '失败',
+                            message: '请填写完表单',
+                            type: 'error'
+                        });
+                        return false;
                     }
-                }
-                //优惠日
-                if (type === 3) {
-                    let dayPriceList = [];
-                    self.dayPricingList.forEach((item) => {
-                        let startTime = parseInt(item.time[0].getTime() / 1000);
-                        let endTime = parseInt(item.time[1].getTime() / 1000);
-                        dayPriceList.push({
-                            startTime: startTime.toString(),
-                            endTime: endTime.toString(),
-                            priceModelId: item.priceModelId
-                        })
-                    });
-                    self.form.billingModule.dayPricing = dayPriceList;
-                }
-                self.setNewRule(self.form).then((res) => {
-                    self.$notify({
-                        title: '成功',
-                        message: res,
-                        type: 'success'
-                    });
-                    self.$router.push({path: 'priceList'});
-                }, (err) => {
-                    self.$notify({
-                        title: '失败',
-                        message: err,
-                        type: 'error'
-                    });
                 });
             },
             //删除加盟商
@@ -468,7 +508,7 @@
                     partners.push(item.partnerCode);
                 });
                 self.form.partnerCode = partners.toString();
-            },
+            }
         }
     }
 </script>
