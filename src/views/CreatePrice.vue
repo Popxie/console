@@ -1,11 +1,10 @@
 <template>
     <div class="create-price">
         <TapSelect v-if="!isSetRule" :taps="taps" title="计费规则设置" @setValue="setRule"/>
-        <!--<SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>-->
+        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <div class="intro-page" v-show="!isSetRule">
             <div class="tips">
                 规则执行优先级： 1、优惠日（时期+时间）2、周惠（周+时间）3、统一计价
-
             </div>
         </div>
         <div class="create-page" v-show="isSetRule">
@@ -234,7 +233,7 @@
                 }],
                 form: {
                     name: '',
-                    cityList: '杭州市',
+                    cityList: '',
                     partnerCode: '',//加盟商
                     type: 2,
                     billingModule: {}
@@ -335,9 +334,6 @@
                 let self = this;
                 self.dayPricingList.splice(index, 1);
             },
-            reset() {
-
-            },
             //提交模型
             submitModel() {
                 let self = this;
@@ -361,6 +357,11 @@
                 let self = this;
                 let type = self.form.type;
                 let startTime, endTime;
+                let cityArray = [];
+                self.form.provinces.forEach((item) => {
+                    cityArray.push(item.cityName);
+                });
+                self.form.cityList = cityArray.toString();
                 if (type !== 3) {
                     let timeArray = self.validPeriod;
                     startTime = timeArray[0].getTime() / 1000;

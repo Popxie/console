@@ -31,15 +31,26 @@ const actions = {
                 return Promise.reject(error);
             });
     },
-    //获取计费规则列表 参数***
+    //获取计费规则列表
     getPriceList({commit},data) {
         let url = '/riding_price/price_list';
         let formData = new FormData();
-        return _get({url,formData},commit)
+        for (let key in data) {
+            if(key === 'province') {
+                return;
+            }
+            if(data[key]) {
+                console.log(key);
+                formData.append(key,data[key]);
+            }
+        }
+        return _post({url},formData,commit)
             .then((data) => {
                 console.log(data);
+                // console.log(data.data.totalCount);
                 if (data.status == 1) {
-                    return commit(types.SET_PRICE_LIST, data.data);
+                    return Promise.resolve(data);
+                    // return commit(types.SET_PRICE_LIST, data.data.priceListData);
                 }
             }).catch((error) => {
                 return Promise.reject(error);
