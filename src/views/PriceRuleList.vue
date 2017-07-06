@@ -272,15 +272,20 @@
                 self.getRuleModelDetail(id).then((res) => {
                     self.dialogVisible = true;
                     let data = res.data;
-                    let valueArray = data.value.split('-');
-                    let minute = valueArray[0] / 60;
-                    let value = valueArray[1];
+                    let modelValueArray = data.value.split(',');
+                    let valueArray = [];
+                    modelValueArray.forEach((item) => {
+                        console.log(item);
+                        let valueMinute = item.split('-');
+                        valueArray.push({
+                            value: valueMinute[1],
+                            minute: valueMinute[0] / 60
+                        })
+                    });
+
                     self.currentPriceDetail = {
                         name: data.name,
-                        valueArray: [{
-                            value: value,
-                            minute: minute,
-                        }]
+                        valueArray: valueArray
                     };
                     self.$notify({
                         title: '成功',
