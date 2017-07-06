@@ -112,27 +112,26 @@
                 <el-button type="primary" class="mt20" @click="submitRule()">保存</el-button>
             </el-form>
             <!--阶梯计价规则-->
-            <el-form ref="ruleForm" :model="ruleForm" label-width="120px" v-if="form.type === 4">
-                <el-form-item label="规则名称：" prop="name" required>
+            <el-form ref="ruleForm" :model="ruleForm" label-width="120px" :rules="rules" v-if="form.type === 4">
+                <el-form-item label="规则名称：" prop="name">
                     <el-input v-model="ruleForm.name"></el-input>
                 </el-form-item>
-                <el-form-item
-                    label="阶段规则：" required>
+                <el-form-item label="阶段规则：" required="">
                     <span class="intro">计费单位时间为30分钟；</span>
                     <div class="rule-list" v-for="(item,index) in ruleForm.value">
                         <el-col :span="4">
-                            <el-input v-model="item.time"></el-input>
+                            <el-input v-model="item.time" type="number"></el-input>
                         </el-col>
                         <span class="intro">分钟，按</span>
                         <el-col :span="4">
-                            <el-input v-model="item.price"></el-input>
+                            <el-input v-model="item.price" type="number"></el-input>
                         </el-col>
                         <span class="intro">元</span>
                         <el-button @click="addPrice" v-if="index === 0">新增</el-button>
                         <el-button type="danger" @click="deletePrice(index)" v-if="index > 0">删除</el-button>
                     </div>
                 </el-form-item>
-                <el-button type="primary" @click="submitModel">保存</el-button>
+                <el-button type="primary" @click="submitModel('ruleForm')">保存</el-button>
                 <!--<Rule-Model :minute="'60'" :price="'.5'"></Rule-Model>-->
             </el-form>
         </div>
@@ -254,7 +253,12 @@
                     name: '',
                     value: [{}],//阶梯计价规则列表
                 },
-                partnerArray: [{partnerCode: ''}]
+                partnerArray: [{partnerCode: ''}],
+                rules: {
+                    name: [
+                        {required: true, message: '请输入活动名称', trigger: 'blur'}
+                    ]
+                }
             }
         },
         created() {
@@ -340,9 +344,20 @@
                 self.dayPricingList.splice(index, 1);
             },
             //提交模型
-            submitModel() {
+            submitModel(formName) {
                 let self = this;
                 //验证
+                console.log(formName);
+                self.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        alert('submit!');
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+                return;
+
                 self.setNewRuleModel(self.ruleForm).then((res) => {
                     self.$notify({
                         title: '成功',

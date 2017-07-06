@@ -93,8 +93,7 @@
         <el-dialog
             title="当前规则模板详情"
             :visible.sync="dialogVisible"
-            size="tiny"
-            :before-close="handleClose">
+            size="tiny">
             <div class="name">{{currentPriceDetail.name}}</div>
             <div class="intro" v-for="item in currentPriceDetail.valueArray">每{{item.minute}}分钟，需要{{item.value}}元</div>
             <span slot="footer" class="dialog-footer">
@@ -172,14 +171,6 @@
                 'offlineRule',
                 'getRuleModelDetail'
             ]),
-            handleClose(done) {
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {
-                    });
-            },
             handleCurrentChange(val) {
                 let self = this;
                 self.searchForm.page = val;
