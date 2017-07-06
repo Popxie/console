@@ -10,20 +10,11 @@
                         <el-button icon="search"></el-button>
                     </el-input>
                 </el-col>
-                <el-col :span="4">
-                    <el-select v-model="value" placeholder="请选择城市">
-                        <el-option
-                            v-for="item in cities"
-                            :key="item"
-                            :label="item"
-                            :value="item">
-                        </el-option>
-                    </el-select>
-                </el-col>
                 <el-col :span="6">
                     <el-date-picker
                         v-model="timePeriod"
                         type="daterange"
+                        clearable="true"
                         placeholder="选择日期范围">
                     </el-date-picker>
                 </el-col>
@@ -144,7 +135,6 @@
     }
 </style>
 <script>
-    import {Cities} from '../config/City'
     import {mapGetters, mapActions} from 'vuex'
     export default{
         data(){
@@ -153,7 +143,6 @@
                 currentPage: 1, //当前第几页
                 totalPages: 1,//总页数
                 value: '',
-                cities: Cities,
                 timePeriod: '',
                 priceList: [],
                 statusName: ['已上线', '未上线', '已过期'],
@@ -182,7 +171,7 @@
                 self.totalPages = res.data.totalCount;
                 self.$notify({
                     title: '成功',
-                    message: res.msg,
+                    message: '加载完成',
                     type: 'success'
                 });
             }, (err) => {
@@ -231,8 +220,23 @@
                     self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
                 }
                 self.searchForm.page = 0;
-//                console.log(self.searchForm);
-                self.getPriceList(self.searchForm);
+                self.getPriceList(self.searchForm).then((res) => {
+                    console.log(res);
+                    self.priceList = [];
+                    self.priceList = self.priceList.concat(res.data.priceListData);
+                    self.totalPages = res.data.totalCount;
+                    self.$notify({
+                        title: '成功',
+                        message: res.msg,
+                        type: 'success'
+                    });
+                }, (err) => {
+                    self.$notify({
+                        title: '失败',
+                        message: err,
+                        type: 'error'
+                    });
+                });
             },
             //状态
             statusFilter(row, column) {
