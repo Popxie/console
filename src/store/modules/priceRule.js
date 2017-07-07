@@ -30,6 +30,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
+                return Promise.resolve(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });

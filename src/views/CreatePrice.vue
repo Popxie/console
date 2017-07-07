@@ -6,6 +6,7 @@
             <div class="tips">
                 规则执行优先级： 1、优惠日（时期+时间）2、周惠（周+时间）3、统一计价
 
+
             </div>
         </div>
         <div class="create-page" v-show="isSetRule">
@@ -44,7 +45,7 @@
                     </template>
                     <!--周惠计价-->
                     <section class="week-pricing" v-if="form.type === 2">
-                        <el-form-item label="有效期：" prop="time" required>
+                        <el-form-item label="有效期：" required>
                             <el-date-picker
                                 v-model="validPeriod"
                                 type="daterange"
@@ -53,7 +54,7 @@
                         </el-form-item>
                         <el-form-item label="阶段计费" required>
                             <span class="intro">单选时间（天），计费单位时间默认30分钟，超出之后按照相应的收费规则收取；</span>
-                            <el-form-item prop="weekday">
+                            <el-form-item>
                                 <el-radio class="radio" v-model="weekday" label="1">周一</el-radio>
                                 <el-radio class="radio" v-model="weekday" label="2">周二</el-radio>
                                 <el-radio class="radio" v-model="weekday" label="3">周三</el-radio>
@@ -105,18 +106,17 @@
                                     type="datetimerange"
                                     placeholder="选择时间范围">
                                 </el-date-picker>
-                                <el-form-item>
-                                    <el-select v-model="item.priceModelId" placeholder="规则选择">
-                                        <el-option :label="model.name" :value="model.id"
-                                                   v-for="model in priceModelList"></el-option>
-                                    </el-select>
-                                </el-form-item>
+                                <el-select v-model="item.priceModelId" placeholder="规则选择">
+                                    <el-option :label="model.name" :value="model.id"
+                                               v-for="model in priceModelList"></el-option>
+                                </el-select>
                                 <el-button @click="deleteDayPricing" v-if="index > 0 " type="danger">删除</el-button>
                                 <el-button @click="addDayPricing(index)" v-if="index === 0">新增</el-button>
                             </div>
                         </el-form-item>
                     </section>
                     <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
+                    <el-button class="mt20" @click="returnCreate">返回</el-button>
                 </el-form>
             </div>
             <!--阶梯计价规则-->
@@ -141,7 +141,7 @@
                         </div>
                     </el-form-item>
                     <el-button type="primary" @click="submitModel('ruleForm')">保存</el-button>
-                    <!--<Rule-Model :minute="'60'" :price="'.5'"></Rule-Model>-->
+                    <el-button class="mt20" @click="returnCreate">返回</el-button>
                 </el-form>
             </div>
         </div>
@@ -279,9 +279,6 @@
                     ],
                     time: [
                         {required: true, message: '请选择有效期', trigger: 'change'}
-                    ],
-                    weekday: [
-                        {required: true, message: '请在七天中选择一天', trigger: 'change'}
                     ]
                 }
             }
@@ -375,11 +372,19 @@
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
                         self.setNewRuleModel(self.ruleForm).then((res) => {
-                            self.$notify({
-                                title: '成功',
-                                message: res.msg,
-                                type: 'success'
-                            });
+                            if (res.data == '1') {
+                                self.$notify({
+                                    title: '成功',
+                                    message: res,
+                                    type: 'success'
+                                });
+                            } else {
+                                self.$notify({
+                                    title: '失败',
+                                    message: res.msg,
+                                    type: 'error'
+                                });
+                            }
                         }, (err) => {
                             self.$notify({
                                 title: '失败',
@@ -508,6 +513,11 @@
                     partners.push(item.partnerCode);
                 });
                 self.form.partnerCode = partners.toString();
+            },
+            //返回创建计费
+            returnCreate() {
+                let self = this;
+                self.isSetRule = false;
             }
         }
     }

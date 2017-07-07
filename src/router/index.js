@@ -14,6 +14,7 @@ const Test = resolve => require(['views/Test'], resolve);
 const Gridding = resolve => require(['views/Gridding'],resolve);
 const CreatePrice = resolve => require(['views/CreatePrice'],resolve);
 const PriceRuleList = resolve => require(['views/PriceRuleList'],resolve);
+const EditPriceRule = resolve => require(['views/EditPriceRule'],resolve);
 
 
 Vue.use(Router);
@@ -75,6 +76,10 @@ export default new Router({
                 {
                     path: 'priceList',
                     component: PriceRuleList
+                },
+                {
+                    path: 'editPriceRule',
+                    component: EditPriceRule
                 }
             ]
         }
