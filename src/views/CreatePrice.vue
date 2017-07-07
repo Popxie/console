@@ -28,14 +28,14 @@
                     </el-form-item>
                     <!--统一计价-->
                     <template class="unified-pricing" v-if="form.type === 1">
-                        <el-form-item label="有效期" prop="time" required>
+                        <el-form-item label="有效期" required>
                             <el-date-picker
                                 v-model="validPeriod"
                                 type="daterange"
                                 placeholder="选择开始时间-结束时间">
                             </el-date-picker>
                         </el-form-item>
-                        <el-form-item label="规则选择" prop="model" required>
+                        <el-form-item label="规则选择" required>
                             <el-select v-model="priceModelId" placeholder="规则选择">
                                 <el-option :label="item.name" :value="item.id"
                                            v-for="item in priceModelList"></el-option>
@@ -85,7 +85,7 @@
                                     }">
                                     </el-time-select>
                                 </div>
-                                <el-form-item prop="model">
+                                <el-form-item>
                                     <el-select v-model="item.priceModelId" placeholder="规则选择">
                                         <el-option :label="item.name" :value="item.id"
                                                    v-for="item in priceModelList"></el-option>
@@ -105,7 +105,7 @@
                                     type="datetimerange"
                                     placeholder="选择时间范围">
                                 </el-date-picker>
-                                <el-form-item prop="model">
+                                <el-form-item>
                                     <el-select v-model="item.priceModelId" placeholder="规则选择">
                                         <el-option :label="model.name" :value="model.id"
                                                    v-for="model in priceModelList"></el-option>

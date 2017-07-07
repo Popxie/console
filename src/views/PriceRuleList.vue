@@ -87,7 +87,7 @@
             @current-change="handleCurrentChange"
             :current-page.sync="searchForm.page"
             :page-size="1"
-            layout="total, prev, pager, next"
+            layout="prev, pager, next"
             :total="totalPages">
         </el-pagination>
         <el-dialog
