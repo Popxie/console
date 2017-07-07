@@ -12,10 +12,10 @@
                 <el-menu-item index="createCoupon">创建优惠券</el-menu-item>
                 <el-menu-item index="couponList">优惠券列表</el-menu-item>
             </el-submenu>
-            <el-submenu index="3">
-                <template slot="title"><i class="icon fa fa-jpy"></i>智能调度</template>
-                <el-menu-item index="gridding">城市调度运营</el-menu-item>
-            </el-submenu>
+            <!--<el-submenu index="3">-->
+                <!--<template slot="title"><i class="icon fa fa-jpy"></i>智能调度</template>-->
+                <!--<el-menu-item index="gridding">城市调度运营</el-menu-item>-->
+            <!--</el-submenu>-->
             <el-submenu index="4">
                 <template slot="title"><i class="icon fa fa-jpy"></i>计费规则管理</template>
                 <el-menu-item index="createPrice">创建计费</el-menu-item>
