@@ -17,6 +17,14 @@
                         placeholder="选择日期范围">
                     </el-date-picker>
                 </el-col>
+                <el-col :span="5">
+                    <el-cascader
+                        placeholder="请选择城市"
+                        :options="options"
+                        :show-all-levels="false"
+                        v-model="selectedCity"
+                    ></el-cascader>
+                </el-col>
                 <el-col :span="4">
                     <el-button @click="searchPriceRule">搜索</el-button>
                 </el-col>
@@ -133,9 +141,12 @@
 </style>
 <script>
     import {mapGetters, mapActions,mapMutations} from 'vuex'
+    import {Areas} from '../config/Areas'
     export default{
         data(){
             return {
+                areas: Areas,
+                selectedCity: [],
                 dialogVisible: false,
                 totalPages: 1,//总页数
                 value: '',
@@ -214,6 +225,10 @@
                 if(self.timePeriod) {
                     self.searchForm.startTime = new Date(self.timePeriod[0]).getTime()/1000;
                     self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
+                }
+                //如果选择了城市
+                if(self.selectedCity) {
+                    self.searchForm.cityName = self.selectedCity[1];
                 }
                 self.searchForm.page = 0;
                 self.getPriceRuleList();
@@ -296,6 +311,28 @@
                         type: 'error'
                     });
                 });
+            }
+        },
+        computed: {
+            options() {
+                let self = this;
+                let options = [];
+                self.areas.forEach((item) => {
+                    let children = [];
+                    item.city.forEach((child) => {
+                       children.push({
+                           value: child.name + '市',
+                           label: child.name + '市'
+                       })
+                    });
+                    let obj = {
+                        value: item.name,
+                        label: item.name,
+                        children: children
+                    };
+                   options.push(obj);
+                });
+                return options
             }
         }
     }
