@@ -238,7 +238,11 @@
             },
             //时间格式化
             timeFilter(row, column) {
-                return row.startDate + ' - ' + row.endDate;
+                if(row.type === '3') {
+                    return row.startDate + ' -- ' + row.endDate;
+                }
+                let start = row.startDate.split(' ')[0];
+                return row.startDate.split(' ')[0] + ' -- ' + row.endDate.split(' ')[0]
             },
             //下线
             offlinePrice(id) {
