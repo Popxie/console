@@ -1,34 +1,28 @@
 <template>
     <div class="pricing-rule container">
         <div class="block">
-            <el-row :gutter="10">
-                <el-col :span="4">
-                    <el-button type="primary" @click="routeToCreatePrice">创建计费规则</el-button>
-                </el-col>
-                <el-col :span="4">
-                    <el-input placeholder="请输入内容" v-model="searchForm.nameContent">
+            <el-button type="primary" @click="routeToCreatePrice">创建计费规则</el-button>
+            <span class="ib">
+                <el-input placeholder="请输入内容" v-model="searchForm.nameContent">
                         <el-button icon="search"></el-button>
                     </el-input>
-                </el-col>
-                <el-col :span="6">
-                    <el-date-picker
-                        v-model="timePeriod"
-                        type="daterange"
-                        placeholder="选择日期范围">
-                    </el-date-picker>
-                </el-col>
-                <el-col :span="5">
-                    <el-cascader
-                        placeholder="请选择城市"
-                        :options="options"
-                        :show-all-levels="false"
-                        v-model="selectedCity"
-                    ></el-cascader>
-                </el-col>
-                <el-col :span="4">
-                    <el-button @click="searchPriceRule">搜索</el-button>
-                </el-col>
-            </el-row>
+            </span>
+            <span class="ib">
+                <el-date-picker
+                    v-model="timePeriod"
+                    type="daterange"
+                    placeholder="选择日期范围">
+            </el-date-picker>
+            </span>
+            <span class="ib">
+                <el-cascader
+                    placeholder="请选择城市"
+                    :options="options"
+                    :show-all-levels="false"
+                    v-model="selectedCity"
+                ></el-cascader>
+            </span>
+            <el-button @click="searchPriceRule">搜索</el-button>
         </div>
         <div class="status-type-block">
             <span class="title">状态:</span>
@@ -87,6 +81,7 @@
                     <el-button type="text" size="small" @click="routeToEditPriceRule(scope.row)">编辑</el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
                                @click="offlineRule(scope.row.id)">停止
+
                     </el-button>
                 </template>
             </el-table-column>
@@ -138,9 +133,12 @@
         font-weight: bold;
         margin-bottom: 10px;
     }
+    span.ib {
+        display: inline-block;
+    }
 </style>
 <script>
-    import {mapGetters, mapActions,mapMutations} from 'vuex'
+    import {mapGetters, mapActions, mapMutations} from 'vuex'
     import {Areas} from '../config/Areas'
     export default{
         data(){
@@ -175,7 +173,7 @@
         },
         methods: {
             ...mapMutations({
-               setCurPriceModel: 'SET_CUR_PRICE_MODEL'
+                setCurPriceModel: 'SET_CUR_PRICE_MODEL'
             }),
             ...mapActions([
                 'getPriceList',
@@ -204,7 +202,7 @@
                 self.getPriceList(self.searchForm).then((res) => {
                     self.priceList = [];
                     self.priceList = self.priceList.concat(res.data.priceListData);
-                    self.totalPages = Math.ceil(res.data.totalCount/self.searchForm.count);
+                    self.totalPages = Math.ceil(res.data.totalCount / self.searchForm.count);
 //                    self.totalPages = parseInt(res.data.totalCount);
                     self.$notify({
                         title: '成功',
@@ -222,12 +220,12 @@
             //增加 搜索计费规则条件
             searchPriceRule() {
                 let self = this;
-                if(self.timePeriod) {
-                    self.searchForm.startTime = new Date(self.timePeriod[0]).getTime()/1000;
-                    self.searchForm.endTime = new Date(self.timePeriod[1]).getTime()/1000;
+                if (self.timePeriod) {
+                    self.searchForm.startTime = new Date(self.timePeriod[0]).getTime() / 1000;
+                    self.searchForm.endTime = new Date(self.timePeriod[1]).getTime() / 1000;
                 }
                 //如果选择了城市
-                if(self.selectedCity) {
+                if (self.selectedCity) {
                     self.searchForm.cityName = self.selectedCity[1];
                 }
                 self.searchForm.page = 0;
@@ -253,7 +251,7 @@
             },
             //时间格式化
             timeFilter(row, column) {
-                if(row.type === '3') {
+                if (row.type === '3') {
                     return row.startDate + ' -- ' + row.endDate;
                 }
                 let start = row.startDate.split(' ')[0];
@@ -320,17 +318,17 @@
                 self.areas.forEach((item) => {
                     let children = [];
                     item.city.forEach((child) => {
-                       children.push({
-                           value: child.name + '市',
-                           label: child.name + '市'
-                       })
+                        children.push({
+                            value: child.name + '市',
+                            label: child.name + '市'
+                        })
                     });
                     let obj = {
                         value: item.name,
                         label: item.name,
                         children: children
                     };
-                   options.push(obj);
+                    options.push(obj);
                 });
                 return options
             }
