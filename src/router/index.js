@@ -15,6 +15,7 @@ const Gridding = resolve => require(['views/Gridding'],resolve);
 const CreatePrice = resolve => require(['views/CreatePrice'],resolve);
 const PriceRuleList = resolve => require(['views/PriceRuleList'],resolve);
 const EditPriceRule = resolve => require(['views/EditPriceRule'],resolve);
+const VipCardList = resolve => require(['views/VipCardList'],resolve);
 
 
 Vue.use(Router);
@@ -60,6 +61,10 @@ export default new Router({
                 {
                     path: 'couponList',
                     component: CouponList
+                },
+                {
+                    path: 'vipCardList',
+                    component: VipCardList
                 },
                 {
                     path: 'couponInfo',

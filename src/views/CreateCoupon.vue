@@ -7,7 +7,7 @@
         <el-row v-if="showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
-                <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px">
+                <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px" v-if="form.type <= 3">
                     <el-form-item label="是否仅新用户可用：" prop="isNewuserUse">
                         <el-radio-group v-model="form.isNewuserUse">
                             <el-radio :label="1">是</el-radio>
@@ -20,6 +20,8 @@
                             <el-radio :label="2">2</el-radio>
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
+
+
 
                                 <el-input style="width: 60px;" type="number" min="0" :value="other"
                                           @blur="setLimit($event)"
@@ -49,9 +51,13 @@
                                               placeholder="输入劵面额"></el-input>
                                     元劵
 
+
+
                                     <el-input type="number" v-model.number="item.couponNum" @blur="checkValue($event)"
                                               placeholder="输入张数"></el-input>
                                     张数
+
+
                                     <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                 </div>
                             </template>
@@ -70,11 +76,15 @@
                                                   v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
                                         折券
 
+
+
                                         <el-input type="number" v-model.number="item.couponNum"
                                                   @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
                                         张
-                                    <el-button icon="minus" @click="delCoupon(index)"></el-button>
+
+
+                                        <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                     </div>
                                 </template>
                                 <div class="wid">
@@ -87,14 +97,20 @@
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
 
+
+
                                     <el-input type="number" style="width: 80px;" v-model.number="form.maxDeductionMoney"
                                               @blur="checkMaxDeductionMoney($event)" placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
 
+
+
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}折劵
+
+
 
                                         <el-input type="number" style="width: 80px;"
                                                   :disabled="form.maxDeductionType !=1"
@@ -102,6 +118,8 @@
                                                   @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
                                         元&nbsp;&nbsp;
+
+
 
                                     </template>
                                 </el-radio>
@@ -122,6 +140,7 @@
                         <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
                     </el-form-item>
                 </el-form>
+            <create-vip-card v-if="form.type === 4"></create-vip-card>
             </el-col>
         </el-row>
     </div>
@@ -130,10 +149,13 @@
     import {mapGetters, mapActions} from 'vuex';
     import TapSelect from '../components/TapSelect.vue';
     import SelectAreas from '../components/SelectArea.vue';
+    import CreateVipCard from './CreateVipCard.vue'
     import {settings} from '../config/settings';
     export default{
         components: {
-            TapSelect, SelectAreas
+            TapSelect,
+            SelectAreas,
+            CreateVipCard
         },
         data() {
             return {
@@ -146,12 +168,17 @@
                 }, {
                     task: '折扣券',
                     value: 3
+                }, {
+                    task: '会员卡',
+                    value: 4
                 }],
                 pickerOptions: {
-                    disabledDate(time) {
+                    disabledDate(time)
+                    {
                         return time.getTime() < Date.now() - 8.64e7;
                     }
-                },
+                }
+                ,
                 showNext: false,
                 dialogVisible: false,
                 other: 4,
@@ -168,8 +195,10 @@
                     maxDeductionType: 0,
                     maxDeductionMoney: 0,
                     denomination: 0
-                },
-                copyForm: {},
+                }
+                ,
+                copyForm: {}
+                ,
                 rules: {
                     isNewuserUse: [
                         {type: 'number', required: true, message: '请选择是否是新用户', trigger: 'change'}
@@ -223,22 +252,22 @@
             setLimit(e) {
                 let self = this;
                 let val = e.target.value;
-                if(val == 1) {
+                if (val == 1) {
                     self.form.limitSize = 1;
                     e.target.value = 4;
-                	return
+                    return
                 }
-                if(val == 2) {
+                if (val == 2) {
                     self.form.limitSize = 2;
                     e.target.value = 4;
                     return
                 }
-                if(val == 3) {
+                if (val == 3) {
                     self.form.limitSize = 3;
                     e.target.value = 4;
                     return
                 }
-                if(val <=0) {
+                if (val <= 0) {
                     self.$notify({
                         title: '提示',
                         message: '数值不能小于等于0',
@@ -312,22 +341,22 @@
                 self.form.coupon.push({});
             },
             delCoupon(index) {
-            	let items = this.form.coupon;
-            	if(items.length == 1) {
+                let items = this.form.coupon;
+                if (items.length == 1) {
                     this.$notify({
                         title: '提示',
                         message: '不能全部删除',
                         type: 'info'
                     });
-            		return;
+                    return;
                 }
-                this.form.coupon.splice(index,1);
+                this.form.coupon.splice(index, 1);
             },
             setEndTime(val) {
                 this.form.endTime = val;
             },
             setAllDenomination(e, index) {
-            	let self = this;
+                let self = this;
                 let val = e.target.value;
                 if (val > 10 || val <= 0) {
                     this.$notify({
@@ -341,8 +370,8 @@
                 let flag = true;
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(index, 1)
-                items.map((c)=> {
-                    if(c.denomination == val) {
+                items.map((c) => {
+                    if (c.denomination == val) {
                         this.$notify({
                             title: '提示',
                             message: '劵不能重复',
@@ -352,8 +381,8 @@
                         flag = false;
                     }
                 });
-                if(!flag) {
-                	return
+                if (!flag) {
+                    return
                 }
                 let obj = this.form.coupon[index];
                 obj.denomination = Number(val).toFixed(2);
@@ -399,8 +428,8 @@
                     c.maxDeductionMoney = val;
                 });
             },
-            checkMoneyAndRepeat(e,i) {
-            	let self = this;
+            checkMoneyAndRepeat(e, i) {
+                let self = this;
                 let val = e.target.value;
                 if (val <= 0) {
                     this.$notify({
@@ -416,8 +445,8 @@
                 let obj = this.form.coupon[i];
                 obj.denomination = Number(val).toFixed(2);
                 this.form.coupon.splice(i, 1, obj);
-                items.map((c)=> {
-                	if(c.denomination == Number(val).toFixed(2)) {
+                items.map((c) => {
+                    if (c.denomination == Number(val).toFixed(2)) {
                         this.$notify({
                             title: '提示',
                             message: '劵不能重复',
@@ -463,7 +492,7 @@
                     if (!c.couponNum && c.couponNum != 0) {
                         flag = false;
                     }
-                    if (self.form.type == 3 && !c.maxDeductionMoney && c.maxDeductionMoney !=0) {
+                    if (self.form.type == 3 && !c.maxDeductionMoney && c.maxDeductionMoney != 0) {
                         flag = false;
                     }
                 });
@@ -501,10 +530,11 @@
 </script>
 <style scoped>
     @media screen and (max-width: 2000px) {
-        .setcoupon{
-            width:850px;
+        .setcoupon {
+            width: 850px;
         }
     }
+
     .container {
         background-color: #fff;
     }

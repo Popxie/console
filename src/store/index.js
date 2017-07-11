@@ -14,6 +14,7 @@ import couponList from './modules/coupon';
 import createLogger from 'vuex/dist/logger';
 import griding from './modules/griding'
 import priceRule from './modules/priceRule'
+import vipCard from './modules/vipCard'
 Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== 'production';
 
@@ -28,7 +29,8 @@ export default new Vuex.Store({
         adsList,
         couponList,
         griding,
-        priceRule
+        priceRule,
+        vipCard
     },
     strict: debug,
     plugins: debug ? [createLogger()] : []
