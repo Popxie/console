@@ -5,8 +5,6 @@
         <div class="intro-page" v-show="!isSetRule">
             <div class="tips">
                 规则执行优先级： 1、优惠日（时期+时间）2、周惠（周+时间）3、统一计价
-
-
             </div>
         </div>
         <div class="create-page" v-show="isSetRule">
