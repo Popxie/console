@@ -385,12 +385,13 @@
                            return false;
                        }
                         self.setNewRuleModel(self.ruleForm).then((res) => {
-                            if (res.data == '1') {
+                            if (res.status == '1') {
                                 self.$notify({
                                     title: '成功',
-                                    message: res,
+                                    message: res.msg,
                                     type: 'success'
                                 });
+                                self.isSetRule = false;
                             } else {
                                 self.$notify({
                                     title: '失败',
