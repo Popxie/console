@@ -270,7 +270,6 @@
             offlinePrice(id) {
                 let self = this;
                 self.offlineRule(id).then((res) => {
-                    let data = res.data;
                     self.$notify({
                         title: '成功',
                         message: res.msg,

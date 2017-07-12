@@ -369,6 +369,21 @@
                 //表单验证
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
+                        let isRuleValid = true;
+                        self.ruleForm.value.forEach((item) => {
+                            if(item.time < 1 || item.price < 1) {
+                                self.$notify({
+                                    title: '失败',
+                                    message: '阶梯规则值必须大于0',
+                                    type: 'error'
+                                });
+                                isRuleValid = false;
+                                return false;
+                            }
+                        });
+                       if(!isRuleValid) {
+                           return false;
+                       }
                         self.setNewRuleModel(self.ruleForm).then((res) => {
                             if (res.data == '1') {
                                 self.$notify({
