@@ -87,9 +87,7 @@
                                v-show="scope.row.status != 1">编辑
                     </el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
-                               @click="offlineRule(scope.row.id)">停止
-
-
+                               @click="offlinePrice(scope.row.id)">停止
                     </el-button>
                 </template>
             </el-table-column>
@@ -278,6 +276,7 @@
                         message: res.msg,
                         type: 'success'
                     });
+                    self.getPriceRuleList();
                 }, (err) => {
                     self.$notify({
                         title: '失败',

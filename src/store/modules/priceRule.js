@@ -126,7 +126,6 @@ const actions = {
             .then((data) => {
                 console.log(data.status);
                 if (data.status == 1) {
-                    alert('成功');
                     return Promise.resolve(data);
                 }
             }).catch((error) => {
