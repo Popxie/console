@@ -121,18 +121,18 @@
             <div v-if="form.type === 4">
                 <el-form :model="ruleForm" :rules="ruleFormRules" ref="ruleForm" label-width="120px">
                     <el-form-item label="规则名称：" prop="name">
-                        <el-input v-model="ruleForm.name"></el-input>
+                        <el-input v-model="ruleForm.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
                     <el-form-item label="阶段规则：" required>
                         <span class="intro">计费单位时间为30分钟；</span>
                         <div class="rule-list" v-for="(item,index) in ruleForm.value">
-                            <el-col :span="4">
+                            <span>
                                 <el-input v-model="item.time" type="number"></el-input>
-                            </el-col>
+                            </span>
                             <span class="intro">分钟，按</span>
-                            <el-col :span="4">
+                            <span>
                                 <el-input v-model="item.price" type="number"></el-input>
-                            </el-col>
+                            </span>
                             <span class="intro">元</span>
                             <el-button @click="addPrice" v-if="index === 0">新增</el-button>
                             <el-button type="danger" @click="deletePrice(index)" v-if="index > 0">删除</el-button>
@@ -369,13 +369,29 @@
                 //表单验证
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
+                        let isRuleValid = true;
+                        self.ruleForm.value.forEach((item) => {
+                            if(item.time < 1 || item.price < 1) {
+                                self.$notify({
+                                    title: '失败',
+                                    message: '阶梯规则值必须大于0',
+                                    type: 'error'
+                                });
+                                isRuleValid = false;
+                                return false;
+                            }
+                        });
+                       if(!isRuleValid) {
+                           return false;
+                       }
                         self.setNewRuleModel(self.ruleForm).then((res) => {
-                            if (res.data == '1') {
+                            if (res.status == '1') {
                                 self.$notify({
                                     title: '成功',
-                                    message: res,
+                                    message: res.msg,
                                     type: 'success'
                                 });
+                                self.isSetRule = false;
                             } else {
                                 self.$notify({
                                     title: '失败',
@@ -455,9 +471,19 @@
                         //优惠日
                         if (type === 3) {
                             let dayPriceList = [];
+                            let isTimeEqual = false;
                             self.dayPricingList.forEach((item) => {
                                 let startTime = parseInt(item.time[0].getTime() / 1000);
                                 let endTime = parseInt(item.time[1].getTime() / 1000);
+                                if(startTime === endTime) {
+                                    self.$notify({
+                                        title: '优惠日时间',
+                                        message: '结束时间应大于开始时间',
+                                        type: 'error'
+                                    });
+                                    isTimeEqual = true;
+                                    return;
+                                }
                                 dayPriceList.push({
                                     startTime: startTime.toString(),
                                     endTime: endTime.toString(),
@@ -465,6 +491,9 @@
                                 })
                             });
                             self.form.billingModule.dayPricing = dayPriceList;
+                            if(isTimeEqual) {
+                                return;
+                            }
                         }
                         self.setNewRule(self.form).then((res) => {
                             self.$notify({

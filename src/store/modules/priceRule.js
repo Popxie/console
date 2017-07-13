@@ -30,7 +30,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
-                return Promise.resolve(data);
+                return Promise.reject(error);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -126,7 +126,6 @@ const actions = {
             .then((data) => {
                 console.log(data.status);
                 if (data.status == 1) {
-                    alert('成功');
                     return Promise.resolve(data);
                 }
             }).catch((error) => {

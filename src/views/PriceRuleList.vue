@@ -70,6 +70,11 @@
                 label="类型">
             </el-table-column>
             <el-table-column
+                prop="weekDays"
+                :formatter="weekdayFilter"
+                label="周惠日">
+            </el-table-column>
+            <el-table-column
                 prop="status"
                 :formatter="statusFilter"
                 label="状态">
@@ -78,27 +83,30 @@
                 label="操作">
                 <template scope="scope">
                     <el-button type="text" size="small" @click="getModelDetail(scope.row.id)">详情</el-button>
-                    <el-button type="text" size="small" @click="routeToEditPriceRule(scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="routeToEditPriceRule(scope.row)"
+                               v-show="scope.row.status != 1">编辑
+                    </el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1"
-                               @click="offlineRule(scope.row.id)">停止
-
+                               @click="offlinePrice(scope.row.id)">停止
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-pagination
-            @current-change="handleCurrentChange"
-            :current-page.sync="searchForm.page"
-            :page-size="1"
-            layout="prev, pager, next"
-            :total="totalPages">
-        </el-pagination>
+        <el-row type="flex" justify="end">
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="searchForm.page"
+                :page-size="1"
+                layout="prev, pager, next, jumper"
+                :total="totalPages">
+            </el-pagination>
+        </el-row>
         <el-dialog
             title="当前规则模板详情"
             :visible.sync="dialogVisible"
             size="tiny">
             <div class="name">{{currentPriceDetail.name}}</div>
-            <div class="intro" v-for="item in currentPriceDetail.valueArray">每{{item.minute}}分钟，需要{{item.value}}元</div>
+            <div class="intro" v-for="item in currentPriceDetail.valueArray">第{{item.minute}}分钟，需要{{item.value}}元</div>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
             </span>
@@ -133,6 +141,7 @@
         font-weight: bold;
         margin-bottom: 10px;
     }
+
     span.ib {
         display: inline-block;
     }
@@ -261,12 +270,12 @@
             offlinePrice(id) {
                 let self = this;
                 self.offlineRule(id).then((res) => {
-                    let data = res.data;
                     self.$notify({
                         title: '成功',
                         message: res.msg,
                         type: 'success'
                     });
+                    self.getPriceRuleList();
                 }, (err) => {
                     self.$notify({
                         title: '失败',
@@ -275,6 +284,13 @@
                     });
                 });
 
+            },
+            //周惠日format
+            weekdayFilter(row, column) {
+                let weekday = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                if (row.type == '2') {
+                    return weekday[row.weekDays - 1];
+                }
             },
             //获取详情
             getModelDetail(id) {
