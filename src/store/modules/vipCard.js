@@ -4,17 +4,17 @@
 import * as types from '../mutation-types';
 import {_get, _post} from '../../utils/fetch';
 const state = {
-    // priceModelList: [], //计费模型
+    vipCardList: [] //会员卡列表
 };
 
 const getters = {
-    // priceModelList: state => state.priceModelList,
+    vipCardList: state => state.vipCardList
 };
 
 const actions = {
     //创建会员卡
     setVipCard({commit}, data) {
-        let url = '/vip_card/create_vip_card';
+        let url = '/riding_card/create_riding_card';
         let formData = new FormData();
         for (let key in data) {
             if(data[key]) {
@@ -34,7 +34,7 @@ const actions = {
     },
     //获取会员卡列表
     getVipCardList({commit},data) {
-        let url = '/vip_card/vip_card_list';
+        let url = '/riding_card/riding_card_list';
         let formData = new FormData();
         for (let key in data) {
             if(data[key]) {
@@ -44,10 +44,9 @@ const actions = {
         return _post({url},formData,commit)
             .then((data) => {
                 console.log(data);
-                // console.log(data.data.totalCount);
                 if (data.status == 1) {
-                    return Promise.resolve(data);
-                    // return commit(types.SET_PRICE_LIST, data.data.priceListData);
+                    // return Promise.resolve(data);
+                    return commit(types.SET_VIP_CARD_LIST, data.data);
                 }
             }).catch((error) => {
                 return Promise.reject(error);
@@ -55,14 +54,12 @@ const actions = {
     },
     //下线会员卡
     offlineVipCard({commit}, data) {
-        let url = '/vip_card/offline_vip_card';
+        let url = '/riding_card/offline_riding_card';
         let formData = new FormData();
         formData.append('id', data);
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data.status);
                 if (data.status == 1) {
-                    alert('成功');
                     return Promise.resolve(data);
                 }
             }).catch((error) => {
@@ -72,6 +69,9 @@ const actions = {
 
 };
 const mutations = {
+    [types.SET_VIP_CARD_LIST] (state, data) {
+        state.vipCardList = data;
+    }
 };
 export default {
     state,
