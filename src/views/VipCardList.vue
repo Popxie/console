@@ -17,12 +17,6 @@
         <el-table
             :data="vipCardList">
             <el-table-column
-                prop="id"
-                label="序号"
-                fixed
-                width="80">
-            </el-table-column>
-            <el-table-column
                 prop="name"
                 label="会员卡名称"
                 width="180">

@@ -59,7 +59,8 @@
                 },
                 rules: {
                     name: [
-                        {required: true,message: '请输入会员卡名称', trigger: 'blur'}
+                        {required: true,message: '请输入会员卡名称', trigger: 'blur'},
+                        { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
                     ],
                     ruleTitle: [
                         {required: true,message: '请输入规则标题', trigger: 'blur'}
@@ -136,22 +137,39 @@
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
-                        self.setVipCard(self.form).then((res) => {
-                            self.$notify({
-                                title: '成功',
-                                message: res.msg,
-                                type: 'success'
-                            });
-                            self.$router.push({path: 'vipCardList'});
-                        }, (err) => {
+                        if(self.form.originalPrice <= 0) {
                             self.$notify({
                                 title: '失败',
-                                message: err,
+                                message: '原价必须大于0',
                                 type: 'error'
                             });
+                            return;
+                        }
+                        if(self.form.price <= 0) {
+                            self.$notify({
+                                title: '失败',
+                                message: '惊爆价必须大于0',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        self.setVipCard(self.form).then((res) => {
+                            if(res.status == '1') {
+                                self.$notify({
+                                    title: '成功',
+                                    message: res.msg,
+                                    type: 'success'
+                                });
+                                self.$router.push({path: 'vipCardList'});
+                            } else {
+                                self.$notify({
+                                    title: '失败',
+                                    message: res.msg,
+                                    type: 'error'
+                                });
+                            }
+                        }, (err) => {
                         });
-
-
 
                     } else {
                         console.log('error submit!!');
