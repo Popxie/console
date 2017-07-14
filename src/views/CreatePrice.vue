@@ -371,10 +371,10 @@
                     if (valid) {
                         let isRuleValid = true;
                         self.ruleForm.value.forEach((item) => {
-                            if(item.time < 1 || item.price < 1) {
+                            if(item.time < 1 || item.price < 0) {
                                 self.$notify({
                                     title: '失败',
-                                    message: '阶梯规则值必须大于0',
+                                    message: '阶梯规则值不能为负数',
                                     type: 'error'
                                 });
                                 isRuleValid = false;
