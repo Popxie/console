@@ -94,11 +94,13 @@
         </el-table>
         <el-row type="flex" justify="end">
             <el-pagination
+                @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="searchForm.page"
-                :page-size="1"
-                layout="prev, pager, next, jumper"
-                :total="totalPages">
+                :current-page="searchForm.page"
+                :page-sizes="[5, 10, 50, 100]"
+                :page-size="searchForm.count"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="recordsTotal">
             </el-pagination>
         </el-row>
         <el-dialog
@@ -113,39 +115,6 @@
         </el-dialog>
     </div>
 </template>
-<style scoped>
-    .container {
-        background: #fff;
-        padding: 20px;
-    }
-
-    .status-type-block {
-        margin: 20px 0;
-    }
-
-    .status-type-block .title {
-        font-size: 14px;
-    }
-
-    .status-checkbox, .operation-checkbox {
-        display: inline-block;
-        margin: 0 20px;
-    }
-
-    .el-pagination {
-        margin-top: 10px;
-    }
-
-    .el-dialog .name {
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    span.ib {
-        display: inline-block;
-    }
-</style>
 <script>
     import {mapGetters, mapActions, mapMutations} from 'vuex'
     import {Areas} from '../config/Areas'
@@ -155,7 +124,7 @@
                 areas: Areas,
                 selectedCity: [],
                 dialogVisible: false,
-                totalPages: 1,//总页数
+                recordsTotal: 1,//条数
                 value: '',
                 timePeriod: '',
                 priceList: [],
@@ -166,7 +135,7 @@
                     startTime: '',
                     endTime: '',
                     status: '',
-                    count: '10',
+                    count: 10,
                     operateWay: '',
                     page: 1
                 },
@@ -192,6 +161,10 @@
             handleCurrentChange(val) {
                 let self = this;
                 self.searchForm.page = val;
+            },
+            handleSizeChange(val) {
+                let self = this;
+                self.searchForm.count = val;
                 self.getPriceRuleList();
             },
             //路由跳转到创建规则页面
@@ -211,13 +184,7 @@
                 self.getPriceList(self.searchForm).then((res) => {
                     self.priceList = [];
                     self.priceList = self.priceList.concat(res.data.priceListData);
-                    self.totalPages = Math.ceil(res.data.totalCount / self.searchForm.count);
-//                    self.totalPages = parseInt(res.data.totalCount);
-                    self.$notify({
-                        title: '成功',
-                        message: res.msg,
-                        type: 'success'
-                    });
+                    self.recordsTotal = Number(res.data.totalCount);
                 }, (err) => {
                     self.$notify({
                         title: '失败',
@@ -351,3 +318,36 @@
         }
     }
 </script>
+<style scoped>
+    .container {
+        background: #fff;
+        padding: 20px;
+    }
+
+    .status-type-block {
+        margin: 20px 0;
+    }
+
+    .status-type-block .title {
+        font-size: 14px;
+    }
+
+    .status-checkbox, .operation-checkbox {
+        display: inline-block;
+        margin: 0 20px;
+    }
+
+    .el-pagination {
+        margin-top: 10px;
+    }
+
+    .el-dialog .name {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    span.ib {
+        display: inline-block;
+    }
+</style>

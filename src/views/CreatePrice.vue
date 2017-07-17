@@ -11,7 +11,7 @@
             <div class="title">计费规则设置/<span class="sub-title">{{taps[form.type - 1].task}}</span></div>
             <div v-if="form.type < 4">
                 <el-form :model="form" :rules="formRules" ref="form" label-width="120px">
-                    <el-form-item label="活动名称" prop="name">
+                    <el-form-item label="活动名称" prop="name" style="width: 50%">
                         <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
                     <el-form-item label="地区" required>

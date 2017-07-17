@@ -49,7 +49,6 @@ const actions = {
         }
         return _post({url},formData,commit)
             .then((data) => {
-                console.log(data);
                 // console.log(data.data.totalCount);
                 if (data.status == 1) {
                     return Promise.resolve(data);
