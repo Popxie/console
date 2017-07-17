@@ -105,10 +105,10 @@
         </el-row>
         <el-dialog
             title="当前规则模板详情"
-            :visible.sync="dialogVisible"
+            v-model="dialogVisible"
             size="tiny">
             <div class="name">{{currentPriceDetail.name}}</div>
-            <div class="intro" v-for="item in currentPriceDetail.valueArray">第{{item.minute}}分钟，需要{{item.value}}元</div>
+            <div class="intro" v-for="item in currentPriceDetail.valueArray" :key="item.id">第{{item.minute}}分钟，需要{{item.value}}元</div>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
             </span>
@@ -268,7 +268,6 @@
                     let modelValueArray = data.value.split(',');
                     let valueArray = [];
                     modelValueArray.forEach((item) => {
-                        console.log(item);
                         let valueMinute = item.split('-');
                         valueArray.push({
                             value: valueMinute[1],
@@ -280,11 +279,6 @@
                         name: data.name,
                         valueArray: valueArray
                     };
-                    self.$notify({
-                        title: '成功',
-                        message: res.msg,
-                        type: 'success'
-                    });
                 }, (err) => {
                     self.$notify({
                         title: '失败',
