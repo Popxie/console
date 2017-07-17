@@ -43,6 +43,9 @@
                 prop="id"
                 label="序号"
                 width="80">
+                <template scope="scope">
+                    {{scope.$index+1}}
+                </template>
             </el-table-column>
             <el-table-column
                 prop="name"
