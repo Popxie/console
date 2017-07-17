@@ -37,7 +37,7 @@
                         <el-form-item label="规则选择" required>
                             <el-select v-model="priceModelId" placeholder="规则选择">
                                 <el-option :label="item.name" :value="item.id"
-                                           v-for="item in priceModelList"></el-option>
+                                           v-for="item in priceModelList" :key="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </template>
@@ -87,7 +87,7 @@
                                 <el-form-item>
                                     <el-select v-model="item.priceModelId" placeholder="规则选择">
                                         <el-option :label="item.name" :value="item.id"
-                                                   v-for="item in priceModelList"></el-option>
+                                                   v-for="item in priceModelList" :key="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                                 <el-button @click="addWeekPricingTime" v-show="index === 0">新增</el-button>
@@ -106,7 +106,7 @@
                                 </el-date-picker>
                                 <el-select v-model="item.priceModelId" placeholder="规则选择">
                                     <el-option :label="model.name" :value="model.id"
-                                               v-for="model in priceModelList"></el-option>
+                                               v-for="model in priceModelList" :key="item.id"></el-option>
                                 </el-select>
                                 <el-button @click="deleteDayPricing" v-if="index > 0 " type="danger">删除</el-button>
                                 <el-button @click="addDayPricing(index)" v-if="index === 0">新增</el-button>
@@ -315,7 +315,6 @@
                 let self = this;
                 self.dialogVisible = false;
                 self.form.areaType = 0;
-                self.reset();
             },
             setAreas(form) {
                 let self = this;
@@ -327,7 +326,6 @@
                     });
                     return;
                 }
-                console.log(form);
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
             },

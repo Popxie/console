@@ -6,7 +6,7 @@
                 全选
             </el-checkbox>
             <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
-                <el-checkbox v-for="city in cities" :label="city"></el-checkbox>
+                <el-checkbox v-for="(city, index) in cities"  :key="index" :label="city"></el-checkbox>
             </el-checkbox-group>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="cancel">取 消</el-button>

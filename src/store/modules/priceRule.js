@@ -26,7 +26,6 @@ const actions = {
         formData.append('value', JSON.stringify(data.value));
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
@@ -71,7 +70,6 @@ const actions = {
         }
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return Promise.resolve(data.msg);
                 }
@@ -93,7 +91,6 @@ const actions = {
         }
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return Promise.resolve(data.msg);
                 }
@@ -108,7 +105,6 @@ const actions = {
         formData.append('id', data);
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
@@ -123,7 +119,6 @@ const actions = {
         formData.append('id', data);
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data.status);
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
@@ -136,7 +131,6 @@ const actions = {
         let url = '/riding_price/model_list';
         return _post({url}, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return commit(types.SET_PRICE_MODEL_LIST, data.data);
                 }
