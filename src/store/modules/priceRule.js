@@ -48,11 +48,10 @@ const actions = {
         }
         return _post({url},formData,commit)
             .then((data) => {
-                // console.log(data.data.totalCount);
                 if (data.status == 1) {
                     return Promise.resolve(data);
-                    // return commit(types.SET_PRICE_LIST, data.data.priceListData);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -73,6 +72,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data.msg);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -94,6 +94,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data.msg);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -108,6 +109,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -122,6 +124,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -134,7 +137,7 @@ const actions = {
                 if (data.status == 1) {
                     return commit(types.SET_PRICE_MODEL_LIST, data.data);
                 }
-                return Promise.resolve(data.msg);
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });

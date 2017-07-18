@@ -23,11 +23,10 @@ const actions = {
         }
         return _post({url}, formData, commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
-                return Promise.resolve(data);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -43,11 +42,11 @@ const actions = {
         }
         return _post({url},formData,commit)
             .then((data) => {
-                console.log(data);
                 if (data.status == 1) {
                     // return Promise.resolve(data);
                     return commit(types.SET_VIP_CARD_LIST, data.data);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -62,6 +61,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
+                return Promise.reject(data.msg);
             }).catch((error) => {
                 return Promise.reject(error);
             });

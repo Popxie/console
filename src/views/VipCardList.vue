@@ -142,7 +142,6 @@
             offline(id) {
                 let self = this;
                 self.offlineVipCard(id).then((res) => {
-                    let data = res.data;
                     self.$notify({
                         title: '成功',
                         message: res.msg,
