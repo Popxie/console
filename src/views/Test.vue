@@ -27,12 +27,13 @@
         methods: {
             getData() {
                 this.$loading({ fullscreen: true });
-                this.$http.get('https://activity.mingbikes.com/api/vcp/getVirtualCarPileInfo?startTime=2017-04-12%2000:00:00&endTime=2017-04-12%2001:30:00')
+                this.$http.get('http://localhost:3000/api/activity/getProblems?page=1&size=200')
                     .then((res) => {
                 	    this.$loading().close();
-                        let data = res.data.data;
-                        this.excelData = data.bikeCarPileD
-                    });
+                        this.excelData = res.data.data;
+                    }).catch(()=> {
+                	console.log(11)
+                });
             }
         }
     }

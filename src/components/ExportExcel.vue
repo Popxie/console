@@ -86,7 +86,7 @@
         },
         mounted() {
             let script = document.createElement('script');
-            script.src = 'https://activity.mingbikes.com/public/static/js/lib/xlsx.core.min.js';
+            script.src = 'https://activity.mingbikes.com/public/static/js/lib/xlsx-028fd51100.core.min.js';
             let header = document.getElementsByTagName("head");
             header[0].appendChild(script);
         }
