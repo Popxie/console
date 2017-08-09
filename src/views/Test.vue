@@ -21,18 +21,17 @@
             return {
                 primary: 'primary',
                 excelData: [],
-                name: 'console.xlsx'
+                name: 'rank.xlsx'
             }
         },
         methods: {
             getData() {
                 this.$loading({ fullscreen: true });
-                this.$http.get('http://localhost:3000/api/activity/getProblems?page=1&size=200')
+                this.$http.get('https://activity.mingbikes.com/api/activity/getAllUserInvRecodeLists?startTime=1500998400&endTime=1501171200')
                     .then((res) => {
                 	    this.$loading().close();
                         this.excelData = res.data.data;
                     }).catch(()=> {
-                	console.log(11)
                 });
             }
         }
