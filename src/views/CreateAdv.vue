@@ -321,11 +321,12 @@
                                 });
                             return;
                         }
+                        let topic = JSON.parse(JSON.stringify(self.form.topic));
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
                             let cityInfo = self.selectCityInfos[i];
                             self.form.provinceName = cityInfo.provinceName;
                             self.form.cityName = cityInfo.cityName;
-                            self.form.topic = self.form.topic + "-" + cityInfo.cityName;
+                            self.form.topic = topic + "-" + cityInfo.cityName;
                             self.createNewAds(self.form)
                                 .then((data) => {
                                     self.$notify({
