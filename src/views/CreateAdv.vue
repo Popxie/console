@@ -162,7 +162,6 @@
     import SelectCity from '../components/SelectCity.vue';
     import TapSelect from '../components/TapSelect.vue';
     import {settings} from '../config/settings';
-    import {Cities} from '../config/City';
     import {CityMaps} from '../config/City';
     export default {
         components: {
@@ -305,12 +304,22 @@
                         }
                         //若为全域
                         if(!self.form.areaType) {
-                            Cities.forEach((item) => {
-                                self.selectCityInfos.push({
-                                    cityName: item,
-                                    provinceName: CityMaps[item]
-                                })
-                            });
+                            self.createNewAds(self.form)
+                                .then((data) => {
+                                    self.$notify({
+                                        title: '成功',
+                                        message: '广告创建成功',
+                                        type: 'success'
+                                    });
+                                    self.$router.push('advList');
+                                }, (err) => {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: err,
+                                        type: 'info'
+                                    })
+                                });
+                            return;
                         }
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
                             let cityInfo = self.selectCityInfos[i];
