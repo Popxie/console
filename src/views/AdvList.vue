@@ -24,7 +24,7 @@
                         <el-button
                             size="small"
                             type="text"
-                            @click="routeToEdit(scope.$index, scope.row)">{{scope.row.topic}}
+                            @click="routeToEdit(scope.$index, scope.row)">{{returnTopic(scope.row.topic)}}
                         </el-button>
                     </template>
                 </el-table-column>
@@ -33,6 +33,13 @@
                     label="城市"
                     width="100"
                 >
+                    <template scope="scope">
+                        <el-button
+                            size="small"
+                            type="text"
+                            >{{returnCityNameByTopic(scope.row.topic)}}
+                        </el-button>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     prop="viewPosition"
@@ -159,6 +166,20 @@
                 'updateAdvertStatusById',
                 'deleteAdvertById'
             ]),
+            /**
+             *
+             */
+            returnTopic(val) {
+                let items = val.split("__") ;
+                return items[0]
+            },
+            returnCityNameByTopic(val) {
+                let items = val.split("__");
+                if (!items[1]) {
+                	return "全域"
+                }
+                return items[1]
+            },
             filterStatus(value, row) {
                 return row.status === value;
             },

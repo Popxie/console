@@ -326,7 +326,7 @@
                             let cityInfo = self.selectCityInfos[i];
                             self.form.provinceName = cityInfo.provinceName;
                             self.form.cityName = cityInfo.cityName;
-                            self.form.topic = topic + "-" + cityInfo.cityName;
+                            self.form.topic = topic + "__" + cityInfo.cityName;
                             self.createNewAds(self.form)
                                 .then((data) => {
                                     self.$notify({
