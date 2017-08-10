@@ -60,6 +60,9 @@
                     <template v-if="form.viewPosition == 1">
                         <div class="tip">尺寸要求：1242*2208</div>
                     </template>
+                    <el-form-item label="详情页超链接：" prop="hyperlinks">
+                        <el-input v-model="form.hyperlinks"></el-input>
+                    </el-form-item>
                     <!--首页弹框-->
                     <template v-if="form.viewPosition == 2">
                         <div class="tip">尺寸要求：660*880</div>
@@ -84,7 +87,7 @@
                     <!--骑行结束页-->
                     <template v-if="form.viewPosition == 3">
                         <div class="tip">尺寸要求：690*160</div>
-                        <el-form-item label="详情页超链接：" prop="hyperlinks">
+                        <el-form-item label="详情页333超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
                     </template>
@@ -238,7 +241,7 @@
                         {type: 'number', required: true, message: '请选择轮播顺序', trigger: 'change'}
                     ],
                     hyperlinks: [
-                        {max: 255, message: '字数不能超过255个', trigger: 'blur'}
+                        {max: 100, message: '最多不能超过100个字符！', trigger: 'blur'}
                     ],
                     startTime: [
                         {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}

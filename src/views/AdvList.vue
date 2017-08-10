@@ -46,10 +46,16 @@
                     label="广告位置"
                     width="130"
                     :formatter="viewPositionFilter"
-                    :filters="[{text: '开屏页',value:1},{text:'首页弹框',value:2},{text:'骑行结束页',value:3},{text:'首页顶部链',value:4},{text:'升级提示框',value:5}]"
+                    :filters="[
+                        {text: '开屏页',value:1},{text:'首页弹框',value:2},
+                        {text:'骑行结束页',value:3},{text:'首页顶部链',value:4},{text:'升级提示框',value:5}
+                    ]"
                     filter-placement="bottom-end"
                     :filter-method="filterPosition"
                 >
+                    <!--<template scope="scope">-->
+                        <!--<el-tag :type="scope.row.viewPosition === '1' ? 'primary' : 'success'" close-transition>{{scope.row.viewPosition}}</el-tag>-->
+                    <!--</template>-->
                 </el-table-column>
                 <el-table-column
                     prop="beginTime"
@@ -181,17 +187,22 @@
                 return items[1]
             },
             filterStatus(value, row) {
+                console.debug("value", value);
+                console.debug('row', row);
                 return row.status === value;
             },
             filterPutPosition(value, row) {
+                console.debug("value", value);
+                console.debug('row', row);
                 return row.putPosition === value;
             },
             filterPosition(value, row) {
+                console.debug("value", value);
+                console.debug('row', row);
                 return row.viewPosition === value;
             },
             getAds(params) {
-                this.getAdsList(params).then(()=> {
-                },((err)=> {
+                this.getAdsList(params).then(() => {},((err)=> {
                     this.$notify({
                         title: '登陆已失效',
                         message: err,
