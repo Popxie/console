@@ -197,8 +197,6 @@
                 return row.putPosition === value;
             },
             filterPosition(value, row) {
-                console.debug("value", value);
-                console.debug('row', row);
                 return row.viewPosition === value;
             },
             getAds(params) {
