@@ -3,87 +3,104 @@
         <TapSelect v-if="!showNext" :taps="taps" title="优惠券管理" @setValue="setCoupon"/>
         <!--选择地区-->
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-
+        
         <el-row v-if="showNext">
             <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
                 <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px" v-if="form.type <= 3">
+                    <el-form-item label="方式：">
+                        <el-button :class="{button: portIsChecked}" @click="portClick(1)">接口方式</el-button>
+                        <el-button :class="{button: isChecked}" @click="portClick(2)">直接生成券</el-button>
+                    </el-form-item>
+                    
                     <el-form-item label="是否仅新用户可用：" prop="isNewuserUse">
                         <el-radio-group v-model="form.isNewuserUse">
                             <el-radio :label="1">是</el-radio>
                             <el-radio :label="0">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="本批次劵单用户可领用/兑换上限张数：" prop="limitSize">
+                    
+                    <el-form-item label="单用户可领张数：" prop="limitSize">
+                        <el-form-item>
+                            <el-radio-group v-model="form.choiceType">
+                                <el-radio :label="0">按批次</el-radio>
+                                <el-radio :label="1">按单次</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
                         <el-radio-group v-model="form.limitSize">
                             <el-radio :label="1">1</el-radio>
                             <el-radio :label="2">2</el-radio>
                             <el-radio :label="3">3</el-radio>
                             <el-radio :label="other">其他
-
-
-
                                 <el-input style="width: 60px;" type="number" min="0" :value="other"
-                                          @blur="setLimit($event)"
-                                          placeholder="请输入"></el-input>
+                                          @blur="setLimit($event)" placeholder="请输入"
+                                >
+                                </el-input>
                             </el-radio>
                             <el-radio :label="-1">不限</el-radio>
                         </el-radio-group>
                     </el-form-item>
+                    
                     <el-form-item label="发券活动主题：" prop="topic">
                         <el-input v-model="form.topic" :maxlength="30" placeholder="请输入本次发券的主题，30字以内"></el-input>
                     </el-form-item>
+                    
                     <el-form-item label="优惠卷显示名称：" prop="couponName">
                         <el-input v-model="form.couponName" :maxlength="15" placeholder="请输入优惠券上显示的券名，15字以内"></el-input>
                     </el-form-item>
+                    
                     <el-form-item label="设置投放地域：" prop="areaType">
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required class="setcoupon">
-                        <div class="row-wrap">
-                            <template v-for="(item, index)  in form.coupon">
-                                <div class="wid row">
-                                    <el-input type="number" v-model.number="item.denomination"
-                                              @blur="checkMoneyAndRepeat($event, index)"
-                                              placeholder="输入劵面额"></el-input>
-                                    元劵
-
-
-
-                                    <el-input type="number" v-model.number="item.couponNum" @blur="checkValue($event)"
-                                              placeholder="输入张数"></el-input>
-                                    张数
-
-
-                                    <el-button icon="minus" @click="delCoupon(index)"></el-button>
-                                </div>
-                            </template>
-                            <div class="wid">
-                                <el-button icon="plus" @click="addCoupon"></el-button>
-                            </div>
-                        </div>
+                    
+                    <el-form-item label="是否限制张数:" v-show="showLimitCount">
+                        <el-radio-group v-model="form.limitCount" @change="selectLimit">
+                            <el-radio :label="0">不限</el-radio>
+                            <el-radio :label="1">限定张数</el-radio>
+                        </el-radio-group>
                     </el-form-item>
-                    <template v-if="form.type == 3">
-                        <el-form-item label="设置券的面额&数量：" required class="setcoupon">
+                    
+                    <el-form-item v-if="showLimit" label="券面额：">
+                            <div class="row-wrap">
+                                <template v-for="(item, index)  in form.coupon">
+                                    <div class="wid row" style="width: 267px;">
+                                        <el-input type="number" v-model.number="item.denomination"
+                                                  @blur="checkMoneyAndRepeat($event, index)"
+                                                  placeholder="输入劵面额"
+                                        >
+                                        </el-input>
+                                        元券
+                                        <el-button icon="minus" @click="delCoupon(index)"></el-button>
+                                    </div>
+                                </template>
+                                <div class="wid">
+                                    <el-button icon="plus" @click="addCoupon"></el-button>
+                                </div>
+                            </div>
+                    </el-form-item>
+                    
+                    <div v-else>
+                        <el-form-item v-if="form.type != 3" label="设置券的面额&数量：" required class="setcoupon">
                             <div class="row-wrap">
                                 <template v-for="(item, index)  in form.coupon">
                                     <div class="wid row">
-                                        <el-input type="number" max="10" min="0"
-                                                  @blur="setAllDenomination($event,index )"
-                                                  v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
-                                        折券
-
-
-
-                                        <el-input type="number" v-model.number="item.couponNum"
-                                                  @blur="checkValue($event)"
+                                        <el-input type="number" v-model.number="item.denomination"
+                                                  @blur="checkMoneyAndRepeat($event, index)"
+                                                  placeholder="输入劵面额"
+                                        >
+                                        </el-input>
+                                        元劵
+                    
+                    
+                    
+                                        <el-input type="number" v-model.number="item.couponNum" @blur="checkValue($event)"
                                                   placeholder="输入张数"></el-input>
-                                        张
-
-
+                                        张数
+                    
+                    
                                         <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                     </div>
                                 </template>
@@ -92,55 +109,108 @@
                                 </div>
                             </div>
                         </el-form-item>
+                    </div>
+                    
+                    <template v-if="form.type == 3">
+                        <el-form-item v-if="!this.showLimit" label="设置券的面额&数量：" required class="setcoupon">
+                            <div class="row-wrap">
+                                <template v-for="(item, index)  in form.coupon">
+                                    <div class="wid row">
+                                        <el-input type="number" max="10" min="0"
+                                                  @blur="setAllDenomination($event,index )"
+                                                  v-model.number="item.denomination" placeholder="输入折扣劵"></el-input>
+                                        折券
+                                        
+                                        
+                                        
+                                        <el-input type="number" v-model.number="item.couponNum"
+                                                  @blur="checkValue($event)"
+                                                  placeholder="输入张数"></el-input>
+                                        张
+                                        
+                                        
+                                        <el-button icon="minus" @click="delCoupon(index)"></el-button>
+                                    </div>
+                                </template>
+                                <div class="wid">
+                                    <el-button icon="plus" @click="addCoupon"></el-button>
+                                </div>
+                            </div>
+                        </el-form-item>
+                        
                         <el-form-item label="设置券的最高抵扣金额：" prop="maxDeductionType">
-
+                            
                             <el-radio-group v-model="form.maxDeductionType">
                                 <el-radio :label="0">统一上限
-
-
-
+                                    
+                                    
+                                    
                                     <el-input type="number" style="width: 80px;" v-model.number="form.maxDeductionMoney"
                                               @blur="checkMaxDeductionMoney($event)" placeholder="输入金额"></el-input>
                                 </el-radio>
                                 <br>
                                 <el-radio :label="1">单独设置：
-
-
-
+                                    
+                                    
+                                    
                                     <template v-for="item in form.coupon">
                                         {{item.denomination || '--' }}折劵
-
-
-
+                                        
+                                        
+                                        
                                         <el-input type="number" style="width: 80px;"
                                                   :disabled="form.maxDeductionType !=1"
                                                   v-model.number="item.maxDeductionMoney"
                                                   @blur="checkMoney($event)"
                                                   placeholder="金额"></el-input>
                                         元&nbsp;&nbsp;
-
-
-
+                                    
+                                    
+                                    
                                     </template>
                                 </el-radio>
                             </el-radio-group>
                         </el-form-item>
                     </template>
-                    <el-form-item label="设置劵的过期日期：" prop="time">
+                    
+                    <el-form-item label="有效期类型：">
+                        <el-radio-group v-model="form.dayType" @change="validDaysClick()">
+                            <el-radio :label="0">固定天数</el-radio>
+                            <el-radio :label="1">固定时间</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    
+                    <el-form-item v-if="showValidDays" label="有效天数：">
+                        <div style="display: flex">
+                            <el-input style="width: 193px;" v-model="form.validDays" placeholder="请输入有效天数，6字以内"></el-input>
+                            <span>天</span>
+                        </div>
+                    </el-form-item>
+                    
+                    <el-form-item v-else label="设置劵的过期日期:" prop="time">
                         <el-date-picker
-                            v-model="form.time"
+                            v-model="form.timeStart"
                             type="date"
-                            placeholder="过期时间"
+                            placeholder="起始时间"
+                            @change="setEndTime"
+                            :picker-options="pickerOptions">
+                        </el-date-picker>
+                        -
+                        <el-date-picker
+                            v-model="form.timeEnd"
+                            type="date"
+                            placeholder="结束时间"
                             @change="setEndTime"
                             :picker-options="pickerOptions">
                         </el-date-picker>
                     </el-form-item>
+                    
                     <el-form-item>
                         <el-button type="info" @click="upStep()">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
                     </el-form-item>
                 </el-form>
-            <create-vip-card v-if="form.type === 4"></create-vip-card>
+                <create-vip-card v-if="form.type === 4" @back-click="upStep()"></create-vip-card>
             </el-col>
         </el-row>
     </div>
@@ -172,13 +242,18 @@
                     task: '会员卡',
                     value: 4
                 }],
+                radio: '1',
                 pickerOptions: {
                     disabledDate(time)
                     {
                         return time.getTime() < Date.now() - 8.64e7;
                     }
-                }
-                ,
+                },
+                portIsChecked: true,
+                isChecked: false,
+                showLimitCount: true ,
+                showLimit: true,
+                showValidDays: true,
                 showNext: false,
                 dialogVisible: false,
                 other: 4,
@@ -186,15 +261,20 @@
                 form: {
                     type: 0,
                     isNewuserUse: 0,
+                    choiceType: 0,
                     limitSize: 1,
                     topic: '',
                     couponName: '',
                     areaType: 0,
+                    limitCount: 0,
                     coupon: [{}],
-                    time: '',
+                    timeStart: '',
+                    timeEnd: '',
                     maxDeductionType: 0,
                     maxDeductionMoney: 0,
-                    denomination: 0
+                    denomination: 0,
+                    dayType: 0,
+                    validDays: '' // 有效天数
                 }
                 ,
                 copyForm: {}
@@ -228,25 +308,49 @@
             ...mapActions([
                 'createConpon'
             ]),
+            portClick(val) {
+                if( val == 1) {
+                    this.portIsChecked = true;
+                    this.isChecked = false;
+                    this.showLimitCount = true;
+                } else {
+                    this.portIsChecked = false;
+                    this.isChecked = true;
+                    this.showLimitCount = false;
+                }
+            },
             setCoupon(val) {
                 let self = this;
                 self.showNext = true;
                 self.form.type = val;
             },
+            selectLimit() {
+                this.showLimit = !this.showLimit;
+            },
+            validDaysClick() {
+              this.showValidDays =!this.showValidDays;
+            },
             upStep() {
                 this.showNext = false;
+                this.portIsChecked = true;
+                this.isChecked = false;
+                this.showLimitCount = true;
+                this.showValidDays = true;
                 this.form = {
                     type: 0,
                     isNewuserUse: 0,
+                    choiceType: 0,
                     limitSize: 1,
                     topic: '',
                     couponName: '',
                     areaType: 0,
+                    limitCount: 0,
                     coupon: [{}],
                     time: '',
                     maxDeductionType: 0,
                     maxDeductionMoney: 0,
-                    denomination: 0
+                    denomination: 0,
+                    dayType: 0,
                 };
             },
             setLimit(e) {
@@ -291,11 +395,11 @@
                 self.$nextTick(function () {
                     self.form.limitSize = self.other;
                 });
-
+                
             },
             setMaxMoney() {
                 this.$nextTick(() => {
-
+                
                 });
             },
             selectArea() {
@@ -467,7 +571,7 @@
                     e.target.value = 0;
                     return;
                 }
-
+                
             },
             isEmptyObject(e) {
                 let t;
@@ -534,27 +638,32 @@
             width: 850px;
         }
     }
-
+    
     .container {
         background-color: #fff;
     }
-
+    .button {
+        background: lightcyan;
+    }
     .mt40 {
         margin-top: 40px;
     }
-
+    
     .wid {
         width: 47%;
         margin-bottom: 2px;
     }
-
+    .width {
+        width: 193px;
+    }
+    
     .row-wrap {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         flex-wrap: wrap
     }
-
+    
     .row {
         display: flex;
         flex-direction: row;

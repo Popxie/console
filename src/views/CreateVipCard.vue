@@ -33,6 +33,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item>
+                <el-button type="primary" @click="upStep()">返回</el-button>
                 <el-button type="primary" @click="onSubmit('form')">确定</el-button>
             </el-form-item>
         </el-form>
@@ -133,6 +134,9 @@
             ...mapActions([
                 'setVipCard'
             ]),
+            upStep() {
+                this.$emit('back-click');
+            },
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
