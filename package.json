@@ -12,12 +12,14 @@
     "test": "npm run unit && npm run e2e"
   },
   "dependencies": {
-    "element-ui": "^1.1.6",
-    "font-awesome": "^4.7.0",
-    "vue": "^2.1.10",
-    "vue-resource": "^1.2.0",
-    "vue-router": "^2.2.0",
-    "vuex": "^2.1.2"
+    "element-ui": "1.1.6",
+    "font-awesome": "4.7.0",
+    "less": "2.7.2",
+    "less-loader": "4.0.5",
+    "vue": "2.1.10",
+    "vue-resource": "1.2.0",
+    "vue-router": "2.2.0",
+    "vuex": "2.1.2"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
@@ -69,7 +71,7 @@
     "url-loader": "^0.5.7",
     "vue-loader": "^11.0.0",
     "vue-style-loader": "^2.0.0",
-    "vue-template-compiler": "^2.1.10",
+    "vue-template-compiler": "2.1.10",
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.16.1",
