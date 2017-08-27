@@ -3,7 +3,7 @@
         <TapSelect v-if="!showNext" :taps="taps" title="优惠券管理" @setValue="setCoupon"/>
         <!--选择地区-->
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-        
+
         <el-row v-if="showNext">
             <el-col :lg="{span: 13,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
                     :xs="{span: 18, offset:1}">
@@ -16,14 +16,14 @@
                             <el-radio-button :label="1">直接生成券</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
-                    
+
                     <el-form-item label="是否仅新用户可用：" required>
                         <el-radio-group v-model="form.isNewuserUse">
                             <el-radio :label="1">是</el-radio>
                             <el-radio :label="0">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    
+
                     <el-form-item label="单用户可领张数：" prop="limitSize">
                         <el-form-item>
                             <el-radio-group v-model="form.limitType" @change="batchClick()">
@@ -44,24 +44,24 @@
                             <el-radio :label="-1">不限</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    
+
                     <el-form-item label="发券活动主题：" prop="topic">
                         <el-input v-model.trim="form.topic" :maxlength="30" placeholder="请输入本次发券的主题，30字以内"></el-input>
                     </el-form-item>
-                    
+
                     <el-form-item label="优惠卷显示名称：" prop="couponName">
                         <el-input v-model.trim="form.couponName" :maxlength="15" placeholder="请输入优惠券上显示的券名，15字以内"></el-input>
                     </el-form-item>
-                    
+
                     <el-form-item label="设置投放地域：" prop="areaType">
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    
-                    
-                    
+
+
+
                     <template v-if="form.type <= 2">
                         <!-- 接口方式的情况下 start -->
                         <template v-if="form.addType == 0">
@@ -71,13 +71,14 @@
                                     <el-radio :label="1">限定张数</el-radio>
                                 </el-radio-group>
                             </el-form-item>
-        
+
                             <el-form-item v-if="showAddTypeZero" label="券面额:"  required>
                                 <div class="row-wrap">
                                     <template v-for="(item, index)  in form.coupon">
                                         <div class="wid row">
                                             <el-input v-model.number="item.denomination"
                                                       placeholder="输入劵面额"
+                                                      @blur="addPoints($event,item, index)"
                                             >
                                             </el-input>
                                             元券
@@ -89,13 +90,14 @@
                                     </div>
                                 </div>
                             </el-form-item>
-        
+
                             <el-form-item v-else label="设置券的面额&数量:" required class="setcoupon">
                                 <div class="row-wrap">
                                     <template v-for="(item, index)  in form.coupon">
                                         <div class="wid row">
                                             <el-input v-model.number="item.denomination"
                                                       placeholder="输入劵面额"
+                                                      @blur="addPoints($event,item, index)"
                                             >
                                             </el-input>
                                             元劵
@@ -111,7 +113,7 @@
                                 </div>
                             </el-form-item>
                         </template>
-    
+
                         <!-- 直接生成的情况下 -->
                         <template v-else>
                             <el-form-item label="设置券的面额&数量：" required class="setcoupon">
@@ -119,7 +121,7 @@
                                     <template v-for="(item, index)  in form.coupon">
                                         <div class="wid row">
                                             <el-input v-model.number="item.denomination"
-                                                      @blur="checkMoneyAndRepeat($event, index)"
+                                                      @blur="addPoints($event,item, index)"
                                                       placeholder="输入劵面额"
                                             >
                                             </el-input>
@@ -137,10 +139,10 @@
                             </el-form-item>
                         </template>
                     </template>
-    
+
                     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
                     <template v-if="form.type == 3">
-                        <el-form-item label="是否限制张数:" required>
+                        <el-form-item v-if="showCounts" label="是否限制张数:" required>
                             <el-radio-group v-model="form.isLimitSize" @change="isLimitSizeClick">
                                 <el-radio :label="0">不限</el-radio>
                                 <el-radio :label="1">限定张数</el-radio>
@@ -217,22 +219,21 @@
                             <el-radio :label="1">固定时间</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    
+
                     <el-form-item v-if="showValidDays" label="有效天数：" prop="validateDays">
                         <div style="display: flex">
                             <el-input style="width: 193px;" v-model="form.validateDays" placeholder="请输入有效天数，6字以内"></el-input>
                             <span>天</span>
                         </div>
                     </el-form-item>
-    
+
                     <el-form-item v-else label="设置投放时间段:" prop="validateDaysRange">
                         <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
                                         v-model="form.validateDaysRange" @change="timeChange" style="width: 100%;"
                         >
-        
                         </el-date-picker>
                     </el-form-item>
-                    
+
                     <el-form-item>
                         <el-button type="info" @click="upStep()">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
@@ -289,6 +290,7 @@
                 showAddTypeZero: true, // 接口方式情况下 显示只有券面额输入框
                 showNext: false,
                 dialogVisible: false,
+                showCounts: true,      // type=3时，显示 是否限制张数
                 showDiscount: true,    // 显示 设置券的折扣
                 other: 4,
                 maxMoney: 0,
@@ -342,7 +344,7 @@
             ...mapActions([
                 'createConpon'
             ]),
-            
+
             // 选择模块事件 （充值券、抵扣券、折扣券、会员卡）
             setCoupon(val) {
                 let self = this;
@@ -357,8 +359,15 @@
                 if(self.chooseMethodCount % 2 !== 0) {
                     // 当点击 直接生成的时候 将 isLimitSize 设置成1
                     self.form.isLimitSize = 1;
+                    // form.type = 3 的情况下
+                    this.showCounts = false;
+                    this.showDiscount = false;
+
                 } else {
                     self.form.isLimitSize = 0;
+                    // form.type = 3 的情况下
+                    this.showCounts = true;
+                    this.showDiscount = true;
                 }
             },
             // 选择 （按批次 or 按单次）
@@ -377,10 +386,10 @@
                 this.showAddTypeZero = !this.showAddTypeZero;
                 // form.type =3
                 this.showDiscount = !this.showDiscount;
-    
+
                 this.form.coupon = [{}];
             },
-            
+
             // 有效期类型 （固定天数、固定时间）
             validDaysClick() {
                 this.validateTypeCount++;
@@ -390,7 +399,7 @@
                 } else {
                     this.form.validateDays = '';
                 }
-              
+
             },
             bestHeighestMoney() {
                 this.bestHeighestMoneyCount++;
@@ -407,9 +416,12 @@
             // 固定时间情况下 确认选择时间范围的点击事件
             timeChange(val) {
                 let self = this;
+                // 将组件的val （年月日时分秒的时间区间）分离
                 let items = val.split('——');
-                self.form.beginTime = items[0];
-                self.form.stopTime = items[1];
+                // 将年月日 跟 时分秒分离
+                self.form.startTime = /\d{4}-\d{1,2}-\d{1,2}/g.exec(items[0])[0];
+                self.form.endTime = /\d{4}-\d{1,2}-\d{1,2}/g.exec(items[1])[0];
+
             },
             // 返回时将恢复默认 字段的值
             upStep() {
@@ -477,9 +489,9 @@
                 self.$nextTick(function () {
                     self.form.limitSize = self.other;
                 });
-                
+
             },
-            
+
             selectArea() {
                 let self = this;
                 if (self.form.areaType == '0') {
@@ -502,7 +514,6 @@
                     });
                     return;
                 }
-                console.log(form);
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
             },
@@ -534,7 +545,25 @@
                 }
                 this.form.coupon.splice(index, 1);
             },
-            
+            addPoints(e, item, i) {
+                let self = this;
+                let val = e.target.value;
+                if (val <= 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '数值不能小于等于0',
+                        type: 'info'
+                    });
+                    e.target.value = 0;
+                    return;
+                }
+                let items = JSON.parse(JSON.stringify(self.form.coupon));
+                items.splice(i, 1)
+                let obj = this.form.coupon[i];
+                obj.denomination = Number(val).toFixed(2);
+                this.form.coupon.splice(i, 1, obj);
+            },
+
             checkMaxDeductionMoney (e) {
                 let val = e.target.value;
                 let self = this;
@@ -590,7 +619,7 @@
                     e.target.value = 0;
                     return;
                 }
-        
+
             },
             setAllDenomination(e, index) {
                 let self = this;
@@ -625,7 +654,7 @@
                 obj.denomination = Number(val).toFixed(2);
                 this.form.coupon.splice(index, 1, obj);
             },
-            
+
             isEmptyObject(e) {
                 let t;
                 for (t in e)
@@ -634,7 +663,7 @@
             },
             finishCreate(val) {
                 let self = this;
-                
+
                 self.$refs['form'].validate((valid) => {
                     let showAddTypeOne = true;
                     let showAddTypeOne_One = true;
@@ -644,62 +673,37 @@
                     if (self.form.addType === 0) {
                         if(self.form.type <= 2) {
                             self.form.coupon.map((obj) => {
-                                if(self.form.isLimitSize === 0 && !obj.denomination && obj.denomination !== 0) {
+                                if((self.form.isLimitSize === 0 || self.form.isLimitSize === 1) && !obj.denomination && obj.denomination !== 0) {
                                     showAddTypeOne = false;
                                 }
-                                if(self.form.isLimitSize === 1 && !obj.denomination && obj.denomination !== 0) {
-                                    showAddTypeOne = false
-                                } else if(self.form.isLimitSize === 1 && !obj.couponNum && obj.couponNum !== 0){
+                                if(self.form.isLimitSize === 1 && !obj.couponNum && obj.couponNum !== 0){
                                     showAddTypeOne_One = false;
                                 }
                             });
-                            // 当为  不限张数的情况
-                            if(self.form.isLimitSize === 0){
-                                if (!showAddTypeOne) {
+                            // 当为 不限张数的情况
+                            if (!showAddTypeOne) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请输入券面额',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                                // 校验券面额 是否＞0
+                            const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
+                            for (let i = 0; i < this.form.coupon.length; i++) {
+                                const numbers = checkNumber.test(this.form.coupon[i].denomination);
+                                if (!numbers) {
                                     self.$notify({
                                         title: '警告',
-                                        message: '请输入券面额',
+                                        message: '券面额不能小于等于0',
                                         type: 'warning'
                                     });
                                     return;
-                                }
-                                // 校验券面额 是否是大于零的数字
-                                const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
-                                for (let i = 0; i < this.form.coupon.length; i++) {
-                                    const numbers = checkNumber.test(this.form.coupon[i].denomination);
-                                    if (!numbers) {
-                                        self.$notify({
-                                            title: '警告',
-                                            message: '券面额只能是非零正数',
-                                            type: 'warning'
-                                        });
-                                        return;
-                                    }
                                 }
                             }
                             // 当为 限定张数的情况
                             if(self.form.isLimitSize === 1) {
-                                if (!showAddTypeOne) {
-                                    self.$notify({
-                                        title: '警告',
-                                        message: '请输入券面额',
-                                        type: 'warning'
-                                    });
-                                    return;
-                                }
-                                // 校验券面额 是否是大于零的数字
-                                const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
-                                for (let i = 0; i < this.form.coupon.length; i++) {
-                                    const numbers = checkNumber.test(this.form.coupon[i].denomination);
-                                    if (!numbers) {
-                                        self.$notify({
-                                            title: '警告',
-                                            message: '券面额只能是非零正数',
-                                            type: 'warning'
-                                        });
-                                        return;
-                                    }
-                                }
                                 if(!showAddTypeOne_One) {
                                     self.$notify({
                                         title: '警告',
@@ -735,32 +739,54 @@
                                 }
                             });
                             // 当为  不限张数的情况
-                            if(self.form.isLimitSize === 0){
-                                if (!showAddTypeOne) {
+                            if (!showAddTypeOne) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请输入折扣',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                                // 校验折扣券 是否＞0
+                            const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
+                            for (let i = 0; i < this.form.coupon.length; i++) {
+                                const numbers = checkNumber.test(this.form.coupon[i].denomination);
+                                if (!numbers || this.form.coupon[i].denomination > 10) {
                                     self.$notify({
                                         title: '警告',
-                                        message: '请输入折扣',
+                                        message: '折扣只能是大于0且小于等于10',
                                         type: 'warning'
                                     });
                                     return;
                                 }
-//                                // 校验券面额 是否是大于零的数字
-//                                const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
-//                                for (let i = 0; i < this.form.coupon.length; i++) {
-//                                    const numbers = checkNumber.test(this.form.coupon[i].denomination);
-//                                    if (!numbers) {
-//                                        self.$notify({
-//                                            title: '警告',
-//                                            message: '券面额只能是非零正数',
-//                                            type: 'warning'
-//                                        });
-//                                        return;
-//                                    }
-//                                }
                             }
-                            
+                            // 当为 不限制张数的情况
+                            if(self.form.isLimitSize === 1){
+                                if(!showAddTypeOne_One) {
+                                    self.$notify({
+                                        title: '警告',
+                                        message: '请输入券张数',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                                // 校验 券张数 是否是正整数
+                                const integer = /^\+?[1-9][0-9]*$/;
+                                for(let i = 0; i < this.form.coupon.length; i++) {
+                                    const counts = integer.test(this.form.coupon[i].couponNum);
+                                    if (!counts) {
+                                        self.$notify({
+                                            title: '警告',
+                                            message: '券张数只能为正整数',
+                                            type: 'warning'
+                                        });
+                                        return;
+                                    }
+                                }
+                            }
+
                         }
-                        
+
                     }
                     //  当为直接生成券的情况````````````````````````````````````````
                     if (self.form.addType === 1) {
@@ -772,50 +798,97 @@
                                 showAddTypeTwo_Two = false;
                             }
                         });
-                        if (!showAddTypeTwo) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请输入券面额',
-                                type: 'warning'
-                            });
-                            return;
-                        }
-                        // 校验券面额 是否是大于零的数字
-                        const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
-                        for (let i = 0; i < this.form.coupon.length; i++) {
-                            const numbers = checkNumber.test(this.form.coupon[i].denomination);
-                            if (!numbers) {
+                        if(self.form.type <= 2) {
+                            if (!showAddTypeTwo) {
                                 self.$notify({
                                     title: '警告',
-                                    message: '券面额只能是非零正数',
+                                    message: '请输入券面额',
                                     type: 'warning'
                                 });
                                 return;
                             }
-                        }
-                        if (!showAddTypeTwo_Two) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请输入券张数',
-                                type: 'warning'
-                            });
-                            return;
-                        }
-                        // 校验 券张数 是否是正整数
-                        const integer = /^\+?[1-9][0-9]*$/;
-                        for(let i = 0; i < this.form.coupon.length; i++) {
-                            const counts = integer.test(this.form.coupon[i].couponNum);
-                            if (!counts) {
+                            // 校验券面额 是否是＞0
+                            const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
+                            for (let i = 0; i < this.form.coupon.length; i++) {
+                                const numbers = checkNumber.test(this.form.coupon[i].denomination);
+                                if (!numbers) {
+                                    self.$notify({
+                                        title: '警告',
+                                        message: '券面额不能小于等于0',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
+                            if (!showAddTypeTwo_Two) {
                                 self.$notify({
                                     title: '警告',
-                                    message: '券张数只能为正整数',
+                                    message: '请输入券张数',
                                     type: 'warning'
                                 });
                                 return;
                             }
+                            // 校验 券张数 是否是正整数
+                            const integer = /^\+?[1-9][0-9]*$/;
+                            for(let i = 0; i < this.form.coupon.length; i++) {
+                                const counts = integer.test(this.form.coupon[i].couponNum);
+                                if (!counts) {
+                                    self.$notify({
+                                        title: '警告',
+                                        message: '券张数只能为正整数',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
                         }
+                        if(self.form.type === 3) {
+                            if (!showAddTypeTwo) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请输入折扣',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                            // 校验折扣 是否 大于 0
+                            const checkNumber = /^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$/;
+                            for (let i = 0; i < this.form.coupon.length; i++) {
+                                const numbers = checkNumber.test(this.form.coupon[i].denomination);
+                                if (!numbers || this.form.coupon[i].denomination > 10) {
+                                    self.$notify({
+                                        title: '警告',
+                                        message: '折扣只能大于0，且小于等于10',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
+                            if (!showAddTypeTwo_Two) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请输入券张数',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                            // 校验 券张数 是否是正整数
+                            const integer = /^\+?[1-9][0-9]*$/;
+                            for(let i = 0; i < this.form.coupon.length; i++) {
+                                const counts = integer.test(this.form.coupon[i].couponNum);
+                                if (!counts) {
+                                    self.$notify({
+                                        title: '警告',
+                                        message: '券张数只能为正整数',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
+                        }
+
                     }
-    
+
                     // 校验 有效天数的值  是否为整数
                     if (this.form.validateDays) {
                         // 正则表达式 正整数
@@ -830,7 +903,7 @@
                             return;
                         }
                     }
-                    
+
                     // 请求接口
                     if (valid) {
                         self.createConpon(self.form)
@@ -860,7 +933,7 @@
             width: 850px;
         }
     }
-    
+
     .container {
         background-color: #fff;
     }
@@ -870,7 +943,7 @@
     .mt40 {
         margin-top: 40px;
     }
-    
+
     .wid {
         width: 47%;
         margin-bottom: 2px;
@@ -878,14 +951,14 @@
     .width {
         width: 193px;
     }
-   
+
     .row-wrap {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         flex-wrap: wrap
     }
-    
+
     .row {
         display: flex;
         flex-direction: row;
