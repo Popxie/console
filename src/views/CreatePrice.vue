@@ -18,11 +18,25 @@
                         <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
                         <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                     </el-form-item>
-                    <el-form-item label="加盟商编号">
+                    <el-form-item label="计费方式" required>
+                        <el-radio-group v-model="form.chargingMode" @change="chargingModeClick()">
+                            <el-radio :label="0">按统一计价</el-radio>
+                            <el-radio :label="1">按加盟商</el-radio>
+                            <el-radio :label="2">按电子围栏</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item v-if="form.chargingMode === 1" label="加盟商编号" required>
                         <div class="partner-block" v-for="(item,index) in partnerArray">
                             <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
-                            <el-button @click="deletePartner(index)">删除</el-button>
+                            <el-button v-show="partnerArray.length !== 1" @click="deletePartner(index)">删除</el-button>
                             <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
+                        </div>
+                    </el-form-item>
+                    <el-form-item v-if="form.chargingMode === 2" label="电子围栏ID" required>
+                        <div class="partner-block" v-for="(item,index) in eRailArray">
+                            <el-input v-model="item.eRailId" placeholder="请填写电子围栏ID" style="width: 120px"></el-input>
+                            <el-button v-show="eRailArray.length !== 1" @click="deleteERails(index)">删除</el-button>
+                            <el-button @click="addERailsId(index)" v-show="index === 0">增加</el-button>
                         </div>
                     </el-form-item>
                     <!--统一计价-->
@@ -68,10 +82,11 @@
                                         placeholder="起始时间"
                                         v-model="item.startTime"
                                         :picker-options="{
-                                      start: '00:00',
-                                      step: '00:30',
-                                      end: '23:30'
-                                    }">
+                                          start: '00:00',
+                                          step: '00:30',
+                                          end: '23:30'
+                                        }"
+                                    >
                                     </el-time-select>
                                     <el-time-select
                                         placeholder="结束时间"
@@ -220,19 +235,24 @@
     export default{
         data(){
             return {
-                taps: [{
-                    task: '统一计费',
-                    value: 1
-                }, {
-                    task: '周惠',
-                    value: 2
-                }, {
-                    task: '优惠日',
-                    value: 3
-                }, {
-                    task: '阶梯计价规则设置',
-                    value: 4
-                }],
+                taps: [
+                    {
+                        task: '统一计费',
+                        value: 1
+                    },
+                    {
+                        task: '周惠',
+                        value: 2
+                    },
+                    {
+                        task: '优惠日',
+                        value: 3
+                    },
+                    {
+                        task: '阶梯计价规则设置',
+                        value: 4
+                    }
+                ],
                 validPeriod: [], //有效时间，针对统一计价、周惠
                 priceModelId: '',//模型id，针对统一计价
                 dialogVisible: false,
@@ -244,7 +264,9 @@
                 form: {
                     name: '',
                     cityList: '',
-                    partnerCode: '',//加盟商
+                    chargingMode: 0,    // 计费方式
+                    partnerCode: '',    // 加盟商编号
+                    eRailId: '',        // 电子围栏编号
                     type: 2,
                     billingModule: {}
                 },
@@ -261,6 +283,7 @@
                     value: [{}],//阶梯计价规则列表
                 },
                 partnerArray: [{partnerCode: ''}],
+                eRailArray: [{eRailId: ''}],
                 ruleFormRules: {
                     name: [
                         {required: true, message: '请输入活动名称', trigger: 'blur'},
@@ -432,6 +455,7 @@
                         });
                         self.form.cityList = cityArray.toString();
                         self.formatPartner();
+                        self.formatERails();
                         if (type !== 3) {
                             let timeArray = self.validPeriod;
                             startTime = timeArray[0].getTime() / 1000;
@@ -493,13 +517,14 @@
                                 return;
                             }
                         }
+                        // 请求接口
                         self.setNewRule(self.form).then((res) => {
                             self.$notify({
                                 title: '成功',
                                 message: res,
                                 type: 'success'
                             });
-                            self.$router.push({path: 'priceList'});
+                            // self.$router.push({path: 'priceList'});
                         }, (err) => {
                             self.$notify({
                                 title: '失败',
@@ -517,6 +542,17 @@
                     }
                 });
             },
+            // 计费方式
+            chargingModeClick() {
+                const index = this.form.chargingMode;
+                if(index === 0){
+                    console.log(0);
+                } else if(index === 1) {
+                    console.log(1);
+                } else {
+                    console.log(2);
+                }
+            },
             //删除加盟商
             deletePartner(index) {
                 let self = this;
@@ -527,7 +563,17 @@
                 let self = this;
                 self.partnerArray.push({partnerCode: ''});
             },
-            //格式化加盟商格式
+            // 删除电子围栏
+            deleteERails(index) {
+                let self = this;
+                self.eRailArray.splice(index, 1);
+            },
+            // 添加电子围栏Id
+            addERailsId() {
+                let self = this;
+                self.eRailArray.push({eRailId: ''});
+            },
+            // 格式化加盟商格式
             formatPartner() {
                 let self = this;
                 let partners = [];
@@ -538,6 +584,18 @@
                     partners.push(item.partnerCode);
                 });
                 self.form.partnerCode = partners.toString();
+            },
+            // 格式化电子围栏
+            formatERails() {
+                let self = this;
+                let rails = [];
+                if (!self.eRailArray) {
+                    return;
+                }
+                self.eRailArray.forEach((item) => {
+                    rails.push(item.eRailId);
+                });
+                self.form.eRailId = rails.toString();
             },
             //返回创建计费
             returnCreate() {
