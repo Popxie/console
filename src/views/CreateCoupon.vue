@@ -53,7 +53,7 @@
                         <el-input v-model.trim="form.couponName" :maxlength="15" placeholder="请输入优惠券上显示的券名，15字以内"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="设置投放地域：" prop="areaType">
+                    <el-form-item label="设置投放地域：" required>
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
@@ -327,9 +327,6 @@
                     couponName: [
                         {required: true, message: '请输入优惠劵显示名称', trigger: 'blur'}
                     ],
-                    areaType: [
-                        {type: 'number', required: true, message: '请选择投放地域', trigger: 'change'}
-                    ],
                     validateDays: [
                         {type: 'string', required: true, message: '请填写有效天数', trigger: 'blur'}
                     ],
@@ -536,27 +533,6 @@
                 }
                 this.form.coupon.splice(index, 1);
             },
-            addPoints(e, item, i) {
-                let self = this;
-                let val = e.target.value;
-                if (val <= 0) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
-                    e.target.value = 0;
-                    self.form.coupon[i].denomination = 0;
-                    return;
-                }
-                
-                let items = JSON.parse(JSON.stringify(self.form.coupon));
-                items.splice(i, 1);
-                let obj = this.form.coupon[i];
-                obj.denomination = Number(val).toFixed(2);
-                this.form.coupon.splice(i, 1, obj);
-            },
-
             checkMaxDeductionMoney (e, index) {
                 let val = e.target.value;
                 let self = this;
@@ -581,10 +557,11 @@
                         type: 'info'
                     });
                     e.target.value = 0;
+                    self.form.coupon[i].denomination = 0;
                     return;
                 }
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
-                items.splice(i, 1)
+                items.splice(i, 1);
                 let obj = this.form.coupon[i];
                 obj.denomination = Number(val).toFixed(2);
                 this.form.coupon.splice(i, 1, obj);
@@ -598,6 +575,7 @@
                         obj.denomination = 0;
                     }
                 })
+                console.debug('this.form.coupon',this.form.coupon);
             },
             checkMoney(e) {
                 let val = e.target.value;
@@ -625,7 +603,6 @@
                     self.form.coupon[index].denomination = 0;
                     return;
                 }
-                let flag = true;
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(index, 1);
                 items.map((c) => {
@@ -636,12 +613,8 @@
                             type: 'info'
                         });
                         e.target.value = 0;
-                        flag = false;
                     }
                 });
-                if (!flag) {
-                    return
-                }
                 let obj = this.form.coupon[index];
                 obj.denomination = Number(val).toFixed(2);
                 this.form.coupon.splice(index, 1, obj);

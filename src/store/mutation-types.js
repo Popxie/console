@@ -40,6 +40,9 @@ export const UPDATE_CONPON_SUCCESS = 'UPDATE_CONPON_SUCCESS';
 //获取地区信息
 export const CHECKOUT_AREAS_SUCCESS = 'CHECKOUT_AREAS_SUCCESS';
 
+// 获取电子围栏Id
+export const GET_E_RAILS_ID = 'GET_E_RAILS_ID';
+
 //智鸣系统
 export const SET_CITY_DIVISION = 'SET_CITY_DIVISION';
 export const SET_CURCITY = 'SET_CURCITY';

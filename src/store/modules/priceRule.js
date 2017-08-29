@@ -7,17 +7,38 @@ import {_get, _post} from '../../utils/fetch';
 const state = {
     priceModelList: [], //计费模型
     priceList: [],//计费规则列表
-    curPriceModel: {
-    }
+    curPriceModel: {}
 };
 
 const getters = {
+    
     priceModelList: state => state.priceModelList,
     priceList: state => state.priceList,
     curPriceModel: state => state.curPriceModel
 };
 
 const actions = {
+    // 获取 电子围栏id
+    getERailsList({commit}, data) {
+        let url = '/riding_price/electric_list';
+        let formData = new FormData();
+        for (let key in data) {
+            if(key === 'billingModule') {
+                formData.append(key, JSON.stringify(data[key]));
+            } else {
+                formData.append(key,data[key]);
+            }
+        }
+        return _post({url}, formData, commit)
+            .then((data) => {
+                if (data.status == 1) {
+                    return Promise.resolve(data);
+                }
+                return Promise.reject(error);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
     //创建阶梯计费模型
     setNewRuleModel({commit}, data) {
         let url = '/riding_price/create_model';

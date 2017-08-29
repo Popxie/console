@@ -261,14 +261,18 @@
                     time: [new Date(), new Date()],
                     priceModelId: ''
                 }],
+                eRailsList: [],      // 电子围栏Id列表
+                city: {},
                 form: {
                     name: '',
                     cityList: '',
                     chargingMode: 0,    // 计费方式
+                    provincesList: [],  // 盛放城市名
                     partnerCode: '',    // 加盟商编号
                     eRailId: '',        // 电子围栏编号
                     type: 2,
                     billingModule: {}
+                    
                 },
                 weekday: 1, //周惠 选中的某天
                 weekPricingList: [{
@@ -310,7 +314,7 @@
         },
         computed: {
             ...mapGetters([
-                'priceModelList'
+                'priceModelList',
             ])
         },
         components: {
@@ -321,6 +325,7 @@
         },
         methods: {
             ...mapActions([
+                'getERailsList',
                 'setNewRuleModel',
                 'setNewRule',
                 'getModelList'
@@ -544,13 +549,43 @@
             },
             // 计费方式
             chargingModeClick() {
+                let self = this;
                 const index = this.form.chargingMode;
                 if(index === 0){
                     console.log(0);
-                } else if(index === 1) {
+                }
+                if(index === 1) {
                     console.log(1);
-                } else {
-                    console.log(2);
+                }
+                if(index === 2) {
+                    if(!self.form.provinces) {
+                        self.$notify({
+                            title: '警告',
+                            message: '请先选择城市',
+                            type: 'warning'
+                        });
+                        return;
+                    }
+                    for(let i = 0; i < this.form.provinces.length; i++) {
+                        self.form.provincesList.push(self.form.provinces[i].cityName);
+                    }
+                    self.city.cityName = self.form.provincesList.toString();
+                    // 请求接口
+                    self.getERailsList(self.city).then((res) => {
+                        self.eRailsList = res.data;
+                        console.debug('self.eRailsList', self.eRailsList);
+                        self.$notify({
+                            title: '成功',
+                            message: res.msg,
+                            type: 'success'
+                        });
+                    }, (err) => {
+                        self.$notify({
+                            title: '失败',
+                            message: err,
+                            type: 'error'
+                        });
+                    });
                 }
             },
             //删除加盟商

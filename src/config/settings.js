@@ -3,10 +3,11 @@
  */
 export const settings = {
       // URL: 'https://api.mingbikes.com'
-     URL: 'https://test.mingbikes.com',
+     // URL: 'https://test.mingbikes.com',
      //URL: 'https://gray-api.mingbikes.com'
     // URL: 'http://192.168.1.12
     // 1:8000',
     // URL: 'http://192.168.6.147:8080'
     // URL: 'http://192.168.6.147:8090' // 冰冰
+    URL: 'http://192.168.6.86:8000'     // 王先军
 }
