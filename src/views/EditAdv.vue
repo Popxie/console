@@ -38,15 +38,19 @@
                             <el-form-item label="投放时间段：">
                                 <el-col :span="11">
                                     <el-form-item prop="beginTime">
-                                        <el-date-picker type="datetime" placeholder="选择开始时间" v-model="form.beginTime"
-                                                        style="width: 100%;"></el-date-picker>
+                                        <el-date-picker type="datetime" placeholder="选择开始时间"
+                                                        v-model="form.beginTime" style="width: 100%;"
+                                        >
+                                        </el-date-picker>
                                     </el-form-item>
                                 </el-col>
                                 <el-col class="line" :span="2">-</el-col>
                                 <el-col :span="11">
                                     <el-form-item prop="stopTime">
-                                        <el-date-picker type="datetime" placeholder="选择结束时间" v-model="form.stopTime"
-                                                        style="width: 100%;"></el-date-picker>
+                                        <el-date-picker type="datetime" placeholder="选择结束时间"
+                                                        v-model="form.stopTime" style="width: 100%;"
+                                        >
+                                        </el-date-picker>
                                     </el-form-item>
                                 </el-col>
                             </el-form-item>
@@ -58,7 +62,6 @@
                             <img style="width: 300px; height: 300px" :src="form.adsPicUrl">
                         </el-form-item>
                     </template>
-                    <!--开屏页-->
 
                     <!--首页弹框-->
                     <div v-if="form.viewPosition == 2">
@@ -107,6 +110,15 @@
                         </el-form-item>
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
+                        </el-form-item>
+                        <el-form-item label="icon：类型"prop="iconType">
+                            <el-select style="width: 100%;" v-model="form.iconType" placeholder="请选择">
+                                <el-option label="消息" value="1"></el-option>
+                                <el-option label="活动" value="2"></el-option>
+                                <el-option label="提示" value="3"></el-option>
+                                <el-option label="警告" value="4"></el-option>
+                                <el-option label="强烈警告" value="5"></el-option>
+                            </el-select>
                         </el-form-item>
                     </div>
                     <!--升级提示框-->
@@ -181,6 +193,7 @@
                     iosVer: '',
                     iosDownloadUrl: '',
                     androidVer: '',
+                    iconType: '',
                     androidDownloadUrl: ''
                 }
             }
@@ -313,8 +326,6 @@
                     })
                 );
         },
-        mounted() {
-        }
     }
 </script>
 <style scoped>

@@ -20,7 +20,7 @@
                         </el-select>
                     </el-form-item>
                     <template>
-                        <el-form-item label="设置投放地域：" prop="areaType">
+                        <el-form-item label="设置投放地域：" required>
                             <el-radio-group v-model="form.areaType" @change="selectArea">
                                 <el-radio :label="0">全域</el-radio>
                                 <el-radio :label="1">选择地域</el-radio>
@@ -60,9 +60,6 @@
                     <template v-if="form.viewPosition == 1">
                         <div class="tip">尺寸要求：1242*2208</div>
                     </template>
-                    <el-form-item label="详情页超链接：" prop="hyperlinks">
-                        <el-input v-model="form.hyperlinks"></el-input>
-                    </el-form-item>
                     <!--首页弹框-->
                     <template v-if="form.viewPosition == 2">
                         <div class="tip">尺寸要求：660*880</div>
@@ -87,7 +84,7 @@
                     <!--骑行结束页-->
                     <template v-if="form.viewPosition == 3">
                         <div class="tip">尺寸要求：690*160</div>
-                        <el-form-item label="详情页333超链接：" prop="hyperlinks">
+                        <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
                     </template>
@@ -112,6 +109,15 @@
                         </el-form-item>
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
+                        </el-form-item>
+                        <el-form-item label="icon：类型"prop="iconType">
+                            <el-select style="width: 100%;" v-model="form.iconType" placeholder="请选择">
+                                <el-option label="消息" value="1"></el-option>
+                                <el-option label="活动" value="2"></el-option>
+                                <el-option label="提示" value="3"></el-option>
+                                <el-option label="警告" value="4"></el-option>
+                                <el-option label="强烈警告" value="5"></el-option>
+                            </el-select>
                         </el-form-item>
                     </template>
                     <!--升级提示框-->
@@ -203,6 +209,7 @@
                     viewSet: '',
                     playOrder: '',
                     hyperlinks: '',
+                    iconType: '',
                     adsTitle: '',
                     adsContext: '',
                     startTime: '',
@@ -228,9 +235,6 @@
                     putPosition: [
                         {type: 'number', required: true, message: '请选择投放平台', trigger: 'change'}
                     ],
-                    areaType: [
-                        {type: 'number', required: true, message: '请选择投放地域', trigger: 'change'}
-                    ],
                     adsPicUrl: [
                         {required: true, message: '请上传图片', trigger: 'change'}
                     ],
@@ -242,6 +246,9 @@
                     ],
                     hyperlinks: [
                         {max: 100, message: '最多不能超过100个字符！', trigger: 'blur'}
+                    ],
+                    iconType: [
+                        {required: true, message: '请选择icon类型', trigger: 'change'}
                     ],
                     startTime: [
                         {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
