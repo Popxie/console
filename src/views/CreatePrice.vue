@@ -1,7 +1,24 @@
 <template>
     <div class="create-price">
+        
         <TapSelect v-if="!isSetRule" :taps="taps" title="计费规则设置" @setValue="setRule"/>
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+        <el-dialog title="提示" v-model="showDialog" size="tiny">
+            <el-checkbox-group v-model="eRailsIdList" >
+                    <el-row :gutter="20">
+                        <template v-for="(item,index) in eRailsList">
+                            <el-col :span="6">
+                                <el-checkbox :label="item.id">{{item.electricName}}</el-checkbox>
+                            </el-col>
+                        </template>
+                    </el-row>
+            </el-checkbox-group>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showDialog = false">取 消</el-button>
+                <el-button type="primary" @click="dialogConfirmClick()">确 定</el-button>
+            </span>
+        </el-dialog>
+        
         <div class="intro-page" v-show="!isSetRule">
             <div class="tips">
                 规则执行优先级： 1、优惠日（时期+时间）2、周惠（周+时间）3、统一计价
@@ -19,25 +36,23 @@
                         <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                     </el-form-item>
                     <el-form-item label="计费方式" required>
-                        <el-radio-group v-model="form.chargingMode" @change="chargingModeClick()">
-                            <el-radio :label="0">按统一计价</el-radio>
-                            <el-radio :label="1">按加盟商</el-radio>
+                        <el-radio-group v-model="form.billingWay" @change="chargingModeClick()">
+                            <el-radio :label="1">按统一计价</el-radio>
+                            <el-radio :label="3">按加盟商</el-radio>
                             <el-radio :label="2">按电子围栏</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item v-if="form.chargingMode === 1" label="加盟商编号" required>
+                    <el-form-item v-if="form.billingWay === 1" label="加盟商编号" required>
                         <div class="partner-block" v-for="(item,index) in partnerArray">
                             <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
                             <el-button v-show="partnerArray.length !== 1" @click="deletePartner(index)">删除</el-button>
                             <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
                         </div>
                     </el-form-item>
-                    <el-form-item v-if="form.chargingMode === 2" label="电子围栏ID" required>
-                        <div class="partner-block" v-for="(item,index) in eRailArray">
-                            <el-input v-model="item.eRailId" placeholder="请填写电子围栏ID" style="width: 120px"></el-input>
-                            <el-button v-show="eRailArray.length !== 1" @click="deleteERails(index)">删除</el-button>
-                            <el-button @click="addERailsId(index)" v-show="index === 0">增加</el-button>
-                        </div>
+                    
+                    <el-form-item v-if="form.billingWay === 2" label="电子围栏ID" required>
+                        <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
+                        <el-button @click="eRaislIdSelect()">请选择电子围栏Id</el-button>
                     </el-form-item>
                     <!--统一计价-->
                     <template class="unified-pricing" v-if="form.type === 1">
@@ -165,62 +180,62 @@
         margin: 20px 0;
         color: #555;
     }
-
+    
     .create-page {
         background: #fff;
         padding: 20px;
     }
-
+    
     .title {
         margin-bottom: 20px;
     }
-
+    
     .create-page .title {
         font-size: 14px;
     }
-
+    
     .rule-list {
         display: block;
         clear: both;
         margin-bottom: 10px;
         overflow: hidden;
     }
-
+    
     .day-pricing .el-date-editor--datetimerange {
         float: left;
         margin-right: 10px;
     }
-
+    
     .intro {
         color: #999;
     }
-
+    
     .mb20 {
         margin-bottom: 20px;
     }
-
+    
     .mt20 {
         margin-top: 20px;
     }
-
+    
     .choose-city {
         margin-right: 10px;
     }
-
+    
     .rule-list span {
         float: left;
         display: inline-block;
         margin: 0 10px;
     }
-
+    
     .weekday-list .el-date-editor.el-input {
         width: 120px;
     }
-
+    
     .weekday-list {
         margin-bottom: 10px;
     }
-
+    
     .weekday-list > div {
         display: inline-block;
     }
@@ -253,20 +268,24 @@
                         value: 4
                     }
                 ],
-                validPeriod: [], //有效时间，针对统一计价、周惠
-                priceModelId: '',//模型id，针对统一计价
+                validPeriod: [],        //有效时间，针对统一计价、周惠
+                priceModelId: '',       //模型id，针对统一计价
                 dialogVisible: false,
                 isSetRule: false,
                 dayPricingList: [{
                     time: [new Date(), new Date()],
                     priceModelId: ''
                 }],
-                eRailsList: [],      // 电子围栏Id列表
+                showDialog: false,      // 是否显示dialog
+                eRailsList: [],         // 电子围栏列表（dialog中的）
+                eRailsIdList: [],       // 电子围栏id列表(dialog确认以后)
+                eRailsValueList: [],    // 电子围栏Id  （请选择电子围栏id）
                 city: {},
                 form: {
                     name: '',
                     cityList: '',
-                    chargingMode: 0,    // 计费方式
+                    billingWay: 1,    // 计费方式
+                    areaId: [],       // 电子围栏Id集合
                     provincesList: [],  // 盛放城市名
                     partnerCode: '',    // 加盟商编号
                     eRailId: '',        // 电子围栏编号
@@ -333,7 +352,23 @@
             showAreaSelect() {
                 let self = this;
                 self.dialogVisible = true;
+                // 将计费方式归位 防止在没有选择地区的时候 选择其他计费方式
+                self.form.billingWay = 1;
             },
+            // 选择电子围栏id
+            eRaislIdSelect(){
+                this.showDialog = true;
+            },
+            dialogConfirmClick(){
+              this.showDialog = false;
+              const list = [];
+              for(let i = 0; i < this.eRailsIdList.length; i++) {
+                  list.push(this.eRailsIdList[i]);
+                  this.eRailsValueList.push(this.eRailsIdList[i]);
+              }
+              this.form.areaId = list.toString();
+            },
+           
             setRule(val) {
                 let self = this;
                 self.isSetRule = true;
@@ -356,6 +391,24 @@
                 }
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
+                // 请求接口之前先清空城市名 方式重复叠加
+                self.form.provincesList = [];
+                // 获取城市名
+                for(let i = 0; i < this.form.provinces.length; i++) {
+                    self.form.provincesList.push(self.form.provinces[i].cityName);
+                }
+                self.city.cityName = self.form.provincesList.toString();
+                // 请求接口
+                self.getERailsList(self.city)
+                    .then((res) => {
+                        self.eRailsList = res.data;
+                    }, (err) => {
+                        self.$notify({
+                            title: '失败',
+                            message: '没有找到对应的电子围栏！',
+                            type: 'error'
+                        });
+                    });
             },
             //新增阶梯计价 规则
             addPrice() {
@@ -407,9 +460,9 @@
                                 return false;
                             }
                         });
-                       if(!isRuleValid) {
-                           return false;
-                       }
+                        if(!isRuleValid) {
+                            return false;
+                        }
                         self.setNewRuleModel(self.ruleForm).then((res) => {
                             if (res.status == '1') {
                                 self.$notify({
@@ -550,12 +603,12 @@
             // 计费方式
             chargingModeClick() {
                 let self = this;
-                const index = this.form.chargingMode;
+                const index = this.form.billingWay;
                 if(index === 0){
-                    console.log(0);
+                    console.debug('this.form.billingWay', this.form.billingWay);
                 }
                 if(index === 1) {
-                    console.log(1);
+                    console.debug('this.form.billingWay', this.form.billingWay);
                 }
                 if(index === 2) {
                     if(!self.form.provinces) {
@@ -566,26 +619,7 @@
                         });
                         return;
                     }
-                    for(let i = 0; i < this.form.provinces.length; i++) {
-                        self.form.provincesList.push(self.form.provinces[i].cityName);
-                    }
-                    self.city.cityName = self.form.provincesList.toString();
-                    // 请求接口
-                    self.getERailsList(self.city).then((res) => {
-                        self.eRailsList = res.data;
-                        console.debug('self.eRailsList', self.eRailsList);
-                        self.$notify({
-                            title: '成功',
-                            message: res.msg,
-                            type: 'success'
-                        });
-                    }, (err) => {
-                        self.$notify({
-                            title: '失败',
-                            message: err,
-                            type: 'error'
-                        });
-                    });
+                   
                 }
             },
             //删除加盟商
