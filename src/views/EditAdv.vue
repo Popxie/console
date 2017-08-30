@@ -111,13 +111,13 @@
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
                             <el-input v-model="form.hyperlinks"></el-input>
                         </el-form-item>
-                        <el-form-item label="icon：类型"prop="iconType">
+                        <el-form-item label="icon：类型" prop="iconType">
                             <el-select style="width: 100%;" v-model="form.iconType" placeholder="请选择">
-                                <el-option label="消息" value="1"></el-option>
-                                <el-option label="活动" value="2"></el-option>
-                                <el-option label="提示" value="3"></el-option>
-                                <el-option label="警告" value="4"></el-option>
-                                <el-option label="强烈警告" value="5"></el-option>
+                                <el-option label="消息" :value="1"></el-option>
+                                <el-option label="活动" :value="2"></el-option>
+                                <el-option label="提示" :value="3"></el-option>
+                                <el-option label="警告" :value="4"></el-option>
+                                <el-option label="强烈警告" :value="5"></el-option>
                             </el-select>
                         </el-form-item>
                     </div>
@@ -193,7 +193,7 @@
                     iosVer: '',
                     iosDownloadUrl: '',
                     androidVer: '',
-                    iconType: '',
+                    iconType: 1,
                     androidDownloadUrl: ''
                 }
             }
