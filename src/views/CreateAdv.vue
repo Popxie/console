@@ -282,6 +282,9 @@
                 }
             }
         },
+        /**
+         *
+         */
         computed: {},
         methods: {
             ...mapActions([
@@ -290,6 +293,10 @@
                 'updateAdsById',
                 'checkAdsByType'
             ]),
+            /**
+             *
+             * @param val
+             */
             setViewPosition(val) {
                 var self = this;
                 self.form.viewPosition = val;
@@ -299,7 +306,10 @@
                 var self = this;
                 self.showNext = true;
             },
-            //点击完成
+            /**
+             * 点击完成
+             * @param formName
+             */
             finishCreate(formName) {
                 let self = this;
                 self.$refs[formName].validate((valid) => {

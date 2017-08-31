@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px">
-            <el-form-item label="会员卡名称" prop="name" required>
+            <el-form-item label="会员卡名称" prop="name">
                 <el-input v-model="form.name"></el-input>
             </el-form-item>
             <el-form-item label="规则标题" prop="ruleTitle" required>
@@ -60,7 +60,7 @@
                 },
                 rules: {
                     name: [
-                        {required: true,message: '请输入会员卡名称', trigger: 'blur'},
+                        {type: 'string',required: true, message: '请输入会员卡名称', trigger: 'blur'},
                         { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
                     ],
                     ruleTitle: [
@@ -73,10 +73,10 @@
                         {required: true,message: '请选择使用次数',trigger: 'change'}
                     ],
                     originalPrice: [
-                        {required: true,message: '请输入原价', trigger: 'blur'}
+                        {type: 'number',message: '请输入原价', trigger: 'change'}
                     ],
                     price: [
-                        {required: true,message: '请输入惊爆价', trigger: 'blur'}
+                        {type: 'number',message: '请输入惊爆价', trigger: 'change'}
                     ],
                     type: [
                         {required: true,message: '请选择卡类型', trigger: 'change'}
