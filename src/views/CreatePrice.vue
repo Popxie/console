@@ -604,12 +604,6 @@
             chargingModeClick() {
                 let self = this;
                 const index = this.form.billingWay;
-                if(index === 0){
-                    console.debug('this.form.billingWay', this.form.billingWay);
-                }
-                if(index === 1) {
-                    console.debug('this.form.billingWay', this.form.billingWay);
-                }
                 if(index === 2) {
                     if(!self.form.provinces) {
                         self.$notify({

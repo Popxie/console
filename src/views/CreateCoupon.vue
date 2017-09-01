@@ -560,11 +560,14 @@
                     self.form.coupon[i].denomination = 0;
                     return;
                 }
+                let obj = self.form.coupon[i];
+                obj.denomination = Number(val).toFixed(2);
+                console.debug('this.form.coupon[i]',this.form.coupon[i]);
+                console.debug('this.form.coupon',this.form.coupon);
+                
+                this.form.coupon.splice(i, 1, obj);
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(i, 1);
-                let obj = this.form.coupon[i];
-                obj.denomination = Number(val).toFixed(2);
-                this.form.coupon.splice(i, 1, obj);
                 items.map((c) => {
                     if (c.denomination == Number(val).toFixed(2)) {
                         this.$notify({
@@ -575,7 +578,6 @@
                         obj.denomination = 0;
                     }
                 })
-                console.debug('this.form.coupon',this.form.coupon);
             },
             checkMoney(e) {
                 let val = e.target.value;
