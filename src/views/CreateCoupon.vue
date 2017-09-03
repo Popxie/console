@@ -519,6 +519,12 @@
             },
             addCoupon() {
                 let self = this;
+                /**
+                 * 防止点击以后 前面几个对象的值去掉 0
+                 */
+                for(let i = 0; i < self.form.coupon.length; i++){
+                    self.form.coupon[i].denomination = Number(self.form.coupon[i].denomination).toFixed(2)
+                }
                 self.form.coupon.push({});
             },
             delCoupon(index) {
@@ -561,11 +567,9 @@
                     return;
                 }
                 let obj = self.form.coupon[i];
-                obj.denomination = Number(val).toFixed(2);
-                console.debug('this.form.coupon[i]',this.form.coupon[i]);
-                console.debug('this.form.coupon',this.form.coupon);
-                
                 this.form.coupon.splice(i, 1, obj);
+                self.form.coupon[i].denomination = Number(val).toFixed(2);
+
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(i, 1);
                 items.map((c) => {
@@ -644,13 +648,7 @@
                     self.form.coupon[index].couponNum = 0;
                 }
             },
-    
-            isEmptyObject(e) {
-                let t;
-                for (t in e)
-                    return !1;
-                return !0
-            },
+
             finishCreate(val) {
                 let self = this;
 
@@ -728,7 +726,7 @@
                             }
                         }
                     }
-    
+
                     // 公用部分 （券折扣 or 券的折扣和数量）
                     if(self.form.type === 3) {
                         // 当为  不限张数的情况
@@ -775,7 +773,7 @@
                                 }
                             }
                         }
-                        
+
                         // 校验 统一上限是否填写
                         if(!self.form.maxDeductionMoney){
                             self.$notify({
@@ -795,8 +793,7 @@
                             return;
                         }
                     }
-                    
-                    
+
                     // 校验 有效天数的值  是否为整数
                     if (this.form.validateDays) {
                         // 正则表达式 正整数
@@ -830,8 +827,6 @@
                 })
             }
         },
-        created() {
-        }
     }
 </script>
 <style scoped>
