@@ -626,16 +626,6 @@
                 let self = this;
                 self.partnerArray.push({partnerCode: ''});
             },
-            // 删除电子围栏
-            deleteERails(index) {
-                let self = this;
-                self.eRailArray.splice(index, 1);
-            },
-            // 添加电子围栏Id
-            addERailsId() {
-                let self = this;
-                self.eRailArray.push({eRailId: ''});
-            },
             // 格式化加盟商格式
             formatPartner() {
                 let self = this;

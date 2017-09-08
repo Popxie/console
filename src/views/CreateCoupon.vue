@@ -60,8 +60,6 @@
                         </el-radio-group>
                     </el-form-item>
 
-
-
                     <template v-if="form.type <= 2">
                         <!-- 接口方式的情况下 start -->
                         <template v-if="form.addType == 0">
@@ -130,7 +128,10 @@
                                             </el-input>
                                             元劵
                                             <el-input  v-model.number="item.couponNum"
-                                                       placeholder="输入张数"></el-input>
+                                                       placeholder="输入张数"
+                                                       @blur="checkValue($event, index)"
+                                            >
+                                            </el-input>
                                             张数
                                             <el-button icon="minus" @click="delCoupon(index)"></el-button>
                                         </div>
@@ -195,7 +196,7 @@
                                 <el-radio :label="0">
                                     统一上限
                                     <el-input style="width: 80px;" v-model.number="form.maxDeductionMoney"
-                                              @blur="checkMaxDeductionMoney($event, index)" placeholder="输入金额"
+                                              @blur="checkMaxDeductionMoney($event)" placeholder="输入金额"
                                     >
                                     </el-input>
                                 </el-radio>
@@ -233,6 +234,7 @@
                     <el-form-item v-else label="设置投放时间段:" prop="validateDaysRange">
                         <el-date-picker type="daterange" range-separator="——" placeholder="选择时间范围"
                                         v-model="form.validateDaysRange" @change="timeChange" style="width: 100%;"
+                                        ref="test"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -242,7 +244,10 @@
                         <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
                     </el-form-item>
                 </el-form>
+                
+                
                 <create-vip-card v-if="form.type === 4" @back-click="upStep()"></create-vip-card>
+                <create-vip-card-activity v-if="form.type === 5" @back-click="upStep()"></create-vip-card-activity>
             </el-col>
         </el-row>
     </div>
@@ -251,13 +256,15 @@
     import {mapGetters, mapActions} from 'vuex';
     import TapSelect from '../components/TapSelect.vue';
     import SelectAreas from '../components/SelectArea.vue';
-    import CreateVipCard from './CreateVipCard.vue'
+    import CreateVipCard from './CreateVipCard.vue';
+    import CreateVipCardActivity from './CreateVipCardActivity.vue'
     import {settings} from '../config/settings';
     export default{
         components: {
             TapSelect,
             SelectAreas,
-            CreateVipCard
+            CreateVipCard,
+            CreateVipCardActivity,
         },
         data() {
             return {
@@ -275,9 +282,14 @@
                         value: 3
                     },
                     {
-                        task: '会员卡',
+                        task: '自营会员卡',
                         value: 4
-                    }
+                    },
+                    {
+                        task: '会员卡活动',
+                        value: 5
+                    },
+                    
                 ],
                 radio: '1',
                 pickerOptions: {
@@ -287,7 +299,6 @@
                     }
                 },
                 showBatch: true,
-                isChecked: false,
                 showLimit: true,
                 showValidDays: true,
                 showAddTypeZero: true, // 接口方式情况下 显示只有券面额输入框
@@ -297,6 +308,7 @@
                 showDiscount: true,    // 显示 设置券的折扣
                 other: 4,
                 maxMoney: 0,
+                timeRange: '-1',         // 赋值后的时间范围
                 form: {
                     type: 0,
                     addType: 0,         // 添加类型   接口 or 直接生成
@@ -312,11 +324,8 @@
                     maxDeductionMoney: '',
                     validateType: 0,    // 有效期类型
                     validateDays: '',   // 有效天数
-                    validateDaysRange: '' // 有效时间范围
-                }
-                ,
-                copyForm: {}
-                ,
+                    validateDaysRange: [] // 有效时间范围
+                },
                 rules: {
                     limitSize: [
                         {type: 'number', required: true, message: '请选择可领用', trigger: 'change'},
@@ -328,7 +337,7 @@
                         {required: true, message: '请输入优惠劵显示名称', trigger: 'blur'}
                     ],
                     validateDays: [
-                        {type: 'string', required: true, message: '请填写有效天数', trigger: 'blur'}
+                        {type: 'string', required: true, message: '请填写有效天数', trigger: 'change'}
                     ],
                     validateDaysRange: [
                         {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
@@ -364,6 +373,8 @@
                     this.showCounts = false;
                     this.showDiscount = false;
                 }
+                // 切换状态的时候不能清空 设置投放时间段，否则会在选完时间段以后不提交直接切换导致 自动校验表单
+                // self.form.validateDaysRange = [];
             },
             // 选择 （按批次 or 按单次）
             batchClick(){
@@ -384,12 +395,13 @@
             validDaysClick() {
                 this.showValidDays =!this.showValidDays;
                 const index = this.form.validateType;
-                if(index === 0){
+                if(index === 1){
                     this.form.validateDays = '';
                 } else {
-                    // 清空不了 el-date-picker 的值
+                    this.form.validateDaysRange = [];
                 }
             },
+            // 最高抵扣金额
             bestHeighestMoney() {
                 const index = this.form.maxDeductionType;
                 if (index === 0) {
@@ -408,33 +420,10 @@
                 // 将年月日 跟 时分秒分离
                 self.form.startTime = items[0];
                 self.form.endTime = items[1];
+                self.timeRange = val;
+                console.log('self.timeRange', self.timeRange);
             },
-            // 返回时将恢复默认 字段的值
-            upStep() {
-                this.showNext = false;
-                this.isChecked = false;
-                this.showBatch = true;
-                this.showValidDays = true;
-                this.showAddTypeZero = true;
-                this.showCounts = true;
-                this.showDiscount = true;
-                this.form = {
-                    type: 0,
-                    addType: 0,
-                    isNewuserUse: 0,
-                    limitType: 0,
-                    limitSize: 1,
-                    topic: '',
-                    couponName: '',
-                    areaType: 0,
-                    isLimitSize: 0,
-                    coupon: [{}],
-                    maxDeductionType: 0,
-                    maxDeductionMoney: 0,
-                    denomination: 0,
-                    validateType: 0,
-                };
-            },
+            
             setLimit(e) {
                 let self = this;
                 let val = e.target.value;
@@ -539,17 +528,17 @@
                 }
                 this.form.coupon.splice(index, 1);
             },
-            checkMaxDeductionMoney (e, index) {
+            checkMaxDeductionMoney (e) {
                 let val = e.target.value;
                 let self = this;
                 if (val <= 0) {
-                    this.$notify({
+                    self.$notify({
                         title: '提示',
                         message: '统一上限值不能小于等于0',
                         type: 'info'
                     });
                     e.target.value = 0;
-                    self.form.coupon[index].maxDeductionMoney = 0;
+                    self.form.maxDeductionMoney = 0;
                     return;
                 }
             },
@@ -566,6 +555,7 @@
                     self.form.coupon[i].denomination = 0;
                     return;
                 }
+                
                 let obj = self.form.coupon[i];
                 this.form.coupon.splice(i, 1, obj);
                 self.form.coupon[i].denomination = Number(val).toFixed(2);
@@ -573,7 +563,7 @@
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(i, 1);
                 items.map((c) => {
-                    if (c.denomination == Number(val).toFixed(2)) {
+                    if (c.denomination === Number(val).toFixed(2)) {
                         this.$notify({
                             title: '提示',
                             message: '劵不能重复',
@@ -609,21 +599,23 @@
                     self.form.coupon[index].denomination = 0;
                     return;
                 }
+                
+                let obj = self.form.coupon[index];
+                this.form.coupon.splice(index, 1, obj);
+                self.form.coupon[index].denomination = Number(val).toFixed(2);
+                
                 let items = JSON.parse(JSON.stringify(self.form.coupon));
                 items.splice(index, 1);
                 items.map((c) => {
-                    if (c.denomination == val) {
+                    if (c.denomination === Number(val).toFixed(2)) {
                         this.$notify({
                             title: '提示',
-                            message: '劵不能重复',
+                            message: '折扣劵不能重复',
                             type: 'info'
                         });
-                        e.target.value = 0;
+                        obj.denomination = 0;
                     }
                 });
-                let obj = this.form.coupon[index];
-                obj.denomination = Number(val).toFixed(2);
-                this.form.coupon.splice(index, 1, obj);
             },
             // 正则表达式 ＞0 的正整数
             isInt(str){
@@ -647,11 +639,44 @@
                     e.target.value = 0;
                     self.form.coupon[index].couponNum = 0;
                 }
+                /**
+                 * 防止点击以后 前面几个对象的值去掉 0
+                 */
+                for(let i = 0; i < self.form.coupon.length; i++){
+                    self.form.coupon[i].denomination = Number(self.form.coupon[i].denomination).toFixed(2)
+                }
+            },
+            
+            // 返回时将恢复默认 字段的值
+            upStep() {
+                this.timeRange = '-1';
+                this.showNext = false;
+                this.showBatch = true;
+                this.showValidDays = true;
+                this.showAddTypeZero = true;
+                this.showCounts = true;
+                this.showDiscount = true;
+                this.form = {
+                    type: 0,
+                    addType: 0,
+                    isNewuserUse: 0,
+                    limitType: 0,
+                    limitSize: 1,
+                    topic: '',
+                    couponName: '',
+                    areaType: 0,
+                    isLimitSize: 0,
+                    coupon: [{}],
+                    maxDeductionType: 0,
+                    maxDeductionMoney: 0,
+                    denomination: 0,
+                    validateType: 0,
+                    validateDaysRange: [],
+                };
             },
 
             finishCreate(val) {
                 let self = this;
-
                 self.$refs['form'].validate((valid) => {
                     // 接口方式
                     let showAddTypeOne = true;
@@ -774,8 +799,8 @@
                             }
                         }
 
-                        // 校验 统一上限是否填写
-                        if(!self.form.maxDeductionMoney){
+                        // 校验 统一上限是否填写 (等于0的情况下 布尔值会默认为false，所以会一直让填写金额)
+                        if(!self.form.maxDeductionMoney && self.form.maxDeductionMoney !==0){
                             self.$notify({
                                 title: '警告',
                                 message: '请填写统一上限金额',
@@ -807,12 +832,21 @@
                             return;
                         }
                     }
-
+                    
+                    // 校验投放时间段是否填写 (当选过以后再删除 表单自带验证会失效 无法判断是否填写,所以创建了timeRange)
+                    if(self.form.validateType === 1 && !self.timeRange) {
+                        self.$notify({
+                            title: '警告',
+                            message: '请选择时间范围',
+                            type: 'warning'
+                        });
+                        return;
+                    }
                     // 请求接口
                     if (valid) {
                         self.createConpon(self.form)
                             .then((res) => {
-                                self.$router.push('couponList');
+//                                self.$router.push('couponList');
                             }, (err) => {
                             console.log(err);
                                 self.$notify({

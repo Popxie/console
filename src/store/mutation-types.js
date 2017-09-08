@@ -60,3 +60,6 @@ export const SET_CUR_PRICE_MODEL = 'SET_CUR_PRICE_MODEL';
 
 //会员卡
 export const SET_VIP_CARD_LIST = 'SET_VIP_CARD_LIST';
+
+// 合作方
+export const GET_THIRD_PARTNER_LIST = 'GET_THIRD_PARTNER_LIST';
