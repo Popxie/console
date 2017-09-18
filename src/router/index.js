@@ -20,6 +20,7 @@ const EditVipCard = resolve => require(['views/EditVipCard'],resolve);
 const EditVipCardActivity = resolve => require(['views/EditVipCardActivity'],resolve);
 const BgActivityCenter = resolve => require(['views/BgActivityCenter'],resolve);
 const CreateActivity = resolve => require(['views/CreateActivity'],resolve);
+const EditActivity = resolve => require(['views/EditActivity'],resolve);
 
 Vue.use(Router);
 
@@ -104,6 +105,10 @@ export default new Router({
                 {
                     path: 'createActivity',
                     component: CreateActivity
+                },
+                {
+                    path: 'editActivity',
+                    component: EditActivity
                 },
             ]
         }

@@ -42,20 +42,40 @@
                         </el-dialog>
                     </el-form-item>
                     
-                    <el-form-item label="活动时间" prop="activityTime">
-                        <el-date-picker
-                            type="daterange"
-                            range-separator="—"
-                            placeholder="选择日期范围"
-                            v-model="form.activityTime"
-                            @change="dateBlur"
-                            style="width: 100%;"
-                        >
-                        </el-date-picker>
-                    </el-form-item>
+                    <!--<el-form-item label="活动时间" prop="activityTime">-->
+                        <!--<el-date-picker-->
+                            <!--type="daterange"-->
+                            <!--range-separator="—"-->
+                            <!--placeholder="选择日期范围"-->
+                            <!--v-model="form.activityTime"-->
+                            <!--@change="dateBlur"-->
+                            <!--style="width: 100%;"-->
+                        <!--&gt;-->
+                        <!--</el-date-picker>-->
+                    <!--</el-form-item>-->
                     
+                    <el-form-item label="活动时间：" required>
+                        <el-col :span="11">
+                            <el-form-item prop="startDate">
+                                <el-date-picker type="date" placeholder="选择开始时间"
+                                                v-model="form.startDate" style="width: 100%;"
+                                >
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col class="line" :span="2" style="text-align: center">-</el-col>
+                        <el-col :span="11">
+                            <el-form-item prop="EndDate">
+                                <el-date-picker type="date" placeholder="选择结束时间"
+                                                v-model="form.EndDate" style="width: 100%;"
+                                >
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-form-item>
+    
                     <el-form-item label="选择区域">
-                        <el-radio-group v-model="form.areaType" @change="chooseAreaTypeClick">
+                        <el-radio-group v-model="form.type" @change="chooseAreaTypeClick">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">部分区域</el-radio>
                             <el-radio :label="-1">取消选择区域</el-radio>
@@ -75,7 +95,7 @@
                     
                     <el-form-item>
                         <el-button type="primary" @click="backClilck()">返回</el-button>
-                        <el-button type="primary" @click="onSubmit('form')">确定</el-button>
+                        <el-button type="primary" v-if="showConfirmBtn" @click="onSubmit('form')">确定</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -100,13 +120,14 @@
                 cityCodeArr: [],
                 timeRange: -1,
                 cityName: '',
+                showConfirmBtn: true,
                 form: {
                     name: '',       // 活动名称
                     picUrl: '',        // 上传图片后 返回的 图片地址
                     activityTime: [],       // 活动时间
                     startDate: '',
                     endDate: '',
-                    areaType: '',           // 选择区域的字段(自己写的字段)
+                    type: '',           // 选择区域的字段
                     areaCode: '',           // 区域代码
                     cityCode: '',
                     electricFenceId: [],    //电子围栏id
@@ -123,9 +144,11 @@
                     picUrl: [
                         {required: true, message: '请上传图片', trigger: 'change'}
                     ],
-                    
-                    activityTime: [
-                        {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
+                    startDate: [
+                        {required: true, message: '请选择开始时间', trigger: 'change'}
+                    ],
+                    endDate: [
+                        {required: true, message: '请选择开始时间', trigger: 'change'}
                     ],
                     counts: [
                         {required: true,message: '请选择使用次数',trigger: 'change'}
@@ -151,11 +174,28 @@
                         type: 'error'
                     });
                 });
+            const where = this.$route.query.isFromWhere;
+            const infoObj = {activityId: ''};
+            infoObj.activityId = this.$route.query.activityId;
+            if(where === 'details') {
+                self.showConfirmBtn = false;
+            }
+            this.getActivityInfo(infoObj)
+                .then((res) => {
+                    this.form = res.data;
+                },(err) => {
+                    this.$notify({
+                        title: '错误',
+                        message: err ||'错误',
+                        type: 'error'
+                    })
+                })
         },
         methods: {
             ...mapActions([
                 'createdActivity',
                 'getERailsList',
+                'getActivityInfo'
             ]),
             cancelSelect () {
                 let self = this;
@@ -197,16 +237,16 @@
                 }
             },
     
-            dateBlur(val) {
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('—');
-                console.debug('items', items);
-                // 将年月日 跟 时分秒分离
-                self.form.startDate = items[0];
-                self.form.endDate = items[1];
-                self.timeRange = val;
-            },
+//            dateBlur(val) {
+//                let self = this;
+//                // 将组件的val （年月日时分秒的时间区间）分离
+//                let items = val.split('—');
+//                console.debug('items', items);
+//                // 将年月日 跟 时分秒分离
+//                self.form.startDate = items[0];
+//                self.form.endDate = items[1];
+//                self.timeRange = val;
+//            },
             chooseAreaTypeClick(index) {
                 if(index === 0) {
                     this.form.cityCode = ''

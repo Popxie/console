@@ -1,5 +1,7 @@
 <template>
     <div class="vip-card container">
+        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+    
         <p style="padding-bottom: 15px">活动配置/活动配置</p>
         <el-row :gutter="5">
             <el-col :span="24" style="margin-bottom: 10px">
@@ -16,10 +18,9 @@
                     <el-input class="el-inputs" v-model="dataObj.themeName" placeholder="请输入活动主题"></el-input>
     
                     <span style="margin: 0 12px">地区</span>
-                    <el-input class="el-inputs" v-model="dataObj.themeName" placeholder="请选择投放地区"></el-input>
-    
+                    <el-button  @click="chooseAreaClick">请选择投放地区</el-button>
                     <span style="margin: 0 12px">状态</span>
-                    <el-select v-model="dataObj.cardStatus" class="select" placeholder="请选择">
+                    <el-select v-model="dataObj.status" class="select" placeholder="请选择">
                         <el-option
                             v-for="item in stateOptions"
                             :label="item.label"
@@ -49,30 +50,31 @@
             </el-table-column>
             
             <el-table-column
+                prop="picUrl"
                 label="活动图片"
                 align="center"
                 width="100">
                 <template scope="scope">
-                    <img style="width:30px;height: 20px" src="http://img4.imgtn.bdimg.com/it/u=4258410114,1864035878&fm=27&gp=0.jpg" alt="">
+                    <img style="width:30px;height: 20px" :src= scope.row.picUrl alt="">
                 </template>
 
             </el-table-column>
         
             <el-table-column
-                prop="area"
+                prop="areaName"
                 label="地区"
                 align="center"
                 width="100">
             </el-table-column>
         
             <el-table-column
-                prop="eRails"
+                prop="electricFenceId"
                 align="center"
                 label="电子围栏">
             </el-table-column>
     
             <el-table-column
-                prop="createTime"
+                prop="gmtTime"
                 align="center"
                 label="创建时间">
             </el-table-column>
@@ -91,21 +93,31 @@
                 label="操作">
                 <template scope="scope">
                     <el-button type="text" size="small"
-                               @click="modifyClick(scope.row.id)">修改
+                               @click="modifyClick(scope.row.activityId)">修改
                     </el-button>
                     <el-button type="text" size="small"
-                               @click="onlineClick(scope.row.id)">上线
+                               @click="onlineClick(scope.row.activityId)">上线
                     </el-button>
                     <el-button type="text" size="small"
-                               @click="offlineClick(scope.row.id)">下线
+                               @click="offlineClick(scope.row.activityId)">下线
                     </el-button>
                     <el-button type="text" size="small"
-                               @click="detailsClick(scope.row.id)">详情
+                               @click="detailsClick(scope.row.activityId)">详情
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
-
+        <el-row type="flex" justify="end">
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="page.currentPage"
+                :page-sizes="[5, 10, 50, 100]"
+                :page-size="page.pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="recordsTotal">
+            </el-pagination>
+        </el-row>
 
     </div>
 
@@ -113,12 +125,20 @@
 
 <script>
     import {mapGetters, mapActions, mapMutations} from 'vuex'
-    
+    import SelectAreas from '../components/SelectArea.vue'
+
     export default {
-    components: {},
+    components: {
+        SelectAreas,
+    },
     data() {
       return {
-          activeName: '',
+          dialogVisible: false,       // 控制是否显示 选择地址的 dialog
+          cityCodeArr: [],
+          page: {
+              currentPage: 1,
+              pageSize: 10,
+          },
           // 查询时发送的对象
           dataObj: {
               dateRange: '',          // 时间范围 (传给接口的时候不能将这个字段的值传过去，(Sat Sep 16 2017 00:00:00 GMT+0800 (CST)))
@@ -139,65 +159,28 @@
               },
               {
                   value: 1,
-                  label: '进行中',
+                  label: '已上线',
               },
               {
                   value: 3,
-                  label: '活动已结束',
+                  label: '已结束',
               },
               {
-                  value: 4,
+                  value: 2,
                   label: '已下线',
               },
     
-          ],
-          DataList: [
-              {
-                  name: 'test1',
-                  activityTime: '2017-09-20 - 2017-10-16',
-                  activityImg: 'http://img4.imgtn.bdimg.com/it/u=4258410114,1864035878&fm=27&gp=0.jpg',
-                  area: '上海',
-                  eRails: '2141',
-                  createTime: '2017-09-20 - 2017-10-16',
-                  status: '未上线',
-              },
-              {
-                  name: 'test2',
-                  activityTime: '2016-09-20 - 2016-10-16',
-                  activityImg: 'http://img4.imgtn.bdimg.com/it/u=4258410114,1864035878&fm=27&gp=0.jpg',
-                  area: '北京',
-                  eRails: '3321',
-                  createTime: '2016-09-20 - 2016-10-16',
-                  status: '已上线',
-              },
-              {
-                  name: 'test3',
-                  activityTime: '2015-09-20 - 2015-10-1',
-                  activityImg: 'http://img4.imgtn.bdimg.com/it/u=4258410114,1864035878&fm=27&gp=0.jpg',
-                  area: '广州',
-                  eRails: '5556',
-                  createTime: '2015-09-20 - 2015-10-1',
-                  status: '已下线',
-              },
-              {
-                  name: 'test4',
-                  activityTime: '2014-09-20 - 2014-10-1',
-                  activityImg: 'http://img4.imgtn.bdimg.com/it/u=4258410114,1864035878&fm=27&gp=0.jpg',
-                  area: '广州',
-                  eRails: '3346',
-                  createTime: '2014-09-20 - 2014-10-1',
-                  status: '活动已结束',
-              }
           ],
       }
     },
         computed: {
             ...mapGetters([
-                'activityList'
+                'activityList',
+                'recordsTotal'
             ])
         },
       created() {
-        this.getActivityList(this.dataObj);
+        this.getActivityList(this.page);
       },
       methods: {
           ...mapActions([
@@ -206,12 +189,70 @@
           dateBlur(res) {
               console.debug(res);
           },
+    
+          chooseAreaClick() {
+              this.dialogVisible = true;
+          },
+          cancelSelect () {
+              let self = this;
+              self.dialogVisible = false;
+          },
+          setAreas(val) {
+              let self = this;
+              if (!val.provinces.length) {
+                  self.$notify({
+                      title: '提示',
+                      message: '请选择省份',
+                      type: 'info'
+                  });
+                  return;
+              }
+              // 获取cityCode
+              for(let i = 0; i < val.provinces.length; i++){
+                  self.cityCodeArr.push(val.provinces[i].cityCode);
+              }
+              self.dataObj.areaCode = self.cityCodeArr.toString();
+              console.debug('cityCode',self.dataObj.areaCode);
+              self.dialogVisible = false;
+          },
+          
           searchClick() {
               let self = this;
               console.debug(self.dataObj.dateRange);
+              self.$router.push();
           },
           CreateActivityClick() {
               this.$router.push('createActivity');
+          },
+          handleSizeChange(val) {
+              let self = this;
+              self.page.pageSize = val;
+              self.getAcList(self.page);
+          },
+          handleCurrentChange(val) {
+              let self = this;
+              self.page.currentPage = val;
+              self.getAcList(self.page);
+          },
+          modifyClick(activityId) {
+              this.$router.push({
+                  path: 'editActivity',
+                  query: {
+                      activityId: activityId,
+                      isFromWhere: 'modify'
+                  }
+              })
+          },
+          // 获取活动列表
+          getAcList(params) {
+              this.getActivityList(params)
+                  .then(() => {},((err)=> {
+                      this.$notify({
+                          title: '登陆已失效',
+                          message: err,
+                          type: 'error'
+                      })
+                   }))
           },
       }
     

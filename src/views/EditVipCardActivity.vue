@@ -278,7 +278,6 @@
                 self.showConfirmBtn = false;
             }
             const obj = self.$route.query;
-            console.debug('obj', obj);
             if(JSON.stringify(obj) !== "{}") {
                 
                 self.getVipCardInfo(self.parseParams(obj))

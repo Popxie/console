@@ -5,27 +5,21 @@ import * as types from '../mutation-types';
 import {_get, _post, _post_copy} from '../../utils/fetch';
 const state = {
     activityList: [],        // 活动中心列表
+    recordsTotal: 0,
 };
 
 const getters = {
     activityList: state => state.activityList,
+    recordsTotal: state => state.recordsTotal,
 };
 
 const actions = {
     //获取活动中心列表
     getActivityList({commit},params) {
         let url = '/activity/queryActives';
-        
         return _post({url},params,commit)
             .then((data) => {
-                if (data.status == 1) {
-                    // return Promise.resolve(data);
-                    console.debug(data);
-                    // for(let i = 0; i < data.data.length; i++) {
-                    //     if(data.data[i].status === '2') {
-                    //         data.data[i].status = '3'
-                    //     }
-                    // }
+                if (data.statusCode === '200') {
                     return commit(types.GET_ACTIVITY_LIST, data.data);
                 }
                 return Promise.reject(data.msg);
@@ -51,7 +45,7 @@ const actions = {
     getActivityInfo({commit},params) {
         let url = '/activity/get';
         
-        return _post_copy({url},params, commit)
+        return _post({url},params, commit)
             .then((data) => {
                 if (data.status == 1) {
                     return Promise.resolve(data);
@@ -91,8 +85,9 @@ const actions = {
     
 };
 const mutations = {
-    [types.GET_ACTIVITY_LIST] (state, data) {
-        state.activityList = data;
+    [types.GET_ACTIVITY_LIST] (state, payload) {
+        state.activityList = payload.content;
+        state.recordsTotal = payload.recordsTotal;
     },
 };
 export default {
