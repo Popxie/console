@@ -232,9 +232,13 @@
                     </el-form-item>
 
                     <el-form-item v-else label="设置投放时间段:" prop="validateDaysRange">
-                        <el-date-picker type="daterange" range-separator="——" placeholder="选择时间范围"
-                                        v-model="form.validateDaysRange" @change="timeChange" style="width: 100%;"
-                                        ref="test"
+                        <el-date-picker
+                            type="daterange"
+                            range-separator="——"
+                            placeholder="选择时间范围"
+                            v-model="form.validateDaysRange"
+                            @change="timeChange"
+                            style="width: 100%;"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -310,7 +314,7 @@
                 maxMoney: 0,
                 timeRange: '-1',         // 赋值后的时间范围
                 form: {
-                    type: 0,
+                    type: 0,            // 控制显示哪一个版块
                     addType: 0,         // 添加类型   接口 or 直接生成
                     isNewuserUse: 0,
                     limitType: 0,       // 领取限制类型   按批次 or 按单次
@@ -318,7 +322,7 @@
                     isLimitSize: 0,     // 是否限定张数
                     topic: '',
                     couponName: '',
-                    areaType: 0,
+                    areaType: 0,        // 设置投放地域
                     coupon: [{}],
                     maxDeductionType: 0,
                     maxDeductionMoney: '',
@@ -475,7 +479,6 @@
                     return;
                 }
                 self.dialogVisible = true;
-                self.reset();
             },
             selectAreaByClick() {
                 let self = this;
@@ -483,7 +486,7 @@
             },
             setAreas(form) {
                 let self = this;
-                if (!form) {
+                if (!form.provinces.length) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -498,13 +501,6 @@
                 let self = this;
                 self.dialogVisible = false;
                 self.form.areaType = 0;
-                self.reset();
-            },
-            reset() {
-                let self = this;
-                self.form.provinceName = '';
-                self.form.cityName = '';
-                self.form.areaName = '';
             },
             addCoupon() {
                 let self = this;
@@ -846,7 +842,7 @@
                     if (valid) {
                         self.createConpon(self.form)
                             .then((res) => {
-//                                self.$router.push('couponList');
+                                self.$router.push('couponList');
                             }, (err) => {
                             console.log(err);
                                 self.$notify({

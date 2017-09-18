@@ -63,7 +63,7 @@ export const _get = function ({url, query}, commit) {
             if (commit) commit('FINISH_LOADING')
             return Promise.reject(res)
         })
-}
+};
 
 /**
  *
@@ -83,6 +83,35 @@ export const _post = function ({url, query}, params, commit) {
         _url = `${baseUrl}${url}`;
     }
     return Vue.http.post(_url, params)
+        .then((res) => {
+            if (commit) commit('FINISH_LOADING');
+            if (res.status == 200) {
+                return res.data;
+            }
+            if(res.status == 203) {
+                localStorage.removeItem('userInfo');
+                return Promise.reject('登陆已失效！');
+            }
+            return Promise.reject(new Error(res.status));
+        }, (res) => {
+            if (commit) commit('FINISH_LOADING');
+            return Promise.reject(res);
+        })
+};
+
+    export const _post_copy = function ({url, query}, params, commit) {
+    if (commit) commit('START_LOADING')
+    let _url;
+    if (query) {
+        _url = `${baseUrl}${url}?${parseParams(query)}`;
+    } else {
+        _url = `${baseUrl}${url}`;
+    }
+    return Vue.http.post(_url, params, {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    })
         .then((res) => {
             if (commit) commit('FINISH_LOADING');
             if (res.status == 200) {

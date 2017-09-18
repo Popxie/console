@@ -16,7 +16,10 @@ const CreatePrice = resolve => require(['views/CreatePrice'],resolve);
 const PriceRuleList = resolve => require(['views/PriceRuleList'],resolve);
 const EditPriceRule = resolve => require(['views/EditPriceRule'],resolve);
 const VipCardList = resolve => require(['views/VipCardList'],resolve);
-
+const EditVipCard = resolve => require(['views/EditVipCard'],resolve);
+const EditVipCardActivity = resolve => require(['views/EditVipCardActivity'],resolve);
+const BgActivityCenter = resolve => require(['views/BgActivityCenter'],resolve);
+const CreateActivity = resolve => require(['views/CreateActivity'],resolve);
 
 Vue.use(Router);
 
@@ -49,6 +52,14 @@ export default new Router({
                 {
                     path: 'editAdv',
                     component: EditAdv
+                },
+                {
+                    path: 'editVipCardActivity',
+                    component: EditVipCardActivity
+                },
+                {
+                    path: 'editVipCard',
+                    component: EditVipCard
                 },
                 {
                     path: 'advList',
@@ -85,7 +96,15 @@ export default new Router({
                 {
                     path: 'editPriceRule',
                     component: EditPriceRule
-                }
+                },
+                {
+                    path: 'bgActivityCenter',
+                    component: BgActivityCenter
+                },
+                {
+                    path: 'createActivity',
+                    component: CreateActivity
+                },
             ]
         }
     ]

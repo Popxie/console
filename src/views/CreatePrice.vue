@@ -36,13 +36,13 @@
                         <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                     </el-form-item>
                     <el-form-item label="计费方式" required>
-                        <el-radio-group v-model="form.billingWay" @change="chargingModeClick()">
+                        <el-radio-group v-model="form.billingWay" @change="chargingModeClick">
                             <el-radio :label="1">按统一计价</el-radio>
                             <el-radio :label="3">按加盟商</el-radio>
                             <el-radio :label="2">按电子围栏</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item v-if="form.billingWay === 1" label="加盟商编号" required>
+                    <el-form-item v-if="form.billingWay === 3" label="加盟商编号" required>
                         <div class="partner-block" v-for="(item,index) in partnerArray">
                             <el-input v-model="item.partnerCode" placeholder="请填写加盟商编号" style="width: 120px"></el-input>
                             <el-button v-show="partnerArray.length !== 1" @click="deletePartner(index)">删除</el-button>
@@ -60,9 +60,12 @@
                             <el-date-picker
                                 v-model="validPeriod"
                                 type="daterange"
+                                range-separator="—"
+                                @change="dateBlur"
                                 placeholder="选择开始时间-结束时间">
                             </el-date-picker>
                         </el-form-item>
+                        
                         <el-form-item label="规则选择" required>
                             <el-select v-model="priceModelId" placeholder="规则选择">
                                 <el-option :label="item.name" :value="item.id"
@@ -76,7 +79,7 @@
                             <el-date-picker
                                 v-model="validPeriod"
                                 type="daterange"
-                                placeholder="选择开始时间-结束时间">
+                                placeholder="选择开始时222间-结束时间">
                             </el-date-picker>
                         </el-form-item>
                         <el-form-item label="阶段计费" required>
@@ -143,7 +146,7 @@
                             </div>
                         </el-form-item>
                     </section>
-                    <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
+                    <el-button type="primary" class="mt20" @click="submitRule('form')">保22存</el-button>
                     <el-button class="mt20" @click="returnCreate">返回</el-button>
                 </el-form>
             </div>
@@ -290,8 +293,9 @@
                     partnerCode: '',    // 加盟商编号
                     eRailId: '',        // 电子围栏编号
                     type: 2,
-                    billingModule: {}
-                    
+                    billingModule: {},
+                    startTime: '',
+                    endTime: ''
                 },
                 weekday: 1, //周惠 选中的某天
                 weekPricingList: [{
@@ -366,7 +370,9 @@
                   list.push(this.eRailsIdList[i]);
                   this.eRailsValueList.push(this.eRailsIdList[i]);
               }
+              console.debug('list', list);
               this.form.areaId = list.toString();
+              console.debug('this.form.areaId', this.form.areaId);
             },
            
             setRule(val) {
@@ -377,11 +383,10 @@
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
-                self.form.areaType = 0;
             },
             setAreas(form) {
                 let self = this;
-                if (!form) {
+                if (!form.provinces.length) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -391,7 +396,7 @@
                 }
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
-                // 请求接口之前先清空城市名 方式重复叠加
+                // 请求接口之前先清空城市名 防止重复叠加
                 self.form.provincesList = [];
                 // 获取城市名
                 for(let i = 0; i < this.form.provinces.length; i++) {
@@ -405,7 +410,7 @@
                     }, (err) => {
                         self.$notify({
                             title: '失败',
-                            message: '没有找到对应的电子围栏！',
+                            message: err.msg,
                             type: 'error'
                         });
                     });
@@ -491,6 +496,18 @@
                     }
                 });
             },
+            dateBlur(val) {
+                console.debug(val);
+                let self = this;
+                // 将组件的val （年月日时分秒的时间区间）分离
+                let items = val.split('—');
+                console.debug('items', items);
+                // 将年月日 跟 时分秒分离
+                self.form.startTime = items[0];
+                self.form.endTime = items[1];
+                console.debug(self.form);
+                self.timeRange = val;
+            },
             //提交规则
             submitRule(formName) {
                 let self = this;
@@ -518,14 +535,6 @@
                             let timeArray = self.validPeriod;
                             startTime = timeArray[0].getTime() / 1000;
                             endTime = timeArray[1].getTime() / 1000;
-                        }
-                        //统一计价
-                        if (type === 1) {
-                            self.form.billingModule.unitePricing = {
-                                startTime: startTime.toString(),
-                                endTime: endTime.toString(),
-                                priceModelId: self.priceModelId
-                            };
                         }
                         //周惠
                         if (type === 2) {
@@ -590,18 +599,12 @@
                                 type: 'error'
                             });
                         });
-                    } else {
-                        self.$notify({
-                            title: '失败',
-                            message: '请填写完表单',
-                            type: 'error'
-                        });
-                        return false;
                     }
                 });
             },
             // 计费方式
             chargingModeClick() {
+                console.debug(this.form.billingWay);
                 let self = this;
                 const index = this.form.billingWay;
                 if(index === 2) {

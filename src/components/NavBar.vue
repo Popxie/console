@@ -24,6 +24,11 @@
                 <!--<el-menu-item index="test">测试</el-menu-item>-->
             </el-submenu>
             <!--<el-menu-item index="test"><i class="icon fa fa-tachometer"></i>测试</el-menu-item>-->
+            
+            <el-submenu index="5">
+                <template slot="title"><i class="icon fa fa-jpy"></i>活动配置</template>
+                <el-menu-item index="bgActivityCenter">活动中心后台</el-menu-item>
+            </el-submenu>
         </el-menu>
     </div>
 </template>

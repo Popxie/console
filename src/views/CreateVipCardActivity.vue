@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px">
+    <div :class="{fromOther: showCss}" style="background: white;width: 100%;height:100%">
+        <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px" style="background: #fff">
             <el-form-item label="会员卡名称" prop="name">
                 <el-input v-model="form.name"></el-input>
             </el-form-item>
@@ -14,7 +14,7 @@
             </el-form-item>
     
             <el-form-item label="卡次数" v-if="showTimesCard" prop="can_use_counts" required>
-                <el-input v-model="form.can_use_counts"></el-input>
+                <el-input type="number" v-model="form.can_use_counts"></el-input>
             </el-form-item>
            
             <el-form-item label="卡类型" required>
@@ -25,17 +25,18 @@
                 </el-radio-group>
             </el-form-item>
     
-            <el-form-item label="广告图片：" prop="card_image">
+            <el-form-item label="有效卡样式：" prop="card_image">
                 <el-upload
                     :action="url"
                     list-type="picture-card"
                     :on-preview="handlePreview"
                     :on-remove="handleRemove"
                     :on-success="handleSuccess"
+                    style="height: 36px;"
                 >
                     <i v-if="showBtn" class="el-icon-plus"></i>
                 </el-upload>
-                <el-dialog v-model="dialogImg" size="tiny">
+                <el-dialog v-model="showDialogImg" size="tiny">
                     <img width="100%" :src="dialogImageUrl" alt="">
                 </el-dialog>
             </el-form-item>
@@ -84,12 +85,25 @@
                     </el-radio>
                 </el-radio-group>
             </el-form-item>
-    
-            <el-form-item label="活动时间:" prop="validateDaysRange">
-                <el-date-picker type="daterange" range-separator="——" placeholder="选择活动时间范围"
-                                v-model="form.validateDaysRange" @change="timeChangeForAct" style="width: 100%;"
-                >
-                </el-date-picker>
+            
+            <el-form-item label="活动时间：" required>
+                <el-col :span="11">
+                    <el-form-item prop="activeStartDate" required>
+                        <el-date-picker type="date" placeholder="选择开始时间" @change="activeStartDateBlur"
+                                        v-model="form.activeStartDate" style="width: 100%;"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                </el-col>
+                <el-col class="line" :span="2" style="text-align: center"> - </el-col>
+                <el-col :span="11">
+                    <el-form-item prop="activeEndDate">
+                        <el-date-picker type="date" placeholder="选择结束时间" @change="activeEndDateBlurBlur"
+                                        v-model="form.activeEndDate" style="width: 100%;"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                </el-col>
             </el-form-item>
             
             <!-- 次卡的情况下显示 -->
@@ -103,16 +117,29 @@
     
                 <el-form-item v-if="showValidDays" label="有效天数：" prop="expire_days">
                     <div style="display: flex">
-                        <el-input style="width: 193px;" v-model="form.expire_days" placeholder="请输入有效天数，6字以内"></el-input>
+                        <el-input type="number" style="width: 193px;" v-model="form.expire_days" placeholder="请输入有效天数，6字以内"></el-input>
                         <span>天</span>
                     </div>
                 </el-form-item>
-    
-                <el-form-item v-else label="有效时间" prop="validateDaysRangeArr">
-                    <el-date-picker type="daterange" range-separator="——" placeholder="选择有效时间范围"
-                                    v-model="form.validateDaysRangeArr" @change="timeChangeForVal" style="width: 100%;"
-                    >
-                    </el-date-picker>
+                
+                <el-form-item v-else label="有效时间：">
+                    <el-col :span="11">
+                        <el-form-item prop="expireStartTime">
+                            <el-date-picker type="date" placeholder="选择开始时间" @change="StartDateBlur"
+                                            v-model="form.expireStartTime" style="width: 100%;"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col class="line" :span="2" style="text-align: center"> - </el-col>
+                    <el-col :span="11">
+                        <el-form-item prop="expireEndTime">
+                            <el-date-picker type="date" placeholder="选择结束时间" @change="EndDateBlur"
+                                            v-model="form.expireEndTime" style="width: 100%;"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
                 </el-form-item>
             </template>
             
@@ -127,6 +154,9 @@
     .mt40 {
         margin-top: 40px;
     }
+    .hide {
+        display: none;
+    }
 </style>
 <script>
     import {mapState,mapGetters, mapActions, mapMutations} from 'vuex'
@@ -135,33 +165,35 @@
     export default{
         data(){
             return {
+                test: '',
+                showCss: false,
                 url: `${settings.URL}/api/uploadImage`,
                 showBtn: true,
                 dialogImageUrl: '',
-                dialogImg: false,
+                showDialogImg: false,
                 other: 4,
                 countsOther: '',
                 timeRangeForAct: '',
                 timeRangeForVal: '',
                 showValidDays: true,
                 showTimesCard: false,
+                showBackBtn: false,
                 form: {
+                    source_from: 2,
                     name: '',
                     rule_title: '',
                     rule_content: '',           // 卡规则
                     can_use_counts: '',         // 卡的使用次数
                     type: 21,                   // 卡类型
-                    card_image: '',             // 上传图片地址
+                    card_image: '',             // 有效图片地址
                     third_part_type: '',         // 合作方
                     is_newuser_use: 0,          // 是否新用户可领
                     one_receive_count_max: 1,   // 单用户领取张数
                     total_number: -1,           // 发放张数
-                    validateDaysRange: [],      // 时间范围
                     activeStartDate: '',
                     activeEndDate: '',
                     validate_type: 0,
                     expire_days: '',            // 有效天数
-                    validateDaysRangeArr: [],   // 有效时间
                     expireStartTime: '',
                     expireEndTime: '',
                 },
@@ -177,7 +209,7 @@
                         {required: true,message: '请输入规则内容', trigger: 'blur'}
                     ],
                     can_use_counts: [
-                        {required: true,message: '请输入规则内容', trigger: 'blur'}
+                        {type:'number',required: true,message: '请输入卡的次数', trigger: 'blur'}
                     ],
                     type: [
                         {required: true,message: '请选择卡类型', trigger: 'change'}
@@ -185,14 +217,20 @@
                     card_image: [
                         {required: true, message: '请上传图片', trigger: 'change'}
                     ],
-                    validateDaysRange: [
-                        {type: 'array', required: true, message: '请选择活动时间范围', trigger: 'change'}
+                    activeStartDate: [
+                        { required: true, message: '请选择开始时间', trigger: 'change'}
+                    ],
+                    activeEndDate: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                     expire_days: [
-                        {type: 'string', required: true, message: '请填写有效天数', trigger: 'change'}
+                        {type:'number',required: true, message: '请填写有效天数', trigger: 'change'}
                     ],
-                    validateDaysRangeArr: [
-                        {type: 'array', required: true, message: '请选择有效时间范围', trigger: 'change'}
+                    expireStartTime: [
+                        {required: true, message: '请选择开始时间', trigger: 'change'}
+                    ],
+                    expireEndTime: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                 },
                 options: [{
@@ -215,10 +253,14 @@
         methods: {
             ...mapActions([
                 'setActivityVipCard',
-                'getThirdPartnerList'
+                'getThirdPartnerList',
+                'getVipCardInfo'
             ]),
             upStep() {
                 this.$emit('back-click');
+            },
+            backClick() {
+                this.$router.back();
             },
             // 正则表达式 ＞0 的正整数
             isInt(str){
@@ -237,16 +279,18 @@
                 }
             },
             handlePreview(file) {
+                console.debug(file);
                 this.dialogImageUrl = file.url;
-                this.dialogImg = true;
+                this.showDialogImg = true;
             },
-            handleRemove(file, fileList) {
+            handleRemove() {
                 this.form.card_image = '';
                 this.showBtn = true;
             },
             handleSuccess(res, file) {
                 let self = this;
-                this.showBtn = false;
+                self.showBtn = false;
+                console.debug(res);
                 if (res.statusCode == 200) {
                     self.form.card_image = res.data;
                 }
@@ -325,29 +369,24 @@
                     self.form.total_number = self.countsOther;
                 });
             },
+            // 活动开始时间
+            activeStartDateBlur(res) {
+                this.form.activeStartDate = res;
+            },
+            // 活动结束时间
+            activeEndDateBlurBlur(res) {
+                this.form.activeEndDate = res;
+            },
+            StartDateBlur(res) {
+                this.form.expireStartTime = res;
+            },
+            EndDateBlur(res) {
+                this.form.expireEndTime = res;
+            },
             // 活动时间范围
-            timeChangeForAct(val) {
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('——');
-                // 将年月日 跟 时分秒分离
-                self.form.activeStartDate = items[0];
-                self.form.activeEndDate = items[1];
-                self.timeRangeForAct = val;
-            },
-            timeChangeForVal(val) {
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('——');
-                // 将年月日 跟 时分秒分离
-                self.form.expireStartTime = items[0];
-                self.form.expireEndTime = items[1];
-                self.timeRangeForVal = val;
-            },
             validDaysClick() {
                 this.showValidDays =!this.showValidDays;
                 const index = this.form.validate_type;
-                console.debug('index', index);
                 if(index === 0){
                     this.form.validateDaysRangeArr = []
                 } else {
@@ -365,23 +404,6 @@
                         });
                         return;
                     }
-                    if(!self.timeRangeForAct) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请选择活动时间范围',
-                            type: 'warning'
-                        });
-                        return;
-                    }
-                    if(!self.timeRangeForVal && self.form.type === 24) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请选择有效天数',
-                            type: 'warning'
-                        });
-                        return;
-                    }
-                    
                     if (valid) {
                         self.setActivityVipCard(self.form)
                             .then((res) => {
@@ -391,17 +413,15 @@
                                         message: res.msg,
                                         type: 'success'
                                     });
-//                                    self.$router.push({path: 'vipCardList'});
-                                } else {
-                                    self.$notify({
-                                        title: '失败',
-                                        message: res.msg,
-                                        type: 'error'
-                                    });
+                                    self.$router.push({path: 'vipCardList'});
                                 }
-                            }, (err) => {
-                        });
-
+                            },(res) => {
+                                self.$notify({
+                                    title: '失败',
+                                    message: res.msg,
+                                    type: 'error'
+                                });
+                            });
                     } else {
                         console.log('error submit!!');
                         return false;

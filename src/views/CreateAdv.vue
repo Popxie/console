@@ -382,7 +382,7 @@
             },
             setAreas(form) {
                 let self = this;
-                if (!form.provinceName) {
+                if (!form.provinces.length) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',

@@ -2,7 +2,7 @@
  * Created by chenyike on 2017/7/10.
  */
 import * as types from '../mutation-types';
-import {_get, _post} from '../../utils/fetch';
+import {_get, _post, _post_copy} from '../../utils/fetch';
 const state = {
     vipCardList: [],        // 会员卡列表
     thirdPartnerList: [],   // 合作方列表
@@ -62,18 +62,19 @@ const actions = {
     },
     
     //获取会员卡列表
-    getVipCardList({commit},data) {
+    getVipCardList({commit},params) {
         let url = '/riding_card/riding_card_list';
-        let formData = new FormData();
-        for (let key in data) {
-            if(data[key]) {
-                formData.append(key,data[key]);
-            }
-        }
-        return _post({url},formData,commit)
+        
+        return _post({url},params,commit)
             .then((data) => {
                 if (data.status == 1) {
                     // return Promise.resolve(data);
+                    console.debug(data);
+                    for(let i = 0; i < data.data.length; i++) {
+                        if(data.data[i].status === '2') {
+                            data.data[i].status = '3'
+                        }
+                    }
                     return commit(types.SET_VIP_CARD_LIST, data.data);
                 }
                 return Promise.reject(data.msg);
@@ -81,12 +82,38 @@ const actions = {
                 return Promise.reject(error);
             });
     },
+    // 获取会员卡信息
+    getVipCardInfo({commit},params) {
+        let url = '/riding_card/get_riding_card_info';
+    
+        return _post_copy({url},params, commit)
+            .then((data) => {
+                if (data.status == 1) {
+                    return Promise.resolve(data);
+                }
+                return Promise.reject(data.msg);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
+    // 保存修改后的会员卡信息
+    modifyActivityVipCard({commit}, params) {
+        let url = '/riding_card/motify_riding_card_info';
+    
+        return _post({url},params, commit)
+            .then((data) => {
+                if (data.status == 1) {
+                    return Promise.resolve(data);
+                }
+                return Promise.reject(data.msg);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
     //下线会员卡
-    offlineVipCard({commit}, data) {
+    offlineVipCard({commit}, params) {
         let url = '/riding_card/offline_riding_card';
-        let formData = new FormData();
-        formData.append('id', data);
-        return _post({url}, formData, commit)
+        return _post_copy({url},params, commit)
             .then((data) => {
                 if (data.status == 1) {
                     return Promise.resolve(data);

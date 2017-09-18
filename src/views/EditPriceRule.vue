@@ -82,7 +82,6 @@
                 let self = this;
                 self.dialogVisible = false;
                 self.form.areaType = 0;
-                self.reset();
             },
             showAreaSelect() {
                 let self = this;
@@ -90,7 +89,7 @@
             },
             setAreas(form) {
                 let self = this;
-                if (!form) {
+                if (!form.provinces.length) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
