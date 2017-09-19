@@ -2,7 +2,7 @@
     <div class="container">
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <el-dialog title="提示" v-model="showDialog" size="tiny">
-            <el-checkbox-group v-model="eRailsIdList" >
+            <el-checkbox-group v-model="eRailsIdList" @change="checkBoxClick">
                 <el-row :gutter="20">
                     <template v-for="(item, index) in eRailsList">
                         <el-col :span="6">
@@ -13,7 +13,7 @@
             </el-checkbox-group>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="showDialog = false">取 消</el-button>
-                <el-button type="primary" @click="dialogConfirmClick">确 33定</el-button>
+                <el-button type="primary" @click="dialogConfirmClick">确定</el-button>
             </span>
         </el-dialog>
         <el-row>
@@ -33,6 +33,7 @@
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :on-success="handleSuccess"
+                            :default-file-list="fileList"
                         >
                             <i v-if="showBtn" class="el-icon-plus"></i>
                             <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
@@ -42,32 +43,21 @@
                         </el-dialog>
                     </el-form-item>
                     
-                    <!--<el-form-item label="活动时间" prop="activityTime">-->
-                        <!--<el-date-picker-->
-                            <!--type="daterange"-->
-                            <!--range-separator="—"-->
-                            <!--placeholder="选择日期范围"-->
-                            <!--v-model="form.activityTime"-->
-                            <!--@change="dateBlur"-->
-                            <!--style="width: 100%;"-->
-                        <!--&gt;-->
-                        <!--</el-date-picker>-->
-                    <!--</el-form-item>-->
                     
                     <el-form-item label="活动时间：" required>
                         <el-col :span="11">
-                            <el-form-item prop="startDate">
-                                <el-date-picker type="date" placeholder="选择开始时间"
-                                                v-model="form.startDate" style="width: 100%;"
+                            <el-form-item prop="startTime">
+                                <el-date-picker type="date" placeholder="选择开始时间" @change="blurStartClick"
+                                                v-model="form.startTime" style="width: 100%;"
                                 >
                                 </el-date-picker>
                             </el-form-item>
                         </el-col>
                         <el-col class="line" :span="2" style="text-align: center">-</el-col>
                         <el-col :span="11">
-                            <el-form-item prop="EndDate">
-                                <el-date-picker type="date" placeholder="选择结束时间"
-                                                v-model="form.EndDate" style="width: 100%;"
+                            <el-form-item prop="endTime">
+                                <el-date-picker type="date" placeholder="选择结束时间" @change="blurEndClick"
+                                                v-model="form.endTime" style="width: 100%;"
                                 >
                                 </el-date-picker>
                             </el-form-item>
@@ -76,8 +66,8 @@
     
                     <el-form-item label="选择区域">
                         <el-radio-group v-model="form.type" @change="chooseAreaTypeClick">
-                            <el-radio :label="0">全域</el-radio>
-                            <el-radio :label="1">部分区域</el-radio>
+                            <el-radio :label="1">全域</el-radio>
+                            <el-radio :label="0">部分区域</el-radio>
                             <el-radio :label="-1">取消选择区域</el-radio>
                         </el-radio-group>
                     </el-form-item>
@@ -112,7 +102,7 @@
         data(){
             return {
                 url: `${settings.URL}/api/uploadImage`,
-                showBtn: true,              // 是否显示 + 号按钮
+                showBtn: false,              // 是否显示 + 号按钮
                 dialogVisible: false,       // 控制是否显示 选择地址的 dialog
                 showDialogImg: false,       // 是否显示 图片的 dialog
                 dialogImageUrl: '',         // img标签的src
@@ -121,19 +111,20 @@
                 timeRange: -1,
                 cityName: '',
                 showConfirmBtn: true,
+                fileList: [
+                    {name:'活动图片',url:''}
+                ],
                 form: {
                     name: '',       // 活动名称
                     picUrl: '',        // 上传图片后 返回的 图片地址
-                    activityTime: [],       // 活动时间
-                    startDate: '',
-                    endDate: '',
+                    startTime: '',
+                    endTime: '',
                     type: '',           // 选择区域的字段
                     areaCode: '',           // 区域代码
-                    cityCode: '',
-                    electricFenceId: [],    //电子围栏id
+                    electricFenceId: '',    //电子围栏id
                     contentLinkUrl: '',       // 活动链接
                 },
-                eRailsList: [],                          // 电子围栏列表（dialog中的）
+                eRailsList: [],              // 电子围栏列表（dialog中的）
                 eRailsIdList:[],            // 电子围栏id列表(dialog确认以后)
                 eRailsValueList: [],        // 用来显示的 值
                 rules: {
@@ -144,11 +135,11 @@
                     picUrl: [
                         {required: true, message: '请上传图片', trigger: 'change'}
                     ],
-                    startDate: [
+                    startTime: [
                         {required: true, message: '请选择开始时间', trigger: 'change'}
                     ],
-                    endDate: [
-                        {required: true, message: '请选择开始时间', trigger: 'change'}
+                    endTime: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                     counts: [
                         {required: true,message: '请选择使用次数',trigger: 'change'}
@@ -182,6 +173,18 @@
             }
             this.getActivityInfo(infoObj)
                 .then((res) => {
+                   if(res.data.electricFenceId) {
+                       this.electricFenceId = [];
+                       let tempArr = [];
+                       this.eRailsValueList = res.data.electricFenceId.split(',');
+                       tempArr = res.data.electricFenceId.split(',');
+                       // 这里遍历 是为了回显 根据拿到的值  在check-box 默认选中对应的选项
+                       for(let i =0; i < tempArr.length; i ++) {
+                           this.eRailsIdList.push(Number(tempArr[i]));
+                       }
+                   }
+                    this.fileList[0].url = res.data.picUrl;
+    
                     this.form = res.data;
                 },(err) => {
                     this.$notify({
@@ -197,6 +200,9 @@
                 'getERailsList',
                 'getActivityInfo'
             ]),
+            checkBoxClick(val) {
+                console.debug(val);
+            },
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
@@ -215,8 +221,8 @@
                 for(let i = 0; i < val.provinces.length; i++){
                     self.cityCodeArr.push(val.provinces[i].cityCode);
                 }
-                self.form.cityCode = self.cityCodeArr.toString();
-                console.debug('cityCode',self.form.cityCode);
+                self.form.areaCode = self.cityCodeArr.toString();
+                console.debug('areaCode',self.form.areaCode);
                 self.dialogVisible = false;
             },
             handlePreview(file) {
@@ -228,42 +234,37 @@
                 this.form.picUrl = '';
                 this.showBtn = true;
             },
-            handleSuccess(res, file) {
+            handleSuccess(res) {
                 let self = this;
                 self.showBtn = false;
-                console.debug(res);
                 if (res.statusCode == 200) {
                     self.form.picUrl = res.data;
                 }
             },
-    
-//            dateBlur(val) {
-//                let self = this;
-//                // 将组件的val （年月日时分秒的时间区间）分离
-//                let items = val.split('—');
-//                console.debug('items', items);
-//                // 将年月日 跟 时分秒分离
-//                self.form.startDate = items[0];
-//                self.form.endDate = items[1];
-//                self.timeRange = val;
-//            },
+            blurStartClick(val) {
+                this.form.startTime = val;
+            },
+            blurEndClick(val) {
+                this.form.endTime = val;
+            },
             chooseAreaTypeClick(index) {
-                if(index === 0) {
-                    this.form.cityCode = ''
-                    console.debug('this.form.cityCode', this.form.cityCode);
-                }
                 if(index === 1) {
+                    this.form.areaCode = ''
+                    console.debug('this.form.cityCode', this.form.areaCode);
+                }
+                if(index === 0) {
                     this.dialogVisible = true;
                 }
             },
             dialogConfirmClick() {
-              console.debug('eRailsIdList', this.eRailsIdList);
+              console.debug('eRailsIdList222', this.eRailsIdList);
                 this.showDialog = false;
                 // 每次点击确认以后 都要先清空一下 原先的数组 不然会 出现叠加现象
                 this.eRailsValueList = [];
                 for(let i = 0; i < this.eRailsIdList.length; i++) {
                     this.eRailsValueList.push(this.eRailsIdList[i]);
                 }
+                console.debug('this.eRailsValueList->', this.eRailsValueList);
                 this.form.electricFenceId = this.eRailsValueList.toString();
             },
             backClilck() {

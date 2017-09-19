@@ -72,7 +72,7 @@ const actions = {
     //下线 & 上线
     offlineActivity({commit}, params) {
         let url = '/activity/updateActiveStatusById';
-        return _post_copy({url},params, commit)
+        return _post({url},params, commit)
             .then((data) => {
                 if (data.status == 1) {
                     return Promise.resolve(data);

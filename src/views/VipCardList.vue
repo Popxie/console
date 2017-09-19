@@ -335,7 +335,6 @@
                         message: res.msg,
                         type: 'success'
                     });
-                    self.getVipCardList(self.dataObj);
                 }, (err) => {
                     self.$notify({
                         title: '失败',
@@ -362,7 +361,6 @@
                         message: res.msg,
                         type: 'success'
                     });
-                    self.getVipCardList();
                 }, (err) => {
                     self.$notify({
                         title: '失败',

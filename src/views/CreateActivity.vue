@@ -108,8 +108,7 @@
                     endDate: '',
                     areaType: '',           // 选择区域的字段(自己写的字段)
                     areaCode: '',           // 区域代码
-                    cityCode: '',
-                    electricFenceId: [],    //电子围栏id
+                    electricFenceId: '',    //电子围栏id
                     contentLinkUrl: '',       // 活动链接
                 },
                 eRailsList: [],                          // 电子围栏列表（dialog中的）
@@ -175,8 +174,8 @@
                 for(let i = 0; i < val.provinces.length; i++){
                     self.cityCodeArr.push(val.provinces[i].cityCode);
                 }
-                self.form.cityCode = self.cityCodeArr.toString();
-                console.debug('cityCode',self.form.cityCode);
+                self.form.areaCode = self.cityCodeArr.toString();
+                console.debug('areaCode',self.form.areaCode);
                 self.dialogVisible = false;
             },
             handlePreview(file) {
@@ -209,8 +208,8 @@
             },
             chooseAreaTypeClick(index) {
                 if(index === 0) {
-                    this.form.cityCode = ''
-                    console.debug('this.form.cityCode', this.form.cityCode);
+                    this.form.areaCode = ''
+                    console.debug('this.form.areaCode', this.form.areaCode);
                 }
                 if(index === 1) {
                     this.dialogVisible = true;

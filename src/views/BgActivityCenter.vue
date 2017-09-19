@@ -15,7 +15,7 @@
                     </el-date-picker>
     
                     <span style="margin: 0 12px">活动主题</span>
-                    <el-input class="el-inputs" v-model="dataObj.themeName" placeholder="请输入活动主题"></el-input>
+                    <el-input class="el-inputs" v-model="dataObj.name" placeholder="请输入活动主题"></el-input>
     
                     <span style="margin: 0 12px">地区</span>
                     <el-button  @click="chooseAreaClick">请选择投放地区</el-button>
@@ -80,7 +80,7 @@
             </el-table-column>
             
             <el-table-column
-                prop="status"
+                prop="statusName"
                 align="center"
                 width="130"
                 label="状态">
@@ -146,7 +146,8 @@
               endDate: '',
               name: '',          // 活动主题
               areaCode: '',
-              status: '',          // 卡状态
+              status: '',
+              statusName: '',          // 卡状态
           },
           stateOptions: [
               {
@@ -176,7 +177,7 @@
         computed: {
             ...mapGetters([
                 'activityList',
-                'recordsTotal'
+                'recordsTotal',
             ])
         },
       created() {
@@ -185,6 +186,7 @@
       methods: {
           ...mapActions([
               'getActivityList',
+              'offlineActivity',
           ]),
           dateBlur(res) {
               console.debug(res);
@@ -218,8 +220,9 @@
           
           searchClick() {
               let self = this;
-              console.debug(self.dataObj.dateRange);
-              self.$router.push();
+              self.dataObj.currentPage = 1;
+              self.dataObj.pageSize = 10;
+              this.getActivityList(self.dataObj);
           },
           CreateActivityClick() {
               this.$router.push('createActivity');
@@ -242,6 +245,52 @@
                       isFromWhere: 'modify'
                   }
               })
+          },
+          onlineClick(val) {
+              let params = {
+                  activityId: val,
+                  status: '1'
+              };
+              this.offlineActivity(params)
+                  .then((res) => {
+                      this.$nextTick(() => {
+                          this.getActivityList(this.page);
+                      });
+                      this.$notify({
+                          title: '成功',
+                          message: res.msg,
+                          type: 'success'
+                      });
+                  },(err) => {
+                      this.$notify({
+                          title: '失败',
+                          message: err,
+                          type: 'error'
+                      });
+                  })
+          },
+          offlineClick(val) {
+              let params = {
+                  activityId: val,
+                  status: 2
+              };
+              this.offlineActivity(params)
+                  .then((res) => {
+                      this.$nextTick(() => {
+                          this.getActivityList(this.page);
+                      });
+                      this.$notify({
+                          title: '成功',
+                          message: res.msg,
+                          type: 'success'
+                      });
+                  },(err) => {
+                      this.$notify({
+                          title: '失败',
+                          message: err,
+                          type: 'error'
+                      });
+                  })
           },
           // 获取活动列表
           getAcList(params) {

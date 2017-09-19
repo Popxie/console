@@ -96,7 +96,7 @@
                     <el-form-item label="活动时间：" required>
                         <el-col :span="11">
                             <el-form-item prop="activeStartDate">
-                                <el-date-picker type="date" placeholder="选择开始时间"
+                                <el-date-picker type="date" placeholder="选择开始时间" @change="blurStartClick"
                                                 v-model="form.activeStartDate" style="width: 100%;"
                                 >
                                 </el-date-picker>
@@ -105,7 +105,7 @@
                         <el-col class="line" :span="2" style="text-align: center">-</el-col>
                         <el-col :span="11">
                             <el-form-item prop="activeEndDate">
-                                <el-date-picker type="date" placeholder="选择结束时间"
+                                <el-date-picker type="date" placeholder="选择结束时间" @change="blurEndClick"
                                                 v-model="form.activeEndDate" style="width: 100%;"
                                 >
                                 </el-date-picker>
@@ -256,6 +256,9 @@
                     activeStartDate: [
                         {required: true, message: '请选择开始时间', trigger: 'change'}
                     ],
+                    activeEndDate: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
+                    ],
                 },
                 options: [{
                     value: '1000000',
@@ -279,7 +282,6 @@
             }
             const obj = self.$route.query;
             if(JSON.stringify(obj) !== "{}") {
-                
                 self.getVipCardInfo(self.parseParams(obj))
                 .then((res) => {
                     if( res.data.total_number > -1) {
@@ -445,6 +447,13 @@
                 } else {
                     this.form.expire_days = '';
                 }
+            },
+            blurStartClick(val) {
+                this.form.activeStartDate = val;
+              console.debug(val);
+            },
+            blurEndClick(val) {
+                this.form.activeEndDate = val;
             },
             onSubmit(formname) {
                 let self = this;
