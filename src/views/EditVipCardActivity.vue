@@ -11,7 +11,7 @@
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
         
-                    <el-form-item label="卡标题" prop="rule_title" required>
+                    <el-form-item label="规则标题" prop="rule_title" required>
                         <el-input v-model="form.rule_title"></el-input>
                     </el-form-item>
         
@@ -19,9 +19,6 @@
                         <el-input v-model="form.rule_content"></el-input>
                     </el-form-item>
         
-                    <el-form-item label="卡次数" v-if="showTimesCard" prop="can_use_counts" required>
-                        <el-input type="number" v-model="form.can_use_counts"></el-input>
-                    </el-form-item>
                     
                     <el-form-item label="卡类型" required>
                         <el-radio-group v-model="form.type"  @change="chooseCardType">
@@ -29,6 +26,10 @@
                             <el-radio :label="24">次卡</el-radio>
                             <el-radio :label="22">半年卡</el-radio>
                         </el-radio-group>
+                    </el-form-item>
+    
+                    <el-form-item label="卡次数" v-if="showTimesCard" prop="can_use_counts" required>
+                        <el-input type="number" v-model="form.can_use_counts"></el-input>
                     </el-form-item>
         
                     <el-form-item label="有效卡样式：" prop="card_image">
@@ -281,8 +282,7 @@
                 self.showConfirmBtn = false;
             }
             const obj = self.$route.query;
-            if(JSON.stringify(obj) !== "{}") {
-                self.getVipCardInfo(self.parseParams(obj))
+            self.getVipCardInfo(self.parseParams(obj))
                 .then((res) => {
                     if( res.data.total_number > -1) {
                         self.countsOther = res.data.total_number;
@@ -293,15 +293,14 @@
                         self.showValidDays = true;
                     }
                     self.form = res.data;
+                    self.form.id = self.$route.query.id;
                     self.fileList[0].url = res.data.show_card_image;
                 },(err) => self.$notify({
                     title: '错误',
                     message: err ||'错误',
                     type: 'error'
                 }))
-            } else {
-                console.debug(2);
-            }
+          
         },
         
         methods: {

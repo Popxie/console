@@ -5,16 +5,12 @@
                 <el-input v-model="form.name"></el-input>
             </el-form-item>
             
-            <el-form-item label="卡标题" prop="rule_title" required>
+            <el-form-item label="规则标题" prop="rule_title" required>
                 <el-input v-model="form.rule_title"></el-input>
             </el-form-item>
             
             <el-form-item label="卡规则" prop="rule_content" required>
                 <el-input v-model="form.rule_content"></el-input>
-            </el-form-item>
-    
-            <el-form-item label="卡次数" v-if="showTimesCard" prop="can_use_counts" required>
-                <el-input type="number" v-model="form.can_use_counts"></el-input>
             </el-form-item>
            
             <el-form-item label="卡类型" required>
@@ -23,6 +19,10 @@
                     <el-radio :label="24">次卡</el-radio>
                     <el-radio :label="22">半年卡</el-radio>
                 </el-radio-group>
+            </el-form-item>
+    
+            <el-form-item label="卡次数" v-if="showTimesCard" prop="can_use_counts" required>
+                <el-input type="number" v-model="form.can_use_counts"></el-input>
             </el-form-item>
     
             <el-form-item label="有效卡样式：" prop="card_image">

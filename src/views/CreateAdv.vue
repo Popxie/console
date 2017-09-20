@@ -467,15 +467,15 @@
                     let imgwidth = img.width;
                     let imgheight = img.height;
                     console.log(imgwidth);
-                    if (imgwidth != width || imgheight != height) {
+                    if (imgwidth !== width || imgheight !== height) {
                         self.$notify({
                             title: '警告',
                             message: '图的尺寸应该是' + width + "*" + height,
                             type: 'warning'
-                        })
+                        });
                         return false;
                     }
-                }
+                };
                 return true;
             },
 

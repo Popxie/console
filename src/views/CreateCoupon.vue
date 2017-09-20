@@ -286,13 +286,14 @@
                         value: 3
                     },
                     {
-                        task: '自营会员卡',
-                        value: 4
-                    },
-                    {
                         task: '会员卡活动',
                         value: 5
                     },
+                    {
+                        task: '自营会员卡',
+                        value: 4
+                    },
+                    
                     
                 ],
                 radio: '1',

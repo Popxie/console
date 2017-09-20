@@ -1,38 +1,39 @@
 <template>
     <div class="vip-card container">
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-    
+        <el-dialog v-model="dialogImg" size="tiny">
+            <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
         <p style="padding-bottom: 15px">活动配置/活动配置</p>
-        <el-row :gutter="5">
-            <el-col :span="24" style="margin-bottom: 10px">
-                <div class="grid-content">
-                    <span style="margin-right: 15px">创建日期</span>
-                    <el-date-picker
-                        v-model="dataObj.dateRange"
-                        type="daterange"
-                        @change="dateBlur"
-                        placeholder="选择日期范围">
-                    </el-date-picker>
+        
+        <div style="display: flex;height: 36px;width: 100%;line-height: 36px;margin-bottom: 15px">
+            <div style="width: 80px;">创建日期</div>
+            <el-date-picker
+                v-model="dataObj.dateRange"
+                type="daterange"
+                range-separator="—"
+                @change="dateBlur"
+                placeholder="选择日期范围">
+            </el-date-picker>
     
-                    <span style="margin: 0 12px">活动主题</span>
-                    <el-input class="el-inputs" v-model="dataObj.name" placeholder="请输入活动主题"></el-input>
+            <div style="width: 80px;text-align: center">活动主题</div>
+            <el-input class="el-inputs" v-model="dataObj.name" placeholder="请输入活动主题"></el-input>
+            
+            <div style="width: 50px;text-align: center">地区</div>
+            <el-button style="width: 131px;"  @click="chooseAreaClick">请选择投放地区</el-button>
     
-                    <span style="margin: 0 12px">地区</span>
-                    <el-button  @click="chooseAreaClick">请选择投放地区</el-button>
-                    <span style="margin: 0 12px">状态</span>
-                    <el-select v-model="dataObj.status" class="select" placeholder="请选择">
-                        <el-option
-                            v-for="item in stateOptions"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
-                
-                    <el-button class="btn btn-left" @click="searchClick">查询</el-button>
-                    <el-button class="btn btn-right" @click="CreateActivityClick">创建活动</el-button>
-                </div>
-            </el-col>
-        </el-row>
+            <span style="width: 50px;text-align: center">状态</span>
+            <el-select v-model="dataObj.status" class="select" placeholder="请选择">
+                <el-option
+                    v-for="item in stateOptions"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+    
+            <el-button class="btn btn-left" @click="searchClick">查询</el-button>
+            <el-button class="btn btn-right" @click="CreateActivityClick">创建活动</el-button>
+        </div>
         <el-table
             :data="activityList"
             border
@@ -55,7 +56,7 @@
                 align="center"
                 width="100">
                 <template scope="scope">
-                    <img style="width:30px;height: 20px" :src= scope.row.picUrl alt="">
+                    <img style="width:30px;height: 20px" :src= scope.row.picUrl alt="" @click="showImgClick(scope.row.picUrl)">
                 </template>
 
             </el-table-column>
@@ -92,13 +93,13 @@
                 align="center"
                 label="操作">
                 <template scope="scope">
-                    <el-button type="text" size="small"
+                    <el-button type="text" size="small" v-show="scope.row.statusName === '未上线' || scope.row.statusName === '已下线'"
                                @click="modifyClick(scope.row.activityId)">修改
                     </el-button>
-                    <el-button type="text" size="small"
-                               @click="onlineClick(scope.row.activityId)">上线
+                    <el-button type="text" size="small"  v-show="scope.row.statusName === '未上线' || scope.row.statusName === '已下线'"
+                               @click="onlineClick(scope.row.activityId)" >上线
                     </el-button>
-                    <el-button type="text" size="small"
+                    <el-button type="text" size="small" v-show="scope.row.statusName === '已上线' || scope.row.statusName === '已结束'"
                                @click="offlineClick(scope.row.activityId)">下线
                     </el-button>
                     <el-button type="text" size="small"
@@ -134,7 +135,10 @@
     data() {
       return {
           dialogVisible: false,       // 控制是否显示 选择地址的 dialog
+          dialogImg: false,           // 默认图片的 dialog 为false 不显示
+          dialogImageUrl: '',
           cityCodeArr: [],
+          timeRange: -1,
           page: {
               currentPage: 1,
               pageSize: 10,
@@ -188,8 +192,16 @@
               'getActivityList',
               'offlineActivity',
           ]),
-          dateBlur(res) {
-              console.debug(res);
+          dateBlur(val) {
+              console.debug(val);
+              let self = this;
+              // 将组件的val （年月日时分秒的时间区间）分离
+              let items = val.split('—');
+              console.debug('items', items);
+              // 将年月日 跟 时分秒分离
+              self.dataObj.startDate = items[0];
+              self.dataObj.endDate = items[1];
+              self.timeRange = val;
           },
     
           chooseAreaClick() {
@@ -227,6 +239,10 @@
           CreateActivityClick() {
               this.$router.push('createActivity');
           },
+          showImgClick(val) {
+              this.dialogImageUrl = val;
+              this.dialogImg = true;
+          },
           handleSizeChange(val) {
               let self = this;
               self.page.pageSize = val;
@@ -238,6 +254,7 @@
               self.getAcList(self.page);
           },
           modifyClick(activityId) {
+              
               this.$router.push({
                   path: 'editActivity',
                   query: {
@@ -292,6 +309,16 @@
                       });
                   })
           },
+    
+          detailsClick(activityId) {
+              this.$router.push({
+                  path: 'editActivity',
+                  query: {
+                      activityId: activityId,
+                      isFromWhere: 'details'
+                  }
+              })
+          },
           // 获取活动列表
           getAcList(params) {
               this.getActivityList(params)
@@ -322,23 +349,20 @@
         display: flex;
     }
     .el-inputs {
-        width: 150px !important;
+        width: 175px !important;
     }
     .select {
         padding-left: 5px;
-        width: 90px !important;
-        margin-right: 20px;
+        width: 100px !important;
     }
     .btn {
-        width: 88px !important;
+        width: 70px !important;
     }
     .btn-left {
-        margin: 0 30px;
-        margin-right: 20px;
+       margin-left: 30px !important;
     }
     .btn-right {
-        background: rgba(22, 155, 213, 1);
-        color: white;
+        width:76px !important;
     }
     .block {
         margin-bottom: 20px;
@@ -359,4 +383,19 @@
     .ml20 {
         margin-left: 20px;
     }
+</style>
+<style lang="less">
+    .vip-card {
+        .btn-right {
+            span {
+                margin-left: -6px;
+            }
+        }
+        .el-input {
+            input {
+                padding-right: 0 !important;
+            }
+        }
+    }
+    
 </style>

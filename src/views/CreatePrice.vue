@@ -146,7 +146,7 @@
                             </div>
                         </el-form-item>
                     </section>
-                    <el-button type="primary" class="mt20" @click="submitRule('form')">保22存</el-button>
+                    <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
                     <el-button class="mt20" @click="returnCreate">返回</el-button>
                 </el-form>
             </div>

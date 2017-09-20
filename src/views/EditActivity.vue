@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+        <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <el-dialog title="提示" v-model="showDialog" size="tiny">
             <el-checkbox-group v-model="eRailsIdList" @change="checkBoxClick">
                 <el-row :gutter="20">
@@ -25,7 +25,7 @@
                     <el-form-item label="活动名称" prop="name">
                         <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
-    
+                    
                     <el-form-item label="活动图片：" prop="picUrl" required>
                         <el-upload
                             :action="url"
@@ -33,16 +33,16 @@
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :on-success="handleSuccess"
+                            :on-error="hanleErr"
                             :default-file-list="fileList"
                         >
                             <i v-if="showBtn" class="el-icon-plus"></i>
-                            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+                            <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
                         </el-upload>
                         <el-dialog v-model="showDialogImg" size="tiny">
                             <img width="100%" :src="dialogImageUrl" alt="">
                         </el-dialog>
                     </el-form-item>
-                    
                     
                     <el-form-item label="活动时间：" required>
                         <el-col :span="11">
@@ -64,15 +64,23 @@
                         </el-col>
                     </el-form-item>
     
-                    <el-form-item label="选择区域">
-                        <el-radio-group v-model="form.type" @change="chooseAreaTypeClick">
-                            <el-radio :label="1">全域</el-radio>
-                            <el-radio :label="0">部分区域</el-radio>
-                            <el-radio :label="-1">取消选择区域</el-radio>
+    
+                    <el-form-item label="设置">
+                        <el-checkbox-group v-model="checkedList" @change="checkedChange">
+                            <el-checkbox :label="1">设置区域</el-checkbox>
+                            <el-checkbox :label="2">设置电子围栏</el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
+    
+                    <el-form-item label="选择区域"  v-if="showArea">
+                        <el-radio-group v-model="areaType" @change="chooseAreaTypeClick">
+                            <el-radio :label="0">全域</el-radio>
+                            <el-radio :label="1">部分区域</el-radio>
+                            <el-radio :label="-1" style="display: none">隐藏按钮</el-radio>
                         </el-radio-group>
                     </el-form-item>
     
-                    <el-form-item label="电子围栏">
+                    <el-form-item label="电子围栏"  v-if="showErail">
                         <div class="row-wrap">
                             <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
                         </div>
@@ -84,7 +92,7 @@
                     </el-form-item>
                     
                     <el-form-item>
-                        <el-button type="primary" @click="backClilck()">返回</el-button>
+                        <el-button type="primary" @click="backClick()">返回</el-button>
                         <el-button type="primary" v-if="showConfirmBtn" @click="onSubmit('form')">确定</el-button>
                     </el-form-item>
                 </el-form>
@@ -96,8 +104,8 @@
 <script>
     import {mapGetters, mapActions, mapMutations} from 'vuex'
     import {settings} from '../config/settings';
-    import SelectAreas from '../components/SelectArea.vue'
-
+    import SelectAreas from '../components/SelectAreaForActivity'
+    
     export default{
         data(){
             return {
@@ -110,16 +118,20 @@
                 cityCodeArr: [],
                 timeRange: -1,
                 cityName: '',
+                checkedList: [],
+                showArea: false,
+                showErail: false,
+                citys: [],
                 showConfirmBtn: true,
                 fileList: [
                     {name:'活动图片',url:''}
                 ],
+                areaType: '',
                 form: {
                     name: '',       // 活动名称
                     picUrl: '',        // 上传图片后 返回的 图片地址
                     startTime: '',
                     endTime: '',
-                    type: '',           // 选择区域的字段
                     areaCode: '',           // 区域代码
                     electricFenceId: '',    //电子围栏id
                     contentLinkUrl: '',       // 活动链接
@@ -166,25 +178,36 @@
                     });
                 });
             const where = this.$route.query.isFromWhere;
+            if(where === 'details') {
+                this.showConfirmBtn = false;
+            }
             const infoObj = {activityId: ''};
             infoObj.activityId = this.$route.query.activityId;
-            if(where === 'details') {
-                self.showConfirmBtn = false;
-            }
+            // 获取活动信息
             this.getActivityInfo(infoObj)
                 .then((res) => {
-                   if(res.data.electricFenceId) {
-                       this.electricFenceId = [];
-                       let tempArr = [];
-                       this.eRailsValueList = res.data.electricFenceId.split(',');
-                       tempArr = res.data.electricFenceId.split(',');
-                       // 这里遍历 是为了回显 根据拿到的值  在check-box 默认选中对应的选项
-                       for(let i =0; i < tempArr.length; i ++) {
-                           this.eRailsIdList.push(Number(tempArr[i]));
-                       }
-                   }
-                    this.fileList[0].url = res.data.picUrl;
-    
+                    if(res.data.electricFenceId) {
+                        let tempArr = [];
+                        this.eRailsValueList = res.data.electricFenceId.split(',');
+                        tempArr = res.data.electricFenceId.split(',');
+                        // 这里遍历 是为了回显 根据拿到的值  在check-box 默认选中对应的选项
+                        for(let i =0; i < tempArr.length; i ++) {
+                            this.eRailsIdList.push(Number(tempArr[i]));
+                        }
+                    }
+                    if(res.data.areaCode && res.data.areaCode != 1) {
+                        this.citys = res.data.areaCode.split(',');
+                        console.debug('citys', this.citys);
+                        // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
+                        this.areaType = -1;
+                        this.checkedList.push(1);
+                        this.showArea = true;
+                        // 修改子组件的信息
+                        this.$refs.info.citys = this.citys;
+                        console.debug('this.$refs.info.citys', this.$refs.info.citys);
+                        console.debug('this.$refs.info', this.$refs.info);
+                    }
+                    this.fileList[0].url = res.data.fullPicUrl;
                     this.form = res.data;
                 },(err) => {
                     this.$notify({
@@ -192,7 +215,7 @@
                         message: err ||'错误',
                         type: 'error'
                     })
-                })
+                });
         },
         methods: {
             ...mapActions([
@@ -206,8 +229,12 @@
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
+                self.areaType = 0;
+    
             },
             setAreas(val) {
+                console.debug(val);
+                console.debug('子组件info', this.$refs.info);
                 let self = this;
                 if (!val.provinces.length) {
                     self.$notify({
@@ -217,6 +244,8 @@
                     });
                     return;
                 }
+                // 获取cityCode 前 先清空一下 cityCodeArr
+                self.cityCodeArr = [];
                 // 获取cityCode
                 for(let i = 0; i < val.provinces.length; i++){
                     self.cityCodeArr.push(val.provinces[i].cityCode);
@@ -240,6 +269,18 @@
                 if (res.statusCode == 200) {
                     self.form.picUrl = res.data;
                 }
+                let w = 690;
+                let h = 292;
+                self.checkImgPX(file.url, w, h);
+            },
+    
+            hanleErr(res) {
+                console.debug(res);
+                this.$notify({
+                    title: '提示',
+                    message: '图片过大，请上传1mb以内',
+                    type: 'info'
+                });
             },
             blurStartClick(val) {
                 this.form.startTime = val;
@@ -247,17 +288,50 @@
             blurEndClick(val) {
                 this.form.endTime = val;
             },
-            chooseAreaTypeClick(index) {
-                if(index === 1) {
-                    this.form.areaCode = ''
-                    console.debug('this.form.cityCode', this.form.areaCode);
+            checkedChange(val) {
+                console.debug(val);
+                // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
+                if(val[0] && val[0] === 1) {
+                    this.showArea = true;
+                    this.showErail = false;
+                    // 若 用户一开始让两个都显示 且都选值了 最后又取消电子围栏的显示 => 清空所有电子围栏相关的数据
+                    this.eRailsIdList = [];
+                    this.eRailsValueList = [];
+                    this.form.electricFenceId = '';
                 }
+                if(val[0] && val[0] === 2){
+                    this.showErail = true;
+                    this.showArea = false;
+                    this.areaType = '';
+                    this.form.areaCode = '';
+                }
+                if(val.length === 0) {
+                    this.showArea = this.showErail = false;
+                    // 若用户一开始都选中 最后又都取消 => 清空所有电子围栏和全域的值
+                    this.eRailsIdList = [];
+                    this.eRailsValueList = [];
+                    this.form.electricFenceId = '';
+                    this.areaType = '';
+                    this.form.areaCode = '';
+                }
+                if(val.length === 2) {
+                    this.showArea = this.showErail = true;
+                }
+        
+            },
+    
+            chooseAreaTypeClick(index) {
+                console.debug(index);
+                // 全国
                 if(index === 0) {
+                    this.form.areaCode = 1;
+                }
+                // 部分
+                if(index === 1) {
                     this.dialogVisible = true;
                 }
             },
             dialogConfirmClick() {
-              console.debug('eRailsIdList222', this.eRailsIdList);
                 this.showDialog = false;
                 // 每次点击确认以后 都要先清空一下 原先的数组 不然会 出现叠加现象
                 this.eRailsValueList = [];
@@ -267,14 +341,46 @@
                 console.debug('this.eRailsValueList->', this.eRailsValueList);
                 this.form.electricFenceId = this.eRailsValueList.toString();
             },
-            backClilck() {
+            backClick() {
                 this.$router.back();
             },
+            checkImgPX(path, width, height) {
+                let img = null,
+                    self = this;
+                img = document.createElement("img");
+                document.body.insertAdjacentElement("beforeEnd", img);
+                img.style.visibility = "hidden";
+                img.src = path;
+                img.onload = function () {
+                    let imgwidth = img.width;
+                    let imgheight = img.height;
+                    console.log(imgwidth);
+                    if (imgwidth != width || imgheight != height) {
+                        self.$notify({
+                            title: '警告',
+                            message: '图的尺寸应该是' + width + "*" + height,
+                            type: 'warning'
+                        });
+                        return self.isSubmmit = false;
+                    }
+                }
+                return true;
+            },
+    
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
-                        
+                        if(!self.isSubmmit) {
+                            self.$notify({
+                                title: '警告',
+                                message: '图的尺寸应该是690 * 292',
+                                type: 'warning'
+                            });
+                            return;
+                        }
+                        self.form.startDate = self.form.startTime;
+                        self.form.endDate = self.form.endTime;
                         self.createdActivity(self.form).then((res) => {
                             if(res.status == '1') {
                                 self.$notify({
@@ -282,7 +388,7 @@
                                     message: res.msg,
                                     type: 'success'
                                 });
-//                                self.$router.push({path: '',});
+                                self.$router.push({path: 'bgActivityCenter',});
                             } else {
                                 self.$notify({
                                     title: '失败',
@@ -325,3 +431,4 @@
         display: block !important;
     }
 </style>
+
