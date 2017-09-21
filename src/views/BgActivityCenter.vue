@@ -31,8 +31,8 @@
                 </el-option>
             </el-select>
     
-            <el-button class="btn btn-left" @click="searchClick">查询</el-button>
-            <el-button class="btn btn-right" @click="CreateActivityClick">创建活动</el-button>
+            <el-button class="btn btn-left" @click="searchClick" style="background: #169bd5">查询</el-button>
+            <el-button class="btn btn-right" @click="CreateActivityClick" style="background: #169bd5">创建活动</el-button>
         </div>
         <el-table
             :data="activityList"

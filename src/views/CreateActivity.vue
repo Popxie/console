@@ -321,7 +321,7 @@
                                     message: res.msg,
                                     type: 'success'
                                 });
-//                                self.$router.push({path: 'bgActivityCenter',});
+                                self.$router.push({path: 'bgActivityCenter',});
                             } else {
                                 self.$notify({
                                     title: '失败',

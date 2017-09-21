@@ -90,6 +90,7 @@
                 }
             },
             selectProvince(val) {
+                console.debug('sheng', val);
                 let self = this;
                 let temp;
                 self.areaCode = event.target._value
@@ -115,7 +116,8 @@
             },
             selectCity(val){
                 let self = this;
-                self.citys = val
+                self.citys = val;
+                console.debug('city`````', val);
                 Object.assign(self.provinces,{
                     [self.areaCode]:val
                 });
@@ -167,9 +169,7 @@
             },
             cancel() {
                 let self = this;
-                this.citys = [];
-                this.provinceList = [];
-                self.provinces= [];
+//                self.provinces= [];
                 self.$emit('cancel');
             }
         },

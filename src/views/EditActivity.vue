@@ -186,6 +186,7 @@
             // 获取活动信息
             this.getActivityInfo(infoObj)
                 .then((res) => {
+//                console.debug('res.data.province', res.data.province);
                     if(res.data.electricFenceId) {
                         let tempArr = [];
                         this.eRailsValueList = res.data.electricFenceId.split(',');
@@ -197,18 +198,24 @@
                     }
                     if(res.data.areaCode && res.data.areaCode != 1) {
                         this.citys = res.data.areaCode.split(',');
-                        console.debug('citys', this.citys);
+//                        console.debug('citys', res.data.areaCode.split(','));
                         // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
                         this.areaType = -1;
                         this.checkedList.push(1);
                         this.showArea = true;
                         // 修改子组件的信息
                         this.$refs.info.citys = this.citys;
-                        console.debug('this.$refs.info.citys', this.$refs.info.citys);
-                        console.debug('this.$refs.info', this.$refs.info);
+                        this.$refs.info.provinceList = res.data.province;
+//                        console.debug('this.$refs.info.provinceList', this.$refs.info.provinceList);
                     }
+                    if(res.data.electricFenceId) {
+                        this.checkedList.push(2);
+                        this.showErail = true;
+                    }
+                    
                     this.fileList[0].url = res.data.fullPicUrl;
                     this.form = res.data;
+//                    console.debug('eee', this.form);
                 },(err) => {
                     this.$notify({
                         title: '错误',
@@ -224,19 +231,33 @@
                 'getActivityInfo'
             ]),
             checkBoxClick(val) {
-                console.debug(val);
+//                console.debug(val);
             },
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
-                self.areaType = 0;
+                // 选中隐藏按钮
+                self.areaType = -1;
     
             },
             setAreas(val) {
-                console.debug(val);
+//                console.debug(val);
                 console.debug('子组件info', this.$refs.info);
                 let self = this;
-                if (!val.provinces.length) {
+                
+                // 获取cityCode 前 先清空一下 cityCodeArr
+                self.cityCodeArr = [];
+                // 获取cityCode
+                for(let i = 0; i < val.provinces.length; i++){
+                    self.cityCodeArr.push(val.provinces[i].cityCode);
+                }
+                if(self.form.areaCode && self.form.areaCode != 1) {
+                    // 防止 设置后 原先带过来的值被清空
+                    self.form.areaCode += `,${self.cityCodeArr.toString()}`;
+                } else {
+                    self.form.areaCode = self.cityCodeArr.toString();
+                }
+                if (!self.form.areaCode) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -244,18 +265,10 @@
                     });
                     return;
                 }
-                // 获取cityCode 前 先清空一下 cityCodeArr
-                self.cityCodeArr = [];
-                // 获取cityCode
-                for(let i = 0; i < val.provinces.length; i++){
-                    self.cityCodeArr.push(val.provinces[i].cityCode);
-                }
-                self.form.areaCode = self.cityCodeArr.toString();
-                console.debug('areaCode',self.form.areaCode);
+//                console.debug('areaCode',self.form.areaCode);
                 self.dialogVisible = false;
             },
             handlePreview(file) {
-                console.debug(file);
                 this.dialogImageUrl = file.url;
                 this.showDialogImg = true;
             },
@@ -289,7 +302,6 @@
                 this.form.endTime = val;
             },
             checkedChange(val) {
-                console.debug(val);
                 // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
                 if(val[0] && val[0] === 1) {
                     this.showArea = true;
@@ -321,7 +333,6 @@
             },
     
             chooseAreaTypeClick(index) {
-                console.debug(index);
                 // 全国
                 if(index === 0) {
                     this.form.areaCode = 1;
@@ -338,7 +349,7 @@
                 for(let i = 0; i < this.eRailsIdList.length; i++) {
                     this.eRailsValueList.push(this.eRailsIdList[i]);
                 }
-                console.debug('this.eRailsValueList->', this.eRailsValueList);
+//                console.debug('this.eRailsValueList->', this.eRailsValueList);
                 this.form.electricFenceId = this.eRailsValueList.toString();
             },
             backClick() {
@@ -364,12 +375,18 @@
                         return self.isSubmmit = false;
                     }
                 }
-                return true;
+                return self.isSubmmit = true;
             },
     
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
+                    // 因为通过编辑进来的时候 不会直接判断图片是否符合格式  所以需要在提交表单的时候 重新检查一下
+                    if(self.$route.query.isFromWhere === 'modify') {
+                        let w = 690;
+                        let h = 292;
+                        self.checkImgPX(this.fileList[0].url, w, h);
+                    }
                     if (valid) {
                         if(!self.isSubmmit) {
                             self.$notify({
@@ -400,7 +417,7 @@
                         });
                         
                     } else {
-                        console.log('error submit!!');
+//                        console.log('error submit!!');
                         return false;
                     }
                 });
