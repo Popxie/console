@@ -49,7 +49,6 @@
                             <el-button @click="addPartner(index)" v-show="index === 0">增加</el-button>
                         </div>
                     </el-form-item>
-                    
                     <el-form-item v-if="form.billingWay === 2" label="电子围栏ID" required>
                         <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
                         <el-button @click="eRaislIdSelect()">请选择电子围栏Id</el-button>
@@ -61,7 +60,6 @@
                                 v-model="validPeriod"
                                 type="daterange"
                                 range-separator="—"
-                                @change="dateBlur"
                                 placeholder="选择开始时间-结束时间">
                             </el-date-picker>
                         </el-form-item>
@@ -79,7 +77,7 @@
                             <el-date-picker
                                 v-model="validPeriod"
                                 type="daterange"
-                                placeholder="选择开始时222间-结束时间">
+                                placeholder="选择开始时间-结束时间">
                             </el-date-picker>
                         </el-form-item>
                         <el-form-item label="阶段计费" required>
@@ -178,71 +176,6 @@
         </div>
     </div>
 </template>
-<style scoped>
-    .tips {
-        margin: 20px 0;
-        color: #555;
-    }
-    
-    .create-page {
-        background: #fff;
-        padding: 20px;
-    }
-    
-    .title {
-        margin-bottom: 20px;
-    }
-    
-    .create-page .title {
-        font-size: 14px;
-    }
-    
-    .rule-list {
-        display: block;
-        clear: both;
-        margin-bottom: 10px;
-        overflow: hidden;
-    }
-    
-    .day-pricing .el-date-editor--datetimerange {
-        float: left;
-        margin-right: 10px;
-    }
-    
-    .intro {
-        color: #999;
-    }
-    
-    .mb20 {
-        margin-bottom: 20px;
-    }
-    
-    .mt20 {
-        margin-top: 20px;
-    }
-    
-    .choose-city {
-        margin-right: 10px;
-    }
-    
-    .rule-list span {
-        float: left;
-        display: inline-block;
-        margin: 0 10px;
-    }
-    
-    .weekday-list .el-date-editor.el-input {
-        width: 120px;
-    }
-    
-    .weekday-list {
-        margin-bottom: 10px;
-    }
-    
-    .weekday-list > div {
-        display: inline-block;
-    }
-</style>
 <script>
     import TapSelect from '../components/TapSelect.vue'
     import SelectCity from '../components/SelectCity.vue'
@@ -293,9 +226,7 @@
                     partnerCode: '',    // 加盟商编号
                     eRailId: '',        // 电子围栏编号
                     type: 2,
-                    billingModule: {},
-                    startTime: '',
-                    endTime: ''
+                    billingModule: {},  // 盛放开始时间和 规则选项
                 },
                 weekday: 1, //周惠 选中的某天
                 weekPricingList: [{
@@ -370,9 +301,7 @@
                   list.push(this.eRailsIdList[i]);
                   this.eRailsValueList.push(this.eRailsIdList[i]);
               }
-              console.debug('list', list);
               this.form.areaId = list.toString();
-              console.debug('this.form.areaId', this.form.areaId);
             },
            
             setRule(val) {
@@ -396,24 +325,7 @@
                 }
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
-                // 请求接口之前先清空城市名 防止重复叠加
-                self.form.provincesList = [];
-                // 获取城市名
-                for(let i = 0; i < this.form.provinces.length; i++) {
-                    self.form.provincesList.push(self.form.provinces[i].cityName);
-                }
-                self.city.cityName = self.form.provincesList.toString();
-                // 请求接口
-                self.getERailsList(self.city)
-                    .then((res) => {
-                        self.eRailsList = res.data;
-                    }, (err) => {
-                        self.$notify({
-                            title: '失败',
-                            message: err.msg,
-                            type: 'error'
-                        });
-                    });
+                
             },
             //新增阶梯计价 规则
             addPrice() {
@@ -447,7 +359,82 @@
                 let self = this;
                 self.dayPricingList.splice(index, 1);
             },
-            //提交模型
+            // 计费方式
+            chargingModeClick() {
+                let self = this;
+                const index = this.form.billingWay;
+                if(index === 2) {
+                    if(!self.form.provinces) {
+                        self.$notify({
+                            title: '警告',
+                            message: '请先选择城市',
+                            type: 'warning'
+                        });
+                        self.form.billingWay = 1;
+                        return;
+                    }
+    
+                    // 请求接口之前先清空城市名 防止重复叠加
+                    self.form.provincesList = [];
+                    // 获取城市名
+                    for(let i = 0; i < this.form.provinces.length; i++) {
+                        self.form.provincesList.push(self.form.provinces[i].cityName);
+                    }
+                    self.city.cityName = self.form.provincesList.toString();
+                    // 请求接口
+                    self.getERailsList(self.city)
+                        .then((res) => {
+                            self.eRailsList = res.data;
+                        }, (err) => {
+                            self.$notify({
+                                title: '失败',
+                                message: err.msg,
+                                type: 'error'
+                            });
+                        });
+                   
+                }
+            },
+            //删除加盟商
+            deletePartner(index) {
+                let self = this;
+                self.partnerArray.splice(index, 1);
+            },
+            //添加加盟商
+            addPartner(index) {
+                let self = this;
+                self.partnerArray.push({partnerCode: ''});
+            },
+            // 格式化加盟商格式
+            formatPartner() {
+                let self = this;
+                let partners = [];
+                if (!self.partnerArray) {
+                    return;
+                }
+                self.partnerArray.forEach((item) => {
+                    partners.push(item.partnerCode);
+                });
+                self.form.partnerCode = partners.toString();
+            },
+            // 格式化电子围栏
+            formatERails() {
+                let self = this;
+                let rails = [];
+                if (!self.eRailArray) {
+                    return;
+                }
+                self.eRailArray.forEach((item) => {
+                    rails.push(item.eRailId);
+                });
+                self.form.eRailId = rails.toString();
+            },
+            //返回创建计费
+            returnCreate() {
+                let self = this;
+                self.isSetRule = false;
+            },
+            //提交模型 （阶梯计价规则）
             submitModel(formName) {
                 let self = this;
                 //表单验证
@@ -491,24 +478,11 @@
                             });
                         });
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
             },
-            dateBlur(val) {
-                console.debug(val);
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('—');
-                console.debug('items', items);
-                // 将年月日 跟 时分秒分离
-                self.form.startTime = items[0];
-                self.form.endTime = items[1];
-                console.debug(self.form);
-                self.timeRange = val;
-            },
-            //提交规则
+            //提交规则 （前三个模块）
             submitRule(formName) {
                 let self = this;
                 let type = self.form.type;
@@ -535,6 +509,14 @@
                             let timeArray = self.validPeriod;
                             startTime = timeArray[0].getTime() / 1000;
                             endTime = timeArray[1].getTime() / 1000;
+                        }
+                        //统一计价
+                        if (type === 1) {
+                            self.form.billingModule.unitePricing = {
+                                startTime: startTime.toString(),
+                                endTime: endTime.toString(),
+                                priceModelId: self.priceModelId
+                            };
                         }
                         //周惠
                         if (type === 2) {
@@ -591,7 +573,7 @@
                                 message: res,
                                 type: 'success'
                             });
-                            // self.$router.push({path: 'priceList'});
+                             self.$router.push({path: 'priceList'});
                         }, (err) => {
                             self.$notify({
                                 title: '失败',
@@ -602,62 +584,73 @@
                     }
                 });
             },
-            // 计费方式
-            chargingModeClick() {
-                console.debug(this.form.billingWay);
-                let self = this;
-                const index = this.form.billingWay;
-                if(index === 2) {
-                    if(!self.form.provinces) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请先选择城市',
-                            type: 'warning'
-                        });
-                        return;
-                    }
-                   
-                }
-            },
-            //删除加盟商
-            deletePartner(index) {
-                let self = this;
-                self.partnerArray.splice(index, 1);
-            },
-            //添加加盟商
-            addPartner(index) {
-                let self = this;
-                self.partnerArray.push({partnerCode: ''});
-            },
-            // 格式化加盟商格式
-            formatPartner() {
-                let self = this;
-                let partners = [];
-                if (!self.partnerArray) {
-                    return;
-                }
-                self.partnerArray.forEach((item) => {
-                    partners.push(item.partnerCode);
-                });
-                self.form.partnerCode = partners.toString();
-            },
-            // 格式化电子围栏
-            formatERails() {
-                let self = this;
-                let rails = [];
-                if (!self.eRailArray) {
-                    return;
-                }
-                self.eRailArray.forEach((item) => {
-                    rails.push(item.eRailId);
-                });
-                self.form.eRailId = rails.toString();
-            },
-            //返回创建计费
-            returnCreate() {
-                let self = this;
-                self.isSetRule = false;
-            }
         }
     }
 </script>
+
+<style scoped>
+    .tips {
+        margin: 20px 0;
+        color: #555;
+    }
+    
+    .create-page {
+        background: #fff;
+        padding: 20px;
+    }
+    
+    .title {
+        margin-bottom: 20px;
+    }
+    
+    .create-page .title {
+        font-size: 14px;
+    }
+    
+    .rule-list {
+        display: block;
+        clear: both;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+    
+    .day-pricing .el-date-editor--datetimerange {
+        float: left;
+        margin-right: 10px;
+    }
+    
+    .intro {
+        color: #999;
+    }
+    
+    .mb20 {
+        margin-bottom: 20px;
+    }
+    
+    .mt20 {
+        margin-top: 20px;
+    }
+    
+    .choose-city {
+        margin-right: 10px;
+    }
+    
+    .rule-list span {
+        float: left;
+        display: inline-block;
+        margin: 0 10px;
+    }
+    
+    .weekday-list .el-date-editor.el-input {
+        width: 120px;
+    }
+    
+    .weekday-list {
+        margin-bottom: 10px;
+    }
+    
+    .weekday-list > div {
+        display: inline-block;
+    }
+</style>
+

@@ -54,8 +54,8 @@
                         </el-date-picker>
                     </el-form-item>
                     
-                    <el-form-item label="设置">
-                        <el-checkbox-group v-model="checkedList" @change="checkedChange">
+                    <el-form-item label="设置" prop="checkedList">
+                        <el-checkbox-group v-model="form.checkedList" @change="checkedChange">
                             <el-checkbox :label="1">设置区域</el-checkbox>
                             <el-checkbox :label="2">设置电子围栏</el-checkbox>
                         </el-checkbox-group>
@@ -106,7 +106,6 @@
                 cityCodeArr: [],
                 timeRange: -1,
                 cityName: '',
-                checkedList: [],
                 showArea: false,
                 showErail: false,
                 areaType: '',           // 选择区域的字段(自己写的字段)
@@ -118,6 +117,7 @@
                     activityTime: [],       // 活动时间
                     startDate: '',
                     endDate: '',
+                    checkedList: [],        // 这个字段必须放在form里面 因为是表单验证（所有的表单验证字段也要放在form里面）
                     areaCode: '',           // 区域代码
                     electricFenceId: '',    //电子围栏id
                     contentLinkUrl: '',       // 活动链接
@@ -137,8 +137,8 @@
                     activityTime: [
                         {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
                     ],
-                    counts: [
-                        {required: true,message: '请选择使用次数',trigger: 'change'}
+                    checkedList: [
+                        { type: 'array', required: true, message: '请至少选择一个设置', trigger: 'change' }
                     ],
                     contentLinkUrl: [
                         {type: 'string',required: true, message: '请输入活动链接', trigger: 'blur'},
@@ -314,6 +314,41 @@
                             });
                             return;
                         }
+                        if(!self.form.areaCode && self.form.checkedList[0] === 1) {
+                            self.$notify({
+                                title: '警告',
+                                message: '请设置区域',
+                                type: 'warning'
+                            });
+                            return;
+                        }
+                        if(!self.form.electricFenceId && self.form.checkedList[0] === 2) {
+                            self.$notify({
+                                title: '警告',
+                                message: '请设置电子围栏',
+                                type: 'warning'
+                            });
+                            return;
+                        }
+                        if(self.form.checkedList.length === 2) {
+                            if(!self.form.areaCode) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请设置区域',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                            if(!self.form.electricFenceId) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请设置电子围栏',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                        }
+    
                         self.createdActivity(self.form).then((res) => {
                             if(res.status == '1') {
                                 self.$notify({

@@ -65,8 +65,8 @@
                     </el-form-item>
     
     
-                    <el-form-item label="设置">
-                        <el-checkbox-group v-model="checkedList" @change="checkedChange">
+                    <el-form-item label="设置" prop="checkedList">
+                        <el-checkbox-group v-model="form.checkedList" @change="checkedChange">
                             <el-checkbox :label="1">设置区域</el-checkbox>
                             <el-checkbox :label="2">设置电子围栏</el-checkbox>
                         </el-checkbox-group>
@@ -118,7 +118,6 @@
                 cityCodeArr: [],
                 timeRange: -1,
                 cityName: '',
-                checkedList: [],
                 showArea: false,
                 showErail: false,
                 citys: [],
@@ -132,6 +131,7 @@
                     picUrl: '',        // 上传图片后 返回的 图片地址
                     startTime: '',
                     endTime: '',
+                    checkedList: [],
                     areaCode: '',           // 区域代码
                     electricFenceId: '',    //电子围栏id
                     contentLinkUrl: '',       // 活动链接
@@ -153,8 +153,8 @@
                     endTime: [
                         {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
-                    counts: [
-                        {required: true,message: '请选择使用次数',trigger: 'change'}
+                    checkedList: [
+                        { type: 'array', required: true, message: '请至少选择一个设置', trigger: 'change' }
                     ],
                     contentLinkUrl: [
                         {type: 'string',required: true, message: '请输入活动链接', trigger: 'blur'},
@@ -201,21 +201,25 @@
 //                        console.debug('citys', res.data.areaCode.split(','));
                         // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
                         this.areaType = -1;
-                        this.checkedList.push(1);
+                        this.form.checkedList.push(1);
                         this.showArea = true;
                         // 修改子组件的信息
                         this.$refs.info.citys = this.citys;
                         this.$refs.info.provinceList = res.data.province;
 //                        console.debug('this.$refs.info.provinceList', this.$refs.info.provinceList);
+                    } else {
+                        this.form.checkedList.push(1);
+                        this.showArea = true;
+                        this.areaType = 0;
                     }
                     if(res.data.electricFenceId) {
-                        this.checkedList.push(2);
+                        this.form.checkedList.push(2);
                         this.showErail = true;
                     }
                     
                     this.fileList[0].url = res.data.fullPicUrl;
-                    this.form = res.data;
-//                    console.debug('eee', this.form);
+                    // 深拷贝  将res.data对象合并到 this.form
+                    this.form = Object.assign({}, this.form, res.data);
                 },(err) => {
                     this.$notify({
                         title: '错误',
@@ -302,6 +306,7 @@
                 this.form.endTime = val;
             },
             checkedChange(val) {
+                console.debug('val', val);
                 // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
                 if(val[0] && val[0] === 1) {
                     this.showArea = true;
@@ -395,6 +400,40 @@
                                 type: 'warning'
                             });
                             return;
+                        }
+                        if(!self.form.areaCode && self.form.checkedList[0] === 1) {
+                            self.$notify({
+                                title: '警告',
+                                message: '请设置区域',
+                                type: 'warning'
+                            });
+                            return;
+                        }
+                        if(!self.form.electricFenceId && self.form.checkedList[0] === 2) {
+                            self.$notify({
+                                title: '警告',
+                                message: '请设置电子围栏',
+                                type: 'warning'
+                            });
+                            return;
+                        }
+                        if(self.form.checkedList.length === 2) {
+                            if(!self.form.areaCode) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请设置区域',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                            if(!self.form.electricFenceId) {
+                                self.$notify({
+                                    title: '警告',
+                                    message: '请设置电子围栏',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
                         }
                         self.form.startDate = self.form.startTime;
                         self.form.endDate = self.form.endTime;

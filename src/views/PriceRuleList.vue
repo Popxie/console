@@ -11,16 +11,9 @@
                 <el-date-picker
                     v-model="timePeriod"
                     type="daterange"
-                    placeholder="选择日期范围">
-            </el-date-picker>
-            </span>
-            <span class="ib">
-                <el-cascader
-                    placeholder="请选择城市"
-                    :options="options"
-                    :show-all-levels="false"
-                    v-model="selectedCity"
-                ></el-cascader>
+                    placeholder="选择日期范围"
+                >
+                </el-date-picker>
             </span>
             <el-button @click="searchPriceRule">搜索</el-button>
         </div>
@@ -37,8 +30,7 @@
                 <el-radio class="radio" v-model="searchForm.operateWay" label="0">加盟商</el-radio>
             </div>
         </div>
-        <el-table
-            :data="priceList">
+        <el-table :data="priceList">
             <el-table-column
                 prop="id"
                 label="序号"
@@ -47,6 +39,7 @@
                     {{scope.$index+1}}
                 </template>
             </el-table-column>
+            
             <el-table-column
                 prop="name"
                 label="规则名称"

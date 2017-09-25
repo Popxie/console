@@ -30,7 +30,7 @@
                     </el-select>
                     
                     <el-button class="btn btn-left" @click="searchVipCard">查询</el-button>
-                    <el-button class="btn btn-right" @click="routeToCreate">创建活动</el-button>
+                    <el-button class="btn btn-right" type="info" @click="routeToCreate">创建活动</el-button>
                 </div>
             </el-col>
         </el-row>
@@ -434,7 +434,6 @@
         margin-right: 20px;
     }
     .btn-right {
-        background: rgba(22, 155, 213, 1);
         color: white;
     }
     .block {
