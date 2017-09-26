@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+        <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <el-dialog title="提示" v-model="showDialog" size="tiny">
             <el-checkbox-group v-model="eRailsIdList" >
                 <el-row :gutter="20">
@@ -190,11 +190,9 @@
                     self.cityCodeArr.push(val.provinces[i].cityCode);
                 }
                 self.form.areaCode = self.cityCodeArr.toString();
-                console.debug('areaCode',self.form.areaCode);
                 self.dialogVisible = false;
             },
             handlePreview(file) {
-                console.debug(file);
                 this.dialogImageUrl = file.url;
                 this.showDialogImg = true;
             },
@@ -203,11 +201,8 @@
                 this.showBtn = true;
             },
             handleSuccess(res, file) {
-                console.debug('res', res);
-                console.debug('file', file);
                 let self = this;
                 self.showBtn = false;
-                console.debug(res);
                 if (res.statusCode == 200) {
                     self.form.picUrl = res.data;
                 }
@@ -220,14 +215,12 @@
                 let self = this;
                 // 将组件的val （年月日时分秒的时间区间）分离
                 let items = val.split('—');
-                console.debug('items', items);
                 // 将年月日 跟 时分秒分离
                 self.form.startDate = items[0];
                 self.form.endDate = items[1];
                 self.timeRange = val;
             },
             checkedChange(val) {
-                console.debug(val);
                 // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
                 if(val[0] && val[0] === 1) {
                     this.showArea = true;
@@ -242,6 +235,10 @@
                     this.showArea = false;
                     this.areaType = '';
                     this.form.areaCode = '';
+                    // 清空 地址组件 选中的值
+                    this.$refs.info.citys = [];
+                    this.$refs.info.provinceList = [];
+                    this.$refs.info.provinces = {};
                 }
                 if(val.length === 0) {
                     this.showArea = this.showErail = false;
@@ -251,6 +248,10 @@
                     this.form.electricFenceId = '';
                     this.areaType = '';
                     this.form.areaCode = '';
+                    this.$refs.info.citys = [];
+                    this.$refs.info.provinceList = [];
+                    this.$refs.info.provinces = {};
+    
                 }
                 if(val.length === 2) {
                     this.showArea = this.showErail = true;
@@ -260,14 +261,12 @@
             chooseAreaTypeClick(index) {
                 if(index === 0) {
                     this.form.areaCode = 1;
-                    console.debug('this.form.areaCode', this.form.areaCode);
                 }
                 if(index === 1) {
                     this.dialogVisible = true;
                 }
             },
             dialogConfirmClick() {
-              console.debug('eRailsIdList', this.eRailsIdList);
                 this.showDialog = false;
                 // 每次点击确认以后 都要先清空一下 原先的数组 不然会 出现叠加现象
                 this.eRailsValueList = [];
@@ -289,7 +288,6 @@
                 img.onload = function () {
                     let imgwidth = img.width;
                     let imgheight = img.height;
-                    console.log(imgwidth);
                     if (imgwidth != width || imgheight != height) {
                         self.$notify({
                             title: '警告',
@@ -314,6 +312,7 @@
                             });
                             return;
                         }
+                        
                         if(!self.form.areaCode && self.form.checkedList[0] === 1) {
                             self.$notify({
                                 title: '警告',
@@ -365,11 +364,12 @@
                                 });
                             }
                         }, (err) => {
+                            self.$notify({
+                                title: '失败',
+                                message: err,
+                                type: 'error'
+                            });
                         });
-                        
-                    } else {
-                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }

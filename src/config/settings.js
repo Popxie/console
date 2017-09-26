@@ -7,7 +7,7 @@ export const settings = {
     
     
     URL: 'https://sit.mingbikes.com',      // 测试环境下的域名
-    //URL: 'https://gray-api.mingbikes.com'
+    // URL: 'https://gray-api.mingbikes.com'
     // URL: 'http://192.168.1.12
     // 1:8000',
     // URL: 'http://192.168.6.147:8080'

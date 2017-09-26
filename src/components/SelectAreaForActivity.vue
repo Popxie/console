@@ -90,7 +90,6 @@
                 }
             },
             selectProvince(val) {
-                console.debug('sheng', val);
                 let self = this;
                 let temp;
                 self.areaCode = event.target._value
@@ -98,35 +97,34 @@
                 for (let i = 0, len = self.areaList.length; i < len; i++) {
                     if (self.provinceList[val.length - 1] == self.areaList[i].code) {
                         self.cityList = self.areaList[i].cityDtos;
-                        self.citys = self.cityList.map(({code})=>(code))
-                        temp = self.cityList.map(({code})=>(code))
+                        self.citys = self.cityList.map(({code})=>(code));
+                        temp = self.cityList.map(({code})=>(code));
                     }
                 }
                 if(event.target.checked){
-                    let index = self.provinceList[val.length -1]
+                    let index = self.provinceList[val.length -1];
                     Object.assign(self.provinces,{
                         [index]:temp
-                    })
+                    });
                     self.checkCity=self.cityList;
                 }else{
-                    delete self.provinces[event.target._value]
-                    self.citys=[]
+                    delete self.provinces[event.target._value];
+                    self.citys=[];
                     self.checkCity=[];
                 }
             },
             selectCity(val){
                 let self = this;
                 self.citys = val;
-                console.debug('city`````', val);
                 Object.assign(self.provinces,{
                     [self.areaCode]:val
                 });
                 if(!val.length || val.length != event.target.parentNode.parentNode.parentNode.childElementCount){
                     if(self.provinceList.indexOf(self.areaCode)>-1){
-                        self.provinceList.splice(self.provinceList.indexOf(self.areaCode),1)
+                        self.provinceList.splice(self.provinceList.indexOf(self.areaCode),1);
                     }
                 }else {
-                    self.provinceList.push(self.areaCode)
+                    self.provinceList.push(self.areaCode);
                 }
             },
             closePop(){

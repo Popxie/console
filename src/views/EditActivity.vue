@@ -2,7 +2,7 @@
     <div class="container">
         <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         <el-dialog title="提示" v-model="showDialog" size="tiny">
-            <el-checkbox-group v-model="eRailsIdList" @change="checkBoxClick">
+            <el-checkbox-group v-model="eRailsIdList">
                 <el-row :gutter="20">
                     <template v-for="(item, index) in eRailsList">
                         <el-col :span="6">
@@ -186,7 +186,6 @@
             // 获取活动信息
             this.getActivityInfo(infoObj)
                 .then((res) => {
-//                console.debug('res.data.province', res.data.province);
                     if(res.data.electricFenceId) {
                         let tempArr = [];
                         this.eRailsValueList = res.data.electricFenceId.split(',');
@@ -198,7 +197,6 @@
                     }
                     if(res.data.areaCode && res.data.areaCode != 1) {
                         this.citys = res.data.areaCode.split(',');
-//                        console.debug('citys', res.data.areaCode.split(','));
                         // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
                         this.areaType = -1;
                         this.form.checkedList.push(1);
@@ -206,7 +204,6 @@
                         // 修改子组件的信息
                         this.$refs.info.citys = this.citys;
                         this.$refs.info.provinceList = res.data.province;
-//                        console.debug('this.$refs.info.provinceList', this.$refs.info.provinceList);
                     } else {
                         this.form.checkedList.push(1);
                         this.showArea = true;
@@ -234,9 +231,6 @@
                 'getERailsList',
                 'getActivityInfo'
             ]),
-            checkBoxClick(val) {
-//                console.debug(val);
-            },
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
@@ -245,8 +239,6 @@
     
             },
             setAreas(val) {
-//                console.debug(val);
-                console.debug('子组件info', this.$refs.info);
                 let self = this;
                 
                 // 获取cityCode 前 先清空一下 cityCodeArr
@@ -269,7 +261,6 @@
                     });
                     return;
                 }
-//                console.debug('areaCode',self.form.areaCode);
                 self.dialogVisible = false;
             },
             handlePreview(file) {
@@ -291,8 +282,7 @@
                 self.checkImgPX(file.url, w, h);
             },
     
-            hanleErr(res) {
-                console.debug(res);
+            hanleErr() {
                 this.$notify({
                     title: '提示',
                     message: '图片过大，请上传1mb以内',
@@ -306,7 +296,6 @@
                 this.form.endTime = val;
             },
             checkedChange(val) {
-                console.debug('val', val);
                 // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
                 if(val[0] && val[0] === 1) {
                     this.showArea = true;
@@ -321,6 +310,8 @@
                     this.showArea = false;
                     this.areaType = '';
                     this.form.areaCode = '';
+                    this.$refs.info.citys = [];
+                    this.$refs.info.provinceList = [];
                 }
                 if(val.length === 0) {
                     this.showArea = this.showErail = false;
@@ -330,6 +321,8 @@
                     this.form.electricFenceId = '';
                     this.areaType = '';
                     this.form.areaCode = '';
+                    this.$refs.info.citys = [];
+                    this.$refs.info.provinceList = [];
                 }
                 if(val.length === 2) {
                     this.showArea = this.showErail = true;
@@ -354,7 +347,6 @@
                 for(let i = 0; i < this.eRailsIdList.length; i++) {
                     this.eRailsValueList.push(this.eRailsIdList[i]);
                 }
-//                console.debug('this.eRailsValueList->', this.eRailsValueList);
                 this.form.electricFenceId = this.eRailsValueList.toString();
             },
             backClick() {
@@ -370,7 +362,6 @@
                 img.onload = function () {
                     let imgwidth = img.width;
                     let imgheight = img.height;
-                    console.log(imgwidth);
                     if (imgwidth != width || imgheight != height) {
                         self.$notify({
                             title: '警告',
@@ -454,10 +445,6 @@
                             }
                         }, (err) => {
                         });
-                        
-                    } else {
-//                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }

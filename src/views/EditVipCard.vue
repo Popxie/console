@@ -147,11 +147,12 @@
                                 });
                             }
                         }, (err) => {
+                            self.$notify({
+                                title: '失败',
+                                message: err,
+                                type: 'error'
+                            });
                         });
-                        
-                    } else {
-                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }

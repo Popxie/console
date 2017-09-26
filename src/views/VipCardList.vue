@@ -57,6 +57,7 @@
                 v-if="showActivity"
                 prop="isNewuserUse"
                 label="是否是新用户"
+                :formatter="isNewUserFilter"
                 align="center"
                 width="130">
             </el-table-column>
@@ -375,6 +376,13 @@
                     return '月卡'
                 } else {
                     return '半年卡'
+                }
+            },
+            isNewUserFilter(row) {
+                if(row.isNewuserUse === 0) {
+                return '否';
+                } else {
+                    return '是';
                 }
             },
             statusFilter(row, column){

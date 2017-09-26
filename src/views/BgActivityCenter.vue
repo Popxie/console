@@ -4,6 +4,28 @@
         <el-dialog v-model="dialogImg" size="tiny">
             <img width="100%" :src="dialogImageUrl" alt="">
         </el-dialog>
+    
+        <el-dialog
+            title="提示"
+            v-model="dialogConfirm"
+            size="tiny">
+            <span>您确定要上线吗？？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogConfirm = false">取 消</el-button>
+                <el-button type="primary" @click="confirmClick">确 定</el-button>
+            </span>
+        </el-dialog>
+        
+        <el-dialog
+            title="提示"
+            v-model="dialogConfirmOff"
+            size="tiny">
+            <span>您确定要下线吗？？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogConfirm = false">取 消</el-button>
+                <el-button type="primary" @click="confirmClick">确 定</el-button>
+            </span>
+        </el-dialog>
         <p style="padding-bottom: 15px">活动配置/活动配置</p>
         
         <div style="display: flex;height: 36px;width: 100%;line-height: 36px;margin-bottom: 15px">
@@ -136,9 +158,12 @@
       return {
           dialogVisible: false,       // 控制是否显示 选择地址的 dialog
           dialogImg: false,           // 默认图片的 dialog 为false 不显示
+          dialogConfirm: false,
+          dialogConfirmOff: false,
           dialogImageUrl: '',
           cityCodeArr: [],
           timeRange: -1,
+          params: {},
           page: {
               currentPage: 1,
               pageSize: 10,
@@ -193,11 +218,9 @@
               'offlineActivity',
           ]),
           dateBlur(val) {
-              console.debug(val);
               let self = this;
               // 将组件的val （年月日时分秒的时间区间）分离
               let items = val.split('—');
-              console.debug('items', items);
               // 将年月日 跟 时分秒分离
               self.dataObj.startDate = items[0];
               self.dataObj.endDate = items[1];
@@ -226,7 +249,6 @@
                   self.cityCodeArr.push(val.provinces[i].cityCode);
               }
               self.dataObj.areaCode = self.cityCodeArr.toString();
-              console.debug('cityCode',self.dataObj.areaCode);
               self.dialogVisible = false;
           },
           
@@ -264,38 +286,29 @@
               })
           },
           onlineClick(val) {
-              let params = {
+              this.dialogConfirm = true;
+              this.params = {
                   activityId: val,
                   status: '1'
               };
-              this.offlineActivity(params)
-                  .then((res) => {
-                      this.$nextTick(() => {
-                          this.getActivityList(this.page);
-                      });
-                      this.$notify({
-                          title: '成功',
-                          message: res.msg,
-                          type: 'success'
-                      });
-                  },(err) => {
-                      this.$notify({
-                          title: '失败',
-                          message: err,
-                          type: 'error'
-                      });
-                  })
+              
           },
           offlineClick(val) {
-              let params = {
+              this.dialogConfirmOff = true;
+              this.params = {
                   activityId: val,
                   status: 2
               };
-              this.offlineActivity(params)
+          },
+    
+          confirmClick() {
+              this.offlineActivity(this.params)
                   .then((res) => {
                       this.$nextTick(() => {
                           this.getActivityList(this.page);
                       });
+                      this.dialogConfirm = false;
+                      this.dialogConfirmOff = false;
                       this.$notify({
                           title: '成功',
                           message: res.msg,

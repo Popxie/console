@@ -69,7 +69,6 @@ const actions = {
             .then((data) => {
                 if (data.status == 1) {
                     // return Promise.resolve(data);
-                    console.debug(data);
                     for(let i = 0; i < data.data.length; i++) {
                         if(data.data[i].status === '2') {
                             data.data[i].status = '3'

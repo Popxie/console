@@ -279,7 +279,6 @@
                 }
             },
             handlePreview(file) {
-                console.debug(file);
                 this.dialogImageUrl = file.url;
                 this.showDialogImg = true;
             },
@@ -290,7 +289,6 @@
             handleSuccess(res, file) {
                 let self = this;
                 self.showBtn = false;
-                console.debug(res);
                 if (res.statusCode == 200) {
                     self.form.card_image = res.data;
                 }
@@ -396,7 +394,7 @@
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
-                    if(!self.form.third_part_type) {
+                    if(!self.form.third_part_type && self.form.third_part_type !== 0) {
                         self.$notify({
                             title: '警告',
                             message: '请选择合作方',
@@ -415,16 +413,13 @@
                                     });
                                     self.$router.push({path: 'vipCardList'});
                                 }
-                            },(res) => {
+                            },(err) => {
                                 self.$notify({
                                     title: '失败',
-                                    message: res.msg,
+                                    message: err,
                                     type: 'error'
                                 });
                             });
-                    } else {
-                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }

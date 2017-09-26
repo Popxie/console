@@ -27,7 +27,7 @@
             
             <el-submenu index="5">
                 <template slot="title"><i class="icon fa fa-jpy"></i>活动配置</template>
-                <el-menu-item index="bgActivityCenter">活动中心后台</el-menu-item>
+                <el-menu-item index="bgActivityCenter">活动配置列表</el-menu-item>
             </el-submenu>
         </el-menu>
     </div>

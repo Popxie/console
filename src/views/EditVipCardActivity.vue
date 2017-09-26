@@ -211,6 +211,11 @@
                 fileList: [
                     {name:'有效图片',url:''}
                 ],
+                thirdPartnerLists: [
+                    {thirdPartType: 9, thirdPartName: "苏宁"},
+                    {thirdPartType: 2, thirdPartName: "京东"},
+                    {thirdPartType: 5, thirdPartName: "天猫"},
+                ],
                 form: {
                     source_from: 2,
                     name: '',
@@ -344,7 +349,6 @@
                 }
             },
             handlePreview(file) {
-                console.debug(file);
                 this.dialogImageUrl = file.url;
                 this.dialogImg = true;
             },
@@ -354,9 +358,8 @@
                 this.showBtn = true;
             },
             
-            handleSuccess(res, file) {
+            handleSuccess(res) {
                 let self = this;
-                console.debug(res);
                 self.showBtn = false;
                 if (res.statusCode == 200) {
                     self.form.card_image = res.data;
@@ -440,7 +443,6 @@
             validDaysClick() {
                 this.showValidDays = !this.showValidDays;
                 const index = this.form.validate_type;
-                console.debug('index', index);
                 if(index === 0){
                     this.form.validateDaysRangeArr = []
                 } else {
@@ -449,7 +451,6 @@
             },
             blurStartClick(val) {
                 this.form.activeStartDate = val;
-              console.debug(val);
             },
             blurEndClick(val) {
                 this.form.activeEndDate = val;
@@ -457,7 +458,7 @@
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
-                    if(!self.form.third_part_type) {
+                    if(!self.form.third_part_type && self.form.third_part_type !== 0) {
                         self.$notify({
                             title: '警告',
                             message: '请选择合作方',
@@ -484,9 +485,6 @@
                                     type: 'error'
                                 });
                             });
-                    } else {
-                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }
