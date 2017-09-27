@@ -39,7 +39,7 @@
                                             style="width: 100%;"></el-date-picker>
                         </el-form-item>
                     </template>
-                    <!--上传图片-->
+                    <!--上传图片(1.2.3.6模块公用 viewPosition)-->
                     <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
                         <el-form-item label="广告图片：" prop="adsPicUrl">
                             <el-upload
@@ -56,7 +56,7 @@
                             </el-dialog>
                         </el-form-item>
                     </template>
-                    <!--首屏页-->
+                    <!--开屏 图片格式要求-->
                     <template v-if="form.viewPosition == 1">
                         <div class="tip">尺寸要求：1242*2208</div>
                     </template>
@@ -159,6 +159,7 @@
                     </template>
                     
                     <template v-if="form.viewPosition == 6">
+                        <div class="tip">尺寸要求：750*128</div>
                         <el-form-item label="广告链接：" prop="adsHyperlinks">
                             <el-input v-model="form.adsHyperlinks" placeholder="请填写广告链接"></el-input>
                         </el-form-item>
@@ -217,6 +218,7 @@
                 dialogImg: false,
                 dialogImageUrl: '',
                 showNext: true,
+                isPass: false,          // 上传完图片以后 判断是否符合规格
                 form: {
                     topic: '',
                     putPosition: 1,
@@ -354,10 +356,6 @@
             },
             setCities(selectCityInfos) {
                 let self = this;
-                console.log(selectCityInfos.length)
-                for (var i = 0; i < selectCityInfos.length; i++) {
-                    console.log(selectCityInfos[i])
-                }
                 self.selectCityInfos = selectCityInfos;
                 self.dialogVisible = false;
             },
@@ -384,7 +382,7 @@
                 this.dialogImageUrl = file.url;
                 this.dialogImg = true;
             },
-            handleRemove(file, fileList) {
+            handleRemove() {
                 this.form.adsPicUrl = '';
             },
             handleSuccess(res, file) {
@@ -406,10 +404,14 @@
                         w = 690;
                         h = 160;
                         break;
+                    case 6:
+                        w = 750;
+                        h = 128;
+                        break;
                 }
                 self.checkImgPX(file.url, w, h);
             },
-            beforeUpload(file) {
+            beforeUpload() {
                 let self = this;
                 if (self.form.adsPicUrl) {
                     return false;
@@ -425,14 +427,15 @@
                 img.onload = function () {
                     let imgwidth = img.width;
                     let imgheight = img.height;
-                    console.log(imgwidth);
                     if (imgwidth !== width || imgheight !== height) {
                         self.$notify({
                             title: '警告',
                             message: '图的尺寸应该是' + width + "*" + height,
                             type: 'warning'
                         });
-                        return false;
+                        self.isPass = false;
+                    } else {
+                        self.isPass = true;
                     }
                 };
                 return true;
@@ -445,21 +448,23 @@
                 let self = this;
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
-                        if (self.form.viewPosition != 5 && !self.form.startTime[0]) {
-                            self.$notify({
-                                title: '提示',
-                                message: '时间未选择！',
-                                type: 'info'
-                            });
-                            return;
-                        }
                         //若为全域
                         if(!self.form.areaType) {
+                            if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
+                                if(!self.isPass) {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: '请选择规格正确的图片',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
                             self.createNewAds(self.form)
-                                .then((data) => {
+                                .then((res) => {
                                     self.$notify({
                                         title: '成功',
-                                        message: '广告创建成功',
+                                        message: res.message,
                                         type: 'success'
                                     });
                                     self.$router.push('advList');
@@ -472,20 +477,31 @@
                                 });
                             return;
                         }
+                        // 非全域
                         let topic = JSON.parse(JSON.stringify(self.form.topic));
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
+                            if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
+                                if(!self.isPass) {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: '请选择规格正确的图片',
+                                        type: 'warning'
+                                    });
+                                    return;
+                                }
+                            }
                             let cityInfo = self.selectCityInfos[i];
                             self.form.provinceName = cityInfo.provinceName;
                             self.form.cityName = cityInfo.cityName;
                             self.form.topic = topic + "__" + cityInfo.cityName;
                             self.createNewAds(self.form)
-                                .then((data) => {
+                                .then((res) => {
                                     self.$notify({
                                         title: '成功',
-                                        message: '广告创建成功',
+                                        message: res.message,
                                         type: 'success'
                                     });
-                                    self.$router.push('advList');
+//                                self.$router.push('advList');
                                 }, (err) => {
                                     self.$notify({
                                         title: '提示',
@@ -494,8 +510,6 @@
                                     })
                                 });
                         }
-                    } else {
-                        return false
                     }
                 })
             },
