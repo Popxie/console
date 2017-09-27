@@ -10,7 +10,7 @@
                     :xs="{span: 18, offset:1}">
                 <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="150px">
                     <el-form-item label="广告主题：" prop="topic">
-                        <el-input v-model="form.topic"></el-input>
+                        <el-input v-model="form.topic" placeholder="请填写广告主题"></el-input>
                     </el-form-item>
                     <el-form-item label="设置投放平台：" prop="putPosition">
                         <el-select style="width: 100%;" v-model="form.putPosition" placeholder="请选择投放平台">
@@ -77,21 +77,21 @@
                                 <el-option label="3" :value="3"></el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
+                        <el-form-item label="详情页超链接：" prop="hyperlinks" >
+                            <el-input v-model="form.hyperlinks" placeholder="请填写详情页超链接"></el-input>
                         </el-form-item>
                     </template>
                     <!--骑行结束页-->
                     <template v-if="form.viewPosition == 3">
                         <div class="tip">尺寸要求：690*160</div>
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
+                            <el-input v-model="form.hyperlinks" placeholder="请填写详情页超链接"></el-input>
                         </el-form-item>
                     </template>
                     <!--首页顶部文字链-->
                     <template v-if="form.viewPosition == 4">
                         <el-form-item label="广告文案：" prop="adsContext">
-                            <el-input type="textarea" v-model="form.adsContext"></el-input>
+                            <el-input type="textarea" v-model="form.adsContext" placeholder="请填写广告文案"></el-input>
                         </el-form-item>
                         <el-form-item label="展现设置：" prop="viewSet">
                             <el-select style="width: 100%;" v-model="form.viewSet" placeholder="请选择">
@@ -108,7 +108,7 @@
                             </el-select>
                         </el-form-item>
                         <el-form-item label="详情页超链接：" prop="hyperlinks">
-                            <el-input v-model="form.hyperlinks"></el-input>
+                            <el-input v-model="form.hyperlinks" placeholder="请填写详情页超链接"></el-input>
                         </el-form-item>
                         <el-form-item label="icon：类型" prop="iconType">
                             <el-select style="width: 100%;" v-model="form.iconType" placeholder="请选择">
@@ -157,6 +157,12 @@
                             </el-form-item>
                         </template>
                     </template>
+                    
+                    <template v-if="form.viewPosition == 6">
+                        <el-form-item label="广告链接：" prop="adsHyperlinks">
+                            <el-input v-model="form.adsHyperlinks" placeholder="请填写广告链接"></el-input>
+                        </el-form-item>
+                    </template>
                     <el-form-item>
                         <el-button type="info" @click="toggleNext">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">完成</el-button>
@@ -178,22 +184,33 @@
         },
         data() {
             return {
-                taps: [{
-                    task: '开屏',
-                    value: 1
-                }, {
-                    task: '首页弹框',
-                    value: 2
-                }, {
-                    task: '骑行结束',
-                    value: 3
-                }, {
-                    task: '首页顶部链',
-                    value: 4
-                }, {
-                    task: '升级提示框',
-                    value: 5
-                }],
+                taps: [
+                    {
+                        task: '开屏',
+                        value: 1
+                    },
+                    {
+                        task: '首页弹框',
+                        value: 2
+                    },
+                    {
+                        task: '骑行结束',
+                        value: 3
+                    },
+                    {
+                        task: '首页顶部链',
+                        value: 4
+                    },
+                    {
+                        task: '个人中心广告',
+                        value: 6
+                    },
+                    {
+                        task: '升级提示框',
+                        value: 5
+                    },
+                    
+                ],
                 dialogVisible: false,
                 areaDialogVisible: false,
                 url: `${settings.URL}/api/uploadImage`,
@@ -221,6 +238,7 @@
                     iosDownloadUrl: '',
                     androidVer: '',
                     androidDownloadUrl: '',
+                    adsHyperlinks: '',         // 广告链接 (改字段还没有跟 后端确定)
                 },
                 //设置投放地域所选
                 selectCityInfos: [],
@@ -245,7 +263,7 @@
                         {type: 'number', required: true, message: '请选择轮播顺序', trigger: 'change'}
                     ],
                     hyperlinks: [
-                        {max: 100, message: '最多不能超过100个字符！', trigger: 'blur'}
+                        {max: 120, message: '最多不能超过120个字符！', trigger: 'blur'}
                     ],
                     iconType: [
                         {type: 'number',required: true, message: '请选择icon类型', trigger: 'change'}
@@ -278,14 +296,14 @@
                     androidDownloadUrl: [
                         {required: true, message: '请填写android下载地址', trigger: 'blur'},
                         {max: 255, message: 'android下载地址不能超过255字符', trigger: 'blur'}
-                    ]
+                    ],
+                    adsHyperlinks: [
+                        {max: 120, required: true, message: '最多不能超过120个字符！', trigger: 'blur'}
+                    ],
                 }
             }
         },
-        /**
-         *
-         */
-        computed: {},
+       
         methods: {
             ...mapActions([
                 'createNewAds',
@@ -306,6 +324,7 @@
                 var self = this;
                 self.showNext = true;
                 self.form.startTime = [];
+                self.form.hyperlinks = '';
             },
             
             selectArea() {
