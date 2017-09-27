@@ -20,7 +20,6 @@ const actions = {
         const url = '/queryAdvert';
         return _get({url, query}, commit)
             .then((json) => {
-            console.debug('json',json);
                 if (json.statusCode == 200) {
                     commit(types.CHECKOUT_ADS_SUCCESS, json.data)
                     return Promise.resolve(json.message);

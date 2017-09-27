@@ -33,7 +33,7 @@
                                 </span>
                             </div>
                         </el-form-item>
-                        <el-form-item label="设置投放时间段：" prop="startTime">
+                        <el-form-item label="设置投放时间段：" prop="startTime" v-if="form.viewPosition != 5">
                             <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
                                             v-model="form.startTime" @change="timeChange"
                                             style="width: 100%;"></el-date-picker>
@@ -212,7 +212,7 @@
                     iconType: '',
                     adsTitle: '',
                     adsContext: '',
-                    startTime: '',
+                    startTime: [],
                     upgradeType: '',
                     provinceName: '',
                     cityName: '',
@@ -305,69 +305,9 @@
             toggleNext() {
                 var self = this;
                 self.showNext = true;
+                self.form.startTime = [];
             },
-            /**
-             * 点击完成
-             * @param formName
-             */
-            finishCreate(formName) {
-                let self = this;
-                self.$refs[formName].validate((valid) => {
-                    if (valid) {
-                        if (self.form.viewPosition != 5 && !self.form.startTime[0]) {
-                            self.$notify({
-                                title: '提示',
-                                message: '时间未选择！',
-                                type: 'info'
-                            });
-                            return;
-                        }
-                        //若为全域
-                        if(!self.form.areaType) {
-                            self.createNewAds(self.form)
-                                .then((data) => {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: '广告创建成功',
-                                        type: 'success'
-                                    });
-                                    self.$router.push('advList');
-                                }, (err) => {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: err,
-                                        type: 'info'
-                                    })
-                                });
-                            return;
-                        }
-                        let topic = JSON.parse(JSON.stringify(self.form.topic));
-                        for (let i = 0; i < self.selectCityInfos.length; i++) {
-                            let cityInfo = self.selectCityInfos[i];
-                            self.form.provinceName = cityInfo.provinceName;
-                            self.form.cityName = cityInfo.cityName;
-                            self.form.topic = topic + "__" + cityInfo.cityName;
-                            self.createNewAds(self.form)
-                                .then((data) => {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: '广告创建成功',
-                                        type: 'success'
-                                    });
-                                    self.$router.push('advList');
-                                }, (err) => {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: err,
-                                        type: 'info'
-                                    })
-                                });
-                        }
-                    } else {
-                        return false
-                    }
-                })
-            },
+            
             selectArea() {
                 let self = this;
                 if (self.form.areaType == '0') {
@@ -478,14 +418,68 @@
                 };
                 return true;
             },
-
-            copyObj(obj) {
-                let res = {}
-                for (var key in obj) {
-                    res[key] = obj[key]
-                }
-                return res
-            }
+            /**
+             * 点击完成
+             * @param formName
+             */
+            finishCreate(formName) {
+                let self = this;
+                self.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        if (self.form.viewPosition != 5 && !self.form.startTime[0]) {
+                            self.$notify({
+                                title: '提示',
+                                message: '时间未选择！',
+                                type: 'info'
+                            });
+                            return;
+                        }
+                        //若为全域
+                        if(!self.form.areaType) {
+                            self.createNewAds(self.form)
+                                .then((data) => {
+                                    self.$notify({
+                                        title: '成功',
+                                        message: '广告创建成功',
+                                        type: 'success'
+                                    });
+                                    self.$router.push('advList');
+                                }, (err) => {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: err,
+                                        type: 'info'
+                                    })
+                                });
+                            return;
+                        }
+                        let topic = JSON.parse(JSON.stringify(self.form.topic));
+                        for (let i = 0; i < self.selectCityInfos.length; i++) {
+                            let cityInfo = self.selectCityInfos[i];
+                            self.form.provinceName = cityInfo.provinceName;
+                            self.form.cityName = cityInfo.cityName;
+                            self.form.topic = topic + "__" + cityInfo.cityName;
+                            self.createNewAds(self.form)
+                                .then((data) => {
+                                    self.$notify({
+                                        title: '成功',
+                                        message: '广告创建成功',
+                                        type: 'success'
+                                    });
+                                    self.$router.push('advList');
+                                }, (err) => {
+                                    self.$notify({
+                                        title: '提示',
+                                        message: err,
+                                        type: 'info'
+                                    })
+                                });
+                        }
+                    } else {
+                        return false
+                    }
+                })
+            },
         }
     }
 </script>

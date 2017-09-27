@@ -292,7 +292,7 @@
                         path: 'editVipCard',
                         query: {
                             id: id,
-                            isFromWhere: 'self_support_details'
+                            isFromWhere: 'self_support_modify'
                         }
                     })
                 }

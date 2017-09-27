@@ -4,20 +4,20 @@
             <el-form-item label="会员卡名称" prop="name">
                 <el-input v-model="form.name"></el-input>
             </el-form-item>
-            <el-form-item label="规则标题" prop="ruleTitle" required>
-                <el-input v-model="form.ruleTitle"></el-input>
+            <el-form-item label="规则标题" prop="rule_title" required>
+                <el-input v-model="form.rule_title"></el-input>
             </el-form-item>
-            <el-form-item label="规则内容" prop="ruleContent" required>
-                <el-input v-model="form.ruleContent"></el-input>
+            <el-form-item label="规则内容" prop="rule_content" required>
+                <el-input v-model="form.rule_content"></el-input>
             </el-form-item>
-            <el-form-item label="原价" prop="originalPrice" required>
-                <el-input v-model="form.originalPrice" type="number"></el-input>
+            <el-form-item label="原价" prop="original_price" required>
+                <el-input v-model="form.original_price" type="number"></el-input>
             </el-form-item>
             <el-form-item label="惊爆价" prop="price" required>
                 <el-input v-model="form.price" type="number"></el-input>
             </el-form-item>
             <el-form-item label="使用次数" required>
-                <el-select v-model="form.canUseCounts" placeholder="请选择使用次数">
+                <el-select v-model="form.can_use_counts" placeholder="请选择使用次数">
                     <el-option
                         v-for="item in options"
                         :key="item.value"
@@ -28,8 +28,8 @@
             </el-form-item>
             <el-form-item label="卡片类型" required>
                 <el-radio-group v-model="form.type">
-                    <el-radio label="21">月卡</el-radio>
-                    <el-radio label="22">半年卡</el-radio>
+                    <el-radio :label="21">月卡</el-radio>
+                    <el-radio :label="22">半年卡</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item>
@@ -51,28 +51,28 @@
             return {
                 form: {
                     name: '',
-                    ruleTitle: '',
-                    ruleContent: '',
-                    originalPrice: '',
+                    rule_title: '',
+                    rule_content: '',
+                    original_price: '',
                     price: '',
-                    canUseCounts: '1000000',
-                    type: '21'
+                    can_use_counts: null,
+                    type: 21,
                 },
                 rules: {
                     name: [
                         {type: 'string',required: true, message: '请输入会员卡名称', trigger: 'blur'},
                         { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
                     ],
-                    ruleTitle: [
+                    rule_title: [
                         {required: true,message: '请输入规则标题', trigger: 'blur'}
                     ],
-                    ruleContent: [
+                    rule_content: [
                         {required: true,message: '请输入规则内容', trigger: 'blur'}
                     ],
                     counts: [
                         {required: true,message: '请选择使用次数',trigger: 'change'}
                     ],
-                    originalPrice: [
+                    original_price: [
                         {type: 'number',message: '请输入原价', trigger: 'change'}
                     ],
                     price: [
@@ -132,7 +132,7 @@
         components: {},
         methods: {
             ...mapActions([
-                'setVipCard'
+                'setActivityVipCard'
             ]),
             upStep() {
                 this.$emit('back-click');
@@ -141,7 +141,7 @@
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
-                        if(self.form.originalPrice <= 0) {
+                        if(self.form.original_price <= 0) {
                             self.$notify({
                                 title: '失败',
                                 message: '原价必须大于0',
@@ -157,7 +157,7 @@
                             });
                             return;
                         }
-                        self.setVipCard(self.form).then((res) => {
+                        self.setActivityVipCard(self.form).then((res) => {
                             if(res.status == '1') {
                                 self.$notify({
                                     title: '成功',

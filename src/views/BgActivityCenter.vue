@@ -76,7 +76,7 @@
                 prop="picUrl"
                 label="活动图片"
                 align="center"
-                width="100">
+                width="80">
                 <template scope="scope">
                     <img style="width:30px;height: 20px" :src= scope.row.picUrl alt="" @click="showImgClick(scope.row.picUrl)">
                 </template>
@@ -87,7 +87,7 @@
                 prop="areaName"
                 label="地区"
                 align="center"
-                width="100">
+                >
             </el-table-column>
         
             <el-table-column

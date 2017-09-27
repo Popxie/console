@@ -168,6 +168,7 @@
         background-color: #fff;
         position: relative;
     }
+    /*遮罩样式*/
     .coverTop {
         position: absolute;
         top:0;
@@ -211,11 +212,7 @@
                 fileList: [
                     {name:'有效图片',url:''}
                 ],
-                thirdPartnerLists: [
-                    {thirdPartType: 9, thirdPartName: "苏宁"},
-                    {thirdPartType: 2, thirdPartName: "京东"},
-                    {thirdPartType: 5, thirdPartName: "天猫"},
-                ],
+
                 form: {
                     source_from: 2,
                     name: '',
@@ -266,11 +263,6 @@
                         {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                 },
-                options: [{
-                    value: '1000000',
-                    label: '无限次'
-                }]
-                
             }
         },
         computed: {
