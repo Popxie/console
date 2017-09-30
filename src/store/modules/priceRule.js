@@ -30,11 +30,12 @@ const actions = {
             }
         }
         return _post({url}, formData, commit)
-            .then((data) => {
-                if (data.status == 1) {
-                    return Promise.resolve(data);
+            .then((res) => {
+                if (res.status == 1) {
+                    return Promise.resolve(res);
                 }
-                return Promise.reject(error);
+                // return Promise.reject(error);  // 这里的error 是个{} 要想拿到后台返回的msg  还的用res
+                return Promise.reject(res);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -72,7 +73,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });

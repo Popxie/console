@@ -66,3 +66,5 @@ export const GET_THIRD_PARTNER_LIST = 'GET_THIRD_PARTNER_LIST';
 
 // 活动配置 / 活动中心
 export const GET_ACTIVITY_LIST = 'GET_ACTIVITY_LIST';
+// 商家券
+export const GET_MERCHANT_LIST = 'GET_MERCHANT_LIST';

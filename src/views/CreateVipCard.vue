@@ -33,8 +33,8 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="upStep()">返回</el-button>
-                <el-button type="primary" @click="onSubmit('form')">确定</el-button>
+                <el-button type="primary" @click="upStep()">返2回</el-button>
+                <el-button type="primary" @click="onSubmit('form')">确2定</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -168,19 +168,14 @@
                                     path: 'vipCardList',
                                     query: {isFrom: 'self-support'}
                                 });
-                            } else {
-                                self.$notify({
-                                    title: '失败',
-                                    message: res.msg,
-                                    type: 'error'
-                                });
                             }
                         }, (err) => {
+                            self.$notify({
+                                title: '失败',
+                                message: err.msg,
+                                type: 'error'
+                            });
                         });
-
-                    } else {
-                        console.log('error submit!!');
-                        return false;
                     }
                 });
             }

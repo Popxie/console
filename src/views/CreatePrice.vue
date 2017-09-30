@@ -144,8 +144,8 @@
                             </div>
                         </el-form-item>
                     </section>
-                    <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
                     <el-button class="mt20" @click="returnCreate">返回</el-button>
+                    <el-button type="primary" class="mt20" @click="submitRule('form')">保存</el-button>
                 </el-form>
             </div>
             <!--阶梯计价规则-->
@@ -169,8 +169,8 @@
                             <el-button type="danger" @click="deletePrice(index)" v-if="index > 0">删除</el-button>
                         </div>
                     </el-form-item>
-                    <el-button type="primary" @click="submitModel('ruleForm')">保存</el-button>
                     <el-button class="mt20" @click="returnCreate">返回</el-button>
+                    <el-button type="primary" @click="submitModel('ruleForm')">保存</el-button>
                 </el-form>
             </div>
         </div>
@@ -385,13 +385,14 @@
                     self.getERailsList(self.city)
                         .then((res) => {
                             self.eRailsList = res.data;
-                        }, (err) => {
+                        })
+                        .catch((err) => {
                             self.$notify({
-                                title: '失败',
+                                title: '警告',
                                 message: err.msg,
                                 type: 'error'
-                            });
-                        });
+                            })
+                        })
                    
                 }
             },

@@ -144,7 +144,6 @@
                                             size="small"
                                             type="text"
                                             @click="routeToEdit(scope.$index, scope.row)">查看劵码
-
                                         </el-button>
                                     </template>
                                 </el-table-column>

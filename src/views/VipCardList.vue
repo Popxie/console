@@ -1,10 +1,11 @@
 <template>
     <div class="vip-card container">
         <p style="padding-bottom: 15px">优惠券管理/会员卡列表</p>
-        <el-tabs v-model="activeName" @tab-click="handleClick" style="border: none !important;">
+        <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="会员卡活动" name="first"></el-tab-pane>
             <el-tab-pane label="自营会员卡" name="second"></el-tab-pane>
         </el-tabs>
+        
         <el-row :gutter="5">
             <el-col :span="18" style="margin-bottom: 10px">
                 <div class="grid-content">

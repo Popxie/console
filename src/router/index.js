@@ -22,6 +22,9 @@ const BgActivityCenter = resolve => require(['views/BgActivityCenter'],resolve);
 const CreateActivity = resolve => require(['views/CreateActivity'],resolve);
 const EditActivity = resolve => require(['views/EditActivity'],resolve);
 
+const MerchantTicketList = resolve => require(['views/MerchantTicketList'],resolve);
+const MerchantTicketDetails = resolve => require(['views/MerchantTicketDetails'],resolve);
+
 Vue.use(Router);
 
 export default new Router({
@@ -109,6 +112,14 @@ export default new Router({
                 {
                     path: 'editActivity',
                     component: EditActivity
+                },
+                {
+                    path: 'merchantTicketList',
+                    component: MerchantTicketList
+                },
+                {
+                    path: 'merchantTicketDetails',
+                    component: MerchantTicketDetails
                 },
             ]
         }

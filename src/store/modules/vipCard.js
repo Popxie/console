@@ -95,6 +95,20 @@ const actions = {
                 return Promise.reject(error);
             });
     },
+    // 获取电子围栏
+    getERails({commit}, params) {
+        let url = '/riding_card/get_electric_fence';
+        return _post({url},params,commit)
+            .then((res) => {
+                if (res.status == 1) {
+                    return Promise.resolve(res);
+                }
+                return Promise.reject(res);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
+    
     // 保存修改后的会员卡信息
     modifyActivityVipCard({commit}, params) {
         let url = '/riding_card/motify_riding_card_info';

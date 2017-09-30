@@ -88,6 +88,7 @@ const mutations = {
     [types.GET_ACTIVITY_LIST] (state, payload) {
         state.activityList = payload.content;
         state.recordsTotal = payload.recordsTotal;
+        console.debug('payload', payload);
     },
 };
 export default {

@@ -80,7 +80,7 @@
     }
 
     .tap-type {
-        width: 60%;
+        width: 80%;
         height: 400px;
         display: flex;
         flex-direction: row;

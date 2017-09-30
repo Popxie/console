@@ -12,6 +12,7 @@
                 <el-menu-item index="createCoupon">创建优惠券</el-menu-item>
                 <el-menu-item index="couponList">优惠券列表</el-menu-item>
                 <el-menu-item index="vipCardList">会员卡列表</el-menu-item>
+                <el-menu-item index="merchantTicketList">商家券列表</el-menu-item>
             </el-submenu>
             <!--<el-submenu index="3">-->
                 <!--<template slot="title"><i class="icon fa fa-jpy"></i>智能调度</template>-->
@@ -29,6 +30,10 @@
                 <template slot="title"><i class="icon fa fa-jpy"></i>活动配置</template>
                 <el-menu-item index="bgActivityCenter">活动配置列表</el-menu-item>
             </el-submenu>
+    
+            <!--<el-submenu index="6">-->
+                <!--<template slot="title"><i class="icon fa fa-jpy"></i>？？？？</template>-->
+            <!--</el-submenu>-->
         </el-menu>
     </div>
 </template>

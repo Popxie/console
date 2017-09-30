@@ -149,8 +149,16 @@
                                 </el-form-item>
                             </el-col>
                         </el-form-item>
-
                     </template>
+    
+                    <el-form-item label="禁用地区" required v-if="$route.query.isFromWhere === 'details'">
+                        <span class="choose-city" v-for="item in provinces">{{item}}</span>
+                    </el-form-item>
+    
+                    <el-form-item label="禁用运营区" required>
+                        <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
+                    </el-form-item>
+                    
                     <el-form-item>
                         <el-button type="primary" @click="backClick()">返回</el-button>
                         <el-button v-if="showConfirmBtn" type="primary" @click="onSubmit('form')">确定</el-button>
@@ -189,6 +197,9 @@
         /*background: red;*/
         /*opacity: .3;*/
     }
+    .choose-city {
+        margin-right: 10px;
+    }
 </style>
 <script>
     import {mapState,mapGetters, mapActions, mapMutations} from 'vuex'
@@ -212,7 +223,8 @@
                 fileList: [
                     {name:'有效图片',url:''}
                 ],
-
+                provinces: ['上海','北京','广州'],
+                eRailsValueList: ['22234','33234','4234','5234'],
                 form: {
                     source_from: 2,
                     name: '',
@@ -290,6 +302,8 @@
                         self.showValidDays = true;
                     }
                     self.form = res.data;
+//                    self.provinces = self.form.forbiddenCityCode.split(',');
+//                    self.eRailsValueList = self.form.forbiddenControlAreaId.split(',');
                     self.form.id = self.$route.query.id;
                     self.fileList[0].url = res.data.show_card_image;
                 },(err) => self.$notify({

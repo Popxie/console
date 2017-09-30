@@ -5,13 +5,12 @@
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
 
         <el-row v-if="showNext">
-            <el-col :lg="{span: 13,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
-                    :xs="{span: 18, offset:1}">
+            <el-col :lg="{span: 16}" :md="{span: 14}" :sm="{span:12}" :xs="{span: 10}">
                 <el-form v-if="form.type <= 3" class="mt40" ref="form" :model="form"
                          :rules="rules" label-position="left" label-width="180px"
                 >
                     <el-form-item label="方式:" required>
-                        <el-radio-group v-model="form.addType" class="button-cont" @change="chooseMethodClick()">
+                        <el-radio-group v-model="form.addType" class="button-cont" @change="chooseMethodClick">
                             <el-radio-button :label="0">接口方式</el-radio-button>
                             <el-radio-button :label="1">直接生成券</el-radio-button>
                         </el-radio-group>
@@ -244,14 +243,15 @@
                     </el-form-item>
 
                     <el-form-item>
-                        <el-button type="info" @click="upStep()">返回</el-button>
-                        <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
+                        <el-button type="info" @click="upStep()">返222回</el-button>
+                        <el-button type="info" @click="finishCreate('form')">生222成劵</el-button>
                     </el-form-item>
                 </el-form>
                 
-                
                 <create-vip-card v-if="form.type === 4" @back-click="upStep()"></create-vip-card>
                 <create-vip-card-activity v-if="form.type === 5" @back-click="upStep()"></create-vip-card-activity>
+                <creat-merchant-ticket  v-if="form.type === 6" @back-click="upStep()"></creat-merchant-ticket>
+
             </el-col>
         </el-row>
     </div>
@@ -261,6 +261,7 @@
     import TapSelect from '../components/TapSelect.vue';
     import SelectAreas from '../components/SelectArea.vue';
     import CreateVipCard from './CreateVipCard.vue';
+    import CreatMerchantTicket from './CreatMerchantTicket.vue';
     import CreateVipCardActivity from './CreateVipCardActivity.vue'
     import {settings} from '../config/settings';
     export default{
@@ -269,6 +270,7 @@
             SelectAreas,
             CreateVipCard,
             CreateVipCardActivity,
+            CreatMerchantTicket
         },
         data() {
             return {
@@ -286,11 +288,15 @@
                         value: 3
                     },
                     {
-                        task: '会员卡活动',
+                        task: '商家券6',
+                        value: 6
+                    },
+                    {
+                        task: '会员卡活动5',
                         value: 5
                     },
                     {
-                        task: '自营会员卡',
+                        task: '自营会员卡4',
                         value: 4
                     },
                     
@@ -324,7 +330,7 @@
                     topic: '',
                     couponName: '',
                     areaType: 0,        // 设置投放地域
-                    coupon: [{}],
+                    coupon: [{}],       // 券面额那一块的 字段
                     maxDeductionType: 0,
                     maxDeductionMoney: '',
                     validateType: 0,    // 有效期类型
@@ -362,11 +368,11 @@
                 self.form.type = val;
             },
             // 选择 方式 （接口方式、直接生成券）
-            chooseMethodClick() {
+            chooseMethodClick(val) {
                 let self = this;
-                const index = this.form.addType;
+                this.form.addType = val;
                 self.form.coupon = [{}];
-                if(index === 0){
+                if(this.form.addType === 0){
                     self.form.isLimitSize = 0;
                     // form.type = 3 的情况下
                     this.showCounts = true;
@@ -672,9 +678,9 @@
                 };
             },
 
-            finishCreate(val) {
+            finishCreate(formName) {
                 let self = this;
-                self.$refs['form'].validate((valid) => {
+                self.$refs[formName].validate((valid) => {
                     // 接口方式
                     let showAddTypeOne = true;
                     let showAddTypeOne_One = true;
@@ -915,5 +921,13 @@
         .el-form-item__content {
             display: flex;
         }
+    }
+    .row {
+        .el-input {
+            width: 150px;
+        }
+    }
+    .setcoupon {
+        width: 100% !important;
     }
 </style>

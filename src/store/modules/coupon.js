@@ -10,7 +10,9 @@ const state = {
     couponMap: {},
     recordsTotal: 0,
     couponInfo: [],
-    infoRecordsTotal: 0
+    infoRecordsTotal: 0,
+    merchantList: [],       // 商家券列表
+    total: 0,               // 数据总条数
 };
 
 const getters = {
@@ -20,9 +22,12 @@ const getters = {
     getConRecordsTotal: state => state.recordsTotal,
     getConInfoRecordsTotal: state => state.infoRecordsTotal,
     getCouponMap: state => state.couponMap,
+    merchantList: state => state.merchantList,
+    total: state => state.total,
 };
 
 const actions = {
+    // 创建优惠券
     createConpon({commit}, params) {
         const url = '/savecoupon';
         return _post({url}, params, commit)
@@ -36,6 +41,34 @@ const actions = {
                 return Promise.reject(error)
             })
     },
+    // 创建商家券
+    createMerchant({commit}, params){
+        const url = '/import_third_coupon';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json.data);
+                }
+                return Promise.reject(json.message || '保存失败');
+            })
+            .catch((error) => {
+                return Promise.reject(error)
+            })
+    },
+    // 获取商家券列表
+    getMerchantList({commit}, params) {
+        const url = '/query_third_coupon_batch';
+        return _post({url},params,commit)
+            .then((json) => {
+                if (json.statusCode === '200') {
+                    return commit(types.GET_MERCHANT_LIST, json);
+                }
+                return Promise.reject(json.message);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    },
+    
     getConponList({commit, state}, query) {
         const url = '/selectBatchCoupons';
         return _get({url, query}, commit)
@@ -131,6 +164,10 @@ const mutations = {
     },
     [types.CHECKOUT_AREAS_SUCCESS] (state, data) {
         state.areaList = data;
+    },
+    [types.GET_MERCHANT_LIST] (state, payload) {
+        state.merchantList = payload.data.content;
+        state.total = payload.data.total;
     }
 };
 export default {
