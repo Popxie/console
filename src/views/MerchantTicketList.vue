@@ -1,10 +1,21 @@
 <template>
 	<div class="merchant-list-cont">
+        <!--下线的dialog-->
+        <el-dialog
+            title="提示"
+            v-model="dialogConfirmOff"
+            size="tiny">
+            <span>您确定要下线吗？？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogConfirmOff = false">取 消</el-button>
+                <el-button type="primary" @click="confirmClick">确 定</el-button>
+            </span>
+        </el-dialog>
         
         <div style="display: flex;height: 36px;width: 100%;line-height: 36px;margin-bottom: 15px">
-            <el-input class="el-inputs" v-model="dataObj.topic" placeholder="请输入券活动主题"></el-input>
+            <el-input class="el-inputs" v-model="page.topic" @change="inputValueChnange" placeholder="请输入券活动主题"></el-input>
     
-            <el-select v-model="dataObj.isNewPerson" class="is-new-user" placeholder="是否仅新用户可用">
+            <el-select v-model="page.isNewPerson" class="is-new-user" placeholder="是否仅新用户可用">
                 <el-option
                     v-for="item in isNewOptions"
                     :label="item.label"
@@ -12,7 +23,7 @@
                 </el-option>
             </el-select>
             
-            <el-select v-model="dataObj.status" class="select" placeholder="券的状态">
+            <el-select v-model="page.status" class="select" placeholder="券的状态">
                 <el-option
                     v-for="item in stateOptions"
                     :label="item.label"
@@ -20,7 +31,7 @@
                 </el-option>
             </el-select>
             <el-button class="btn" type="primary" @click="searchClick">搜索</el-button>
-            <el-button class="btn" type="primary" @click="() => { $router.push('createCoupon') }">创建商家券</el-button>
+            <el-button class="btn" style="width: 106px !important;" type="primary" @click="() => $router.push('createCoupon')">创建商家券</el-button>
         </div>
         
         <el-tabs v-model="couponType" @tab-click="handleClick">
@@ -40,7 +51,7 @@
                 <template scope="scope">
                     <el-button
                         size="small" type="text"
-                        @click="toDetailsClick(scope.$index, scope.row)"
+                        @click="toDetailsClick(scope.row)"
                     >
                         {{scope.row.batchNo}}
                     </el-button>
@@ -136,6 +147,14 @@
                 align="center"
                 label="查看券码"
             >
+                <template scope="scope">
+                    <el-button
+                        size="small" type="text"
+                        @click="toDetailsClick(scope.row)"
+                    >
+                        查看
+                    </el-button>
+                </template>
             </el-table-column>
             
             <el-table-column
@@ -143,10 +162,26 @@
                 align="center"
                 label="操作">
                 <template scope="scope">
-                    <el-button type="text" size="small" @click="modifyClick(scope.row.activityId)">修改</el-button>
-                    <el-button type="text" size="small" @click="onlineClick(scope.row.activityId)" >上线</el-button>
-                    <el-button type="text" size="small" @click="offlineClick(scope.row.activityId)">下线</el-button>
-                    <el-button type="text" size="small" @click="delClick(scope.row.activityId)">删除</el-button>
+                    <el-button type="text" size="small" @click="modifyClick(scope.row.id)"
+                               v-if="scope.row.couponBatchStatus === '已下线'"
+                    >
+                        修改
+                    </el-button>
+                    <el-button type="text" size="small" @click="onlineClick(scope.row.id)"
+                               v-if="scope.row.couponBatchStatus === '已下线'"
+                    >
+                        上线
+                    </el-button>
+                    <el-button type="text" size="small" @click="offlineClick(scope.row.id)"
+                               v-if="scope.row.couponBatchStatus === '已生成'"
+                    >
+                        下线
+                    </el-button>
+                    <el-button type="text" size="small" @click="delClick(scope.row.id)"
+                               v-if="scope.row.couponBatchStatus === '已过期' || scope.row.couponBatchStatus === '已下线'"
+                    >
+                        删除
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -159,7 +194,7 @@
                 :page-sizes="[5, 10, 50, 100]"
                 :page-size="page.size"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
+                :total="totalNum">
             </el-pagination>
         </el-row>
     
@@ -178,16 +213,20 @@
           
           stateOptions: [
               {
+                  value: '',
+                  label: '全部',
+              },
+              {
                   value: 1,
-                  label: '可用',
+                  label: '已生成',
               },
               {
                   value: 2,
-                  label: '失效',
+                  label: '已下线',
               },
               {
                   value: 3,
-                  label: '已使用',
+                  label: '已过期',
               },
           ],
           isNewOptions: [
@@ -239,15 +278,7 @@
               }
           ],
           // 查询时发送的对象
-          dataObj: {
-              dateRange: '',          // 时间范围 (传给接口的时候不能将这个字段的值传过去，(Sat Sep 16 2017 00:00:00 GMT+0800 (CST)))
-              startDate: '',
-              endDate: '',
-              topic: '',          // 活动主题
-              status: null,
-              isNewPerson: null,
-          },
-    
+         
           tabs: [
               {
                   label: '全部',
@@ -270,24 +301,39 @@
               couponType: -1,
               page: 1,
               size: 10,
+              
+              topic: null,          // 活动主题
+              status: null,
+              isNewPerson: null,
           },
+          dataObj: {
+              batchId: null,
+              status: null,
+          },
+          dialogConfirmOff: false,      // 下线的dialog
       }
     },
     computed: {
         ...mapGetters([
+            'totalNum',
             'merchantList',
-            'total'
         ])
     },
     created() {
         this.getMerchantList(this.page);
     },
     methods: {
+        // 当搜索过一次以后 topic由null 变成了" "， 导致无法拿到数据， 所以要有这个方法
+        inputValueChnange() {
+            if(!this.page.topic) {
+                this.page.topic = null;
+            }
+        },
         ...mapActions([
-            'getMerchantList'
+            'getMerchantList',
+            'fourInOne',
         ]),
         handleClick(val) {
-            // this.couponType = Number(this.couponType);
             switch (val.index) {
                 case 0:
                     this.page.couponType = -1;
@@ -304,16 +350,14 @@
             this.getMerchantList(this.page);
         },
         searchClick() {
-            console.debug('搜索');
+            this.getMerchantList(this.page);
         },
-        toDetailsClick(index, val) {
-            console.debug(index);
-            console.debug(val);
+        toDetailsClick(val) {
             this.$router.push(
                 {
                     path: 'merchantTicketDetails',
                     query: {
-                        batchId: val.batchNo,
+                        batchId: val.id,
                     }
                 }
             )
@@ -328,6 +372,53 @@
             self.page.page = val;
             self.getMerchantList(self.page);
         },
+        modifyClick(val) {
+            this.$router.push({
+                path: 'editMerchantTicket',
+                query: {
+                    batchId: val,
+                }
+            })
+        },
+//        1:上线 2:下线 3:过期 4:删除
+        onlineClick(val) {
+            this.dataObj.status = 1;
+            this.dataObj.batchId = val;
+            this.dialogConfirmOff = true;
+        },
+        
+        offlineClick(val) {
+            this.dataObj.status = 2;
+            this.dataObj.batchId = val;
+            this.dialogConfirmOff = true;
+        },
+        delClick(val) {
+            this.dataObj.status = 4;
+            this.dataObj.batchId = val;
+            this.dialogConfirmOff = true;
+            console.debug('this.dataObj', this.dataObj);
+        },
+        confirmClick() {
+            this.fourInOne(this.dataObj)
+                .then((res) => {
+                    this.dialogConfirmOff = false;
+                    this.$nextTick(() => {
+                        this.getMerchantList(this.page);
+                    });
+                    this.$notify({
+                        title: '成功',
+                        message: res.message,
+                        type: 'success'
+                    });
+                },(err) => {
+                    this.$notify({
+                        title: '失败',
+                        message: err,
+                        type: 'error'
+                    });
+                })
+        },
+        
     }
     
   }

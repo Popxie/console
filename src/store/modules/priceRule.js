@@ -34,8 +34,8 @@ const actions = {
                 if (res.status == 1) {
                     return Promise.resolve(res);
                 }
-                // return Promise.reject(error);  // 这里的error 是个{} 要想拿到后台返回的msg  还的用res
-                return Promise.reject(res);
+                // return Promise.reject(error);  // 这里的error 是个空{} 要想拿到后台返回的msg  还的用res
+                return Promise.reject(res);  // 只要一走reject 就会被catch捕获到
             }).catch((error) => {
                 return Promise.reject(error);
             });

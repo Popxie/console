@@ -12,7 +12,9 @@ const state = {
     couponInfo: [],
     infoRecordsTotal: 0,
     merchantList: [],       // 商家券列表
-    total: 0,               // 数据总条数
+    totalNum: 0,               // 数据总条数
+    merchantDetailsList: [], // 商家券详情列表
+    detailsTotal: 0,         // 数据总条数
 };
 
 const getters = {
@@ -23,7 +25,9 @@ const getters = {
     getConInfoRecordsTotal: state => state.infoRecordsTotal,
     getCouponMap: state => state.couponMap,
     merchantList: state => state.merchantList,
-    total: state => state.total,
+    totalNum: state => state.totalNum,
+    merchantDetailsList: state => state.merchantDetailsList,
+    detailsTotal: state => state.detailsTotal,
 };
 
 const actions = {
@@ -35,7 +39,7 @@ const actions = {
                 if (json.statusCode == 200) {
                     return Promise.resolve(json.data);
                 }
-                return Promise.reject(json.message || '保存失败');
+                return Promise.reject(json);
             })
             .catch((error) => {
                 return Promise.reject(error)
@@ -49,7 +53,7 @@ const actions = {
                 if (json.statusCode === '200') {
                     return Promise.resolve(json.data);
                 }
-                return Promise.reject(json.message || '保存失败');
+                return Promise.reject(json);
             })
             .catch((error) => {
                 return Promise.reject(error)
@@ -63,10 +67,47 @@ const actions = {
                 if (json.statusCode === '200') {
                     return commit(types.GET_MERCHANT_LIST, json);
                 }
-                return Promise.reject(json.message);
+                return Promise.reject(json);
             }).catch((error) => {
                 return Promise.reject(error);
             });
+    },
+    // 上线 下线 删除 修改 都用这个接口(四合一)
+    fourInOne({commit}, params) {
+        const url = '/update_third_coupon_status';
+        return _post({url}, params, commit)
+            .then((json) => {
+            console.debug('json', json)
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json);
+                }
+                return Promise.reject(json.message);
+            }).catch(() => {
+                return Promise.reject(error);
+            })
+    },
+    // 获取商家券详情列表
+    getMerchanDetailstList({commit}, params) {
+      const url = '/query_third_coupon';
+      return _post({url},params,commit)
+          .then((json) => {
+              if(json.statusCode === '200') {
+                  return commit(types.GET_MERCHANT_DETAILS_LIST, json);
+              }
+          })
+    },
+    // 删除商家券详情里面的批次（包含批量删除）
+    delMerchanDetails({commit}, params) {
+        const url = '/delete_third_coupon';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if(json.statusCode === '200') {
+                    return Promise.resolve(json);
+                }
+                return Promise.reject(json);
+            }).catch((error) => {
+                return Promise.reject(error);
+            })
     },
     
     getConponList({commit, state}, query) {
@@ -167,7 +208,11 @@ const mutations = {
     },
     [types.GET_MERCHANT_LIST] (state, payload) {
         state.merchantList = payload.data.content;
-        state.total = payload.data.total;
+        state.totalNum = payload.data.total;
+    },
+    [types.GET_MERCHANT_DETAILS_LIST] (state, payload) {
+        state.merchantDetailsList = payload.data.content;
+        state.detailsTotal = payload.data.total;
     }
 };
 export default {

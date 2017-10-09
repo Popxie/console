@@ -197,6 +197,7 @@
                     }
                     if(res.data.areaCode && res.data.areaCode != 1) {
                         this.citys = res.data.areaCode.split(',');
+                        console.debug('this.citys', this.citys);
                         // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
                         this.areaType = -1;
                         this.form.checkedList.push(1);

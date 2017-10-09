@@ -22,7 +22,7 @@
             size="tiny">
             <span>您确定要下线吗？？</span>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogConfirm = false">取 消</el-button>
+                <el-button @click="dialogConfirmOff = false">取 消</el-button>
                 <el-button type="primary" @click="confirmClick">确 定</el-button>
             </span>
         </el-dialog>

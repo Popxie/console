@@ -85,11 +85,9 @@
                     :on-success="handleSuccessForCoupon"
                 >
                     <i v-if="showBtnForCoupon" class="el-icon-plus"></i>
-                    <div class="el-upload__tip" slot="tip">上传 excel</div>
+                    <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
                 </el-upload>
-                <el-dialog v-model="showDialogImgForCoupon" size="tiny" style="text-align: center">
-                    <img width="60%" :src="dialogImageUrlForCoupon" alt="">
-                </el-dialog>
+               
             </el-form-item>
             
             <el-form-item label="活动时间" prop="validateDaysRange">
@@ -132,6 +130,7 @@
     },
     data() {
       return {
+          isDisabled: false,            // 是否禁止 点击
           dialogVisible: false,        // 是否显示城市组件
     
           url: `${settings.URL}/api/uploadImage`,   // 上传图片的地址
@@ -320,7 +319,7 @@
         },
         handleSuccessForCoupon(res) {
             let self = this;
-//            self.showBtnForCoupon = false;
+            self.showBtnForCoupon = false;
             console.debug('res', res);
             if (res.statusCode === '200') {
                 self.form.couponFile = res.data;
@@ -345,18 +344,16 @@
             self.$refs[formname].validate((valid) => {
                 if (valid) {
                     self.createMerchant(self.form).then((res) => {
-                        if(res.status == '1') {
-                            self.$notify({
-                                title: '成功',
-                                message: res.msg,
-                                type: 'success'
-                            });
-                             self.$router.push({path: '',});
-                        }
+                        self.$notify({
+                            title: '成功',
+                            message: res.message,
+                            type: 'success'
+                        });
+                        self.$router.push({path: 'merchantTicketList',});
                     }, (err) => {
                         self.$notify({
-                            title: '失3333败',
-                            message: err.msg,
+                            title: '失败',
+                            message: err.message,
                             type: 'error'
                         });
                     });

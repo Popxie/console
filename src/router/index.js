@@ -24,6 +24,7 @@ const EditActivity = resolve => require(['views/EditActivity'],resolve);
 
 const MerchantTicketList = resolve => require(['views/MerchantTicketList'],resolve);
 const MerchantTicketDetails = resolve => require(['views/MerchantTicketDetails'],resolve);
+const EditMerchantTicket = resolve => require(['views/EditMerchantTicket'],resolve);
 
 Vue.use(Router);
 
@@ -120,6 +121,10 @@ export default new Router({
                 {
                     path: 'merchantTicketDetails',
                     component: MerchantTicketDetails
+                },
+                {
+                    path: 'editMerchantTicket',
+                    component: EditMerchantTicket
                 },
             ]
         }

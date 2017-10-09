@@ -272,7 +272,7 @@
                 self.$router.push({path: 'createCoupon'})
             },
            
-            //增加 搜索计费规则条件
+            //查询
             searchVipCard() {
                 let self = this;
                 self.getVipCardList(this.dataObj);
