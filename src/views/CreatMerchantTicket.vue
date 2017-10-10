@@ -50,7 +50,7 @@
                 </el-radio-group>
             </el-form-item>
     
-            <el-form-item label="商家列表图片：" prop="merchantListPic" required>
+            <el-form-item label="商家列表图片：" prop="merchantListPic" class="dialog-cont">
                 <el-upload
                     :action="url"
                     :on-preview="handlePreview"
@@ -58,14 +58,14 @@
                     :on-success="handleSuccess"
                 >
                     <i v-if="showBtn" class="el-icon-plus"></i>
-                    <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
+                    <div class="el-upload__tip" slot="tip">要求：60*60</div>
                 </el-upload>
                 <el-dialog v-model="showDialogImg" size="tiny" style="text-align: center">
                     <img width="100%" :src="dialogImageUrl" alt="">
                 </el-dialog>
             </el-form-item>
     
-            <el-form-item label="商家详情页图片：" prop="merchantDetailPic" required>
+            <el-form-item label="商家详情页图片：" prop="merchantDetailPic" class="dialog-cont">
                 <el-upload
                     :action="url"
                     :on-preview="handlePreviewForDetails"
@@ -73,7 +73,7 @@
                     :on-remove="handleRemoveForDetails"
                 >
                     <i v-if="showBtnForDetails" class="el-icon-plus"></i>
-                    <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
+                    <div class="el-upload__tip" slot="tip">要求：90*90</div>
                 </el-upload>
                 <el-dialog v-model="showDialogImgForDetails" size="tiny" style="text-align: center">
                     <img width="100%" :src="dialogImageUrlForDetails" alt="">
@@ -388,8 +388,10 @@
             height: 20px;
             line-height: 20px;
         }
-        .el-dialog {
-            width: 400px !important;
+        .dialog-cont {
+            .el-dialog {
+                width: 400px !important;
+            }
         }
     }
 </style>

@@ -286,7 +286,7 @@
                 return status[row.status - 1];
             },
             viewPositionFilter(row, column) {
-                let viewPositions = ['开屏页', '首页弹框', '骑行结束页', '首页顶部链', '升级提示框'];
+                let viewPositions = ['开屏页', '首页弹框', '骑行结束页', '首页顶部链', '升级提示框', '个人中心广告'];
                 if (!row.viewPosition) return '';
                 return viewPositions[row.viewPosition - 1];
             },
@@ -320,3 +320,9 @@
         margin-left: 10px;
     }
 </style>
+
+<h1 @click="toSomeWhereClick">{{pageName}}</h1>
+
+toSomeWhereClick() {
+    this.$router.push('detail')
+}

@@ -1,6 +1,6 @@
 <template>
     <div class="creat-merchant-cont">
-        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+        <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
     
         <el-row>
             <el-col :lg="{span: 13,offset:1}" :md="{span: 14, offset:1}"
@@ -51,58 +51,61 @@
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
+                            <el-radio :label="-1" style="display: none">隐藏按钮</el-radio>
                         </el-radio-group>
                     </el-form-item>
-        
-                    <el-form-item label="商家列表图片：" prop="merchantListPic" required>
+                
+                    <el-form-item label="商家列表图片：" prop="merchantListPic" class="dialog-cont">
                         <el-upload
                             :action="url"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :on-success="handleSuccess"
+                            :default-file-list="fileList"
                         >
                             <i v-if="showBtn" class="el-icon-plus"></i>
-                            <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
+                            <div class="el-upload__tip" slot="tip">要求：60*60</div>
                         </el-upload>
                         <el-dialog v-model="showDialogImg" size="tiny" style="text-align: center">
-                            <img width="60%" :src="dialogImageUrl" alt="">
+                            <img width="100%" :src="dialogImageUrl" alt="">
                         </el-dialog>
                     </el-form-item>
-        
-                    <el-form-item label="商家详情页图片：" prop="merchantDetailPic" required>
+    
+                    <el-form-item label="商家详情页图片：" prop="merchantDetailPic" class="dialog-cont">
                         <el-upload
                             :action="url"
                             :on-preview="handlePreviewForDetails"
                             :on-success="handleSuccessForDetails"
+                            :on-remove="handleRemoveForDetails"
+                            :default-file-list="fileListForDetail"
                         >
                             <i v-if="showBtnForDetails" class="el-icon-plus"></i>
-                            <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
+                            <div class="el-upload__tip" slot="tip">要求：90*90</div>
                         </el-upload>
                         <el-dialog v-model="showDialogImgForDetails" size="tiny" style="text-align: center">
-                            <img width="60%" :src="dialogImageUrlForDetails" alt="">
+                            <img width="100%" :src="dialogImageUrlForDetails" alt="">
                         </el-dialog>
                     </el-form-item>
-        
-                    <!--<el-form-item label="导入券码：" prop="couponFile" required>-->
-                        <!--<el-upload-->
-                            <!--:action="fileUrl"-->
-                            <!--:on-success="handleSuccessForCoupon"-->
-                        <!--&gt;-->
-                            <!--<i v-if="showBtnForCoupon" class="el-icon-plus"></i>-->
-                            <!--<div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>-->
-                        <!--</el-upload>-->
-                    <!--</el-form-item>-->
-        
-                    <el-form-item label="活动时间" prop="validateDaysRange">
-                        <el-date-picker
-                            type="daterange"
-                            range-separator="—"
-                            placeholder="选择日期范围"
-                            v-model="form.validateDaysRange"
-                            @change="dateBlur"
-                            style="width: 100%;"
-                        >
-                        </el-date-picker>
+    
+    
+                    <el-form-item label="活动时间：" required>
+                        <el-col :span="11">
+                            <el-form-item prop="expirationTimeStart">
+                                <el-date-picker type="date" placeholder="选择开始时间" @change="blurStartClick"
+                                                v-model="form.expirationTimeStart" style="width: 100%;"
+                                >
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col class="line" :span="2" style="text-align: center">-</el-col>
+                        <el-col :span="11">
+                            <el-form-item prop="endTiexpirationTimeEndme">
+                                <el-date-picker type="date" placeholder="选择结束时间" @change="blurEndClick"
+                                                v-model="form.expirationTimeEnd" style="width: 100%;"
+                                >
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
                     </el-form-item>
         
                     <el-form-item label="使用条件：" prop="serviceConditions">
@@ -135,18 +138,18 @@
         },
         data() {
             return {
-                isDisabledLeft: false,            // 是否禁止 点击(兑换券 1)
+                isDisabledLeft: true,            // 是否禁止 点击(兑换券 1)
                 isDisabledMid: true,            // 是否禁止 点击(折扣券 2)
                 isDisabledRight: true,           // 是否禁止 点击(代金券 3)
                 dialogVisible: false,        // 是否显示城市组件
                 
                 url: `${settings.URL}/api/uploadImage`,   // 上传图片的地址
                 fileUrl: `${settings.URL}/api/uploadFile`,
-                showBtn: true,              // 是否显示 + 号按钮
+                showBtn: false,              // 是否显示 + 号按钮
                 showDialogImg: false,       // 是否显示 图片的 dialog
                 dialogImageUrl: '',         // img标签的src
                 
-                showBtnForDetails: true,
+                showBtnForDetails: false,    // 是否显示 + 号按钮
                 showDialogImgForDetails: false,
                 dialogImageUrlForDetails: '',
                 
@@ -156,18 +159,25 @@
                 
                 other: 4,
                 timeRange: '-1',         // 赋值后的时间范围
-                
+    
+                fileList:[
+                    {name:'商家列表图片',url:''}
+                ],
+                fileListForDetail: [
+                    {name:'商家详情页面图片',url:''}
+                ],
+                citys: [],
+                cityCodeArr: [],
                 form: {
-                    couponType: 1,      // 商户券类型
+                    batchId: null,
+                    couponType: null,      // 商户券类型
                     isNewUserUse: 0,    // 是否是新用户
                     dailyLimitSize: 1,  // 发放上限
                     topic: '',          // 券发放主题
-                    couponName: '',     // 商户券显示名称
+                    couponName: '',     // 优惠券券显示名称
                     areaType: 0,        // 设置投放地域
                     merchantListPic: '',     // 商家列表图片地址
                     merchantDetailPic: '',   // 商家详情图片地址
-//                    couponFile: '',          // excel文件地址
-                    validateDaysRange: [],   // 有效天数范围     （该字段必不可少但是请求时 不用）
                     expirationTimeStart: '', // 开始时间
                     expirationTimeEnd:'',    // 结束时间
                     serviceConditions: '',   // 使用条件
@@ -190,11 +200,11 @@
                     merchantDetailPic: [
                         {required: true, message: '请上商家详情页图片', trigger: 'change'}
                     ],
-//                    couponFile: [
-//                        {required: true, message: '请上传导入券', trigger: 'change'}
-//                    ],
-                    validateDaysRange: [
-                        {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
+                    expirationTimeStart: [
+                        {required: true, message: '请选择开始时间', trigger: 'change'}
+                    ],
+                    expirationTimeEnd: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                     serviceConditions: [
                         {required: true, message: '请填写使用条件', trigger: 'blur'},
@@ -208,13 +218,53 @@
             }
         },
         created() {
-            console.debug('3', this.$route.query);
-            this.getMerchantInfo(this.$route.query);
+            console.debug('this.$route.query', this.$route.query);
+            this.getMerchantInfo(this.$route.query)
+                .then((res) => {
+                    this.fileList[0].url = res.data.merchantListPic;
+                    this.fileListForDetail[0].url = res.data.merchantDetailPic;
+    
+                    if(res.data.areaCode && res.data.areaCode != 1) {
+                        this.citys = res.data.areaCode.split(',');
+                        console.debug('this.citys', this.citys);
+                        // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
+                        this.areaType = -1;
+                        // 修改子组件的信息
+                        this.$refs.info.citys = this.citys;
+                        this.$refs.info.provinceList = res.data.province;
+                    } else {
+                        this.showArea = true;
+                        this.areaType = 0;
+                    }
+                    
+                    // 深拷贝  将res.data对象合并到 this.form
+                    this.form = Object.assign({}, this.form, res.data);
+                    
+                    switch (this.form.couponType) {
+                        case 1:
+                            this.isDisabledLeft = false;
+                            this.isDisabledMid = this.isDisabledRight = true;
+                            break;
+                        case 2:
+                            this.isDisabledMid = false;
+                            this.isDisabledRight = this.isDisabledLeft = true;
+                            break;
+                        default:
+                            this.isDisabledRight = false;
+                            this.isDisabledLeft = this.isDisabledMid = true;
+                    }
+                },(err) =>{
+                    this.$notify({
+                        title:'警告',
+                        message: err.message,
+                        type:'warning',
+                    })
+                });
         },
         methods:{
             ...mapActions([
-                'createMerchant',
-                'getMerchantInfo'
+                'getMerchantInfo',
+                'fourInOne'
             ]),
             
             selectArea() {
@@ -224,9 +274,22 @@
                 }
                 self.dialogVisible = true;
             },
-            setAreas(form) {
+            setAreas(val) {
                 let self = this;
-                if (!form.provinces.length) {
+                // 获取cityCode 前 先清空一下 cityCodeArr
+                self.cityCodeArr = [];
+                // 获取cityCode
+                for(let i = 0; i < val.provinces.length; i++){
+                    self.cityCodeArr.push(val.provinces[i].cityCode);
+                }
+                if(self.form.areaCode && self.form.areaCode != 1) {
+                    // 防止 设置后 原先带过来的值被清空
+                    self.form.areaCode += `,${self.cityCodeArr.toString()}`;
+                } else {
+                    self.form.areaCode = self.cityCodeArr.toString();
+                }
+                // 编辑的时候不可以用 !val.provinces.length
+                if (!self.form.areaCode) {
                     self.$notify({
                         title: '提示',
                         message: '请选择省份',
@@ -234,7 +297,7 @@
                     });
                     return;
                 }
-                self.form = Object.assign({}, self.form, form);
+                self.form = Object.assign({}, self.form, val);
                 self.dialogVisible = false;
             },
             cancelSelect () {
@@ -320,7 +383,10 @@
                 this.dialogImageUrlForDetails = file.url;
                 this.showDialogImgForDetails = true;
             },
-            
+            handleRemoveForDetails() {
+                this.form.merchantDetailPic = '';
+                this.showBtnForDetails = true;
+            },
             handleSuccessForDetails(res,file) {
                 let self = this;
                 console.debug('res', res);
@@ -329,23 +395,11 @@
                     self.form.merchantDetailPic = res.data;
                 }
             },
-//            handleSuccessForCoupon(res) {
-//                let self = this;
-////            self.showBtnForCoupon = false;
-//                console.debug('res', res);
-//                if (res.statusCode === '200') {
-//                    self.form.couponFile = res.data;
-//                }
-//            },
-            // 分解时间范围
-            dateBlur(val) {
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('—');
-                // 将年月日 跟 时分秒分离
-                self.form.expirationTimeStart = items[0];
-                self.form.expirationTimeEnd = items[1];
-                self.timeRange = val;
+            blurStartClick(val) {
+                this.form.expirationTimeStart = val;
+            },
+            blurEndClick(val) {
+                this.form.expirationTimeEnd = val;
             },
             
             upStep() {
@@ -355,7 +409,10 @@
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
-                        self.createMerchant(self.form).then((res) => {
+                        
+                        this.form.batchId = this.$route.query.batchId;
+                        
+                        self.fourInOne(self.form).then((res) => {
                             self.$notify({
                                 title: '成功',
                                 message: res.message,
@@ -383,16 +440,15 @@
         .el-upload__inner {
             display: block !important;
         }
-        .is-required {
-            margin: 15px;
-        }
         .el-upload__tip {
             margin: 0;
             height: 20px;
             line-height: 20px;
         }
-        .el-dialog {
-            width: 400px !important;
+        .dialog-cont {
+            .el-dialog {
+                width: 400px !important;
+            }
         }
     }
 </style>

@@ -194,6 +194,7 @@
     .cont {
         .el-dialog {
             width: 400px !important;
+            background: red !important;
         }
     }
 </style>
