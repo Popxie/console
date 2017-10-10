@@ -1,5 +1,7 @@
 <template>
     <div>
+        <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
+    
         <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="180px">
             <el-form-item label="会员卡名称" prop="name">
                 <el-input v-model="form.name"></el-input>
@@ -32,6 +34,12 @@
                     <el-radio :label="22">半年卡</el-radio>
                 </el-radio-group>
             </el-form-item>
+    
+            <el-form-item label="禁用地区" required>
+                <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
+                <el-button @click="selectAreaClick">选择禁用地区</el-button>
+            </el-form-item>
+            
             <el-form-item>
                 <el-button type="primary" @click="upStep()">返2回</el-button>
                 <el-button type="primary" @click="onSubmit('form')">确2定</el-button>
@@ -43,12 +51,23 @@
     .mt40 {
         margin-top: 40px;
     }
+    .choose-city {
+        margin-right: 10px;
+    }
+
 </style>
 <script>
-    import {mapGetters, mapActions, mapMutations} from 'vuex'
+    import {mapGetters, mapActions, mapMutations} from 'vuex';
+    import SelectAreas from '../components/SelectArea.vue';
+
     export default{
+        components: {
+            SelectAreas,
+        },
         data(){
             return {
+                dialogVisible: false,
+    
                 form: {
                     name: '',
                     rule_title: '',
@@ -57,6 +76,8 @@
                     price: '',
                     can_use_counts: null,
                     type: 21,
+                    provinces: [],              // 禁用城市
+                    forbiddenCityCode: '',       // 禁用城市 字符窜格式
                 },
                 rules: {
                     name: [
@@ -129,16 +150,37 @@
 //                }],
             }
         },
-        components: {},
         methods: {
             ...mapActions([
                 'setActivityVipCard'
             ]),
+            setAreas(form) {
+                let self = this;
+                if (!form.provinces.length) {
+                    self.$notify({
+                        title: '提示',
+                        message: '请选择省份',
+                        type: 'info'
+                    });
+                    return;
+                }
+                self.form = Object.assign({}, self.form, form);
+                self.dialogVisible = false;
+            },
+            cancelSelect () {
+                let self = this;
+                self.dialogVisible = false;
+            },
+            selectAreaClick() {
+                let self = this;
+                self.dialogVisible = true;
+            },
             upStep() {
                 this.$emit('back-click');
             },
             onSubmit(formname) {
                 let self = this;
+                let cityArray = [];
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
                         if(self.form.original_price <= 0) {
@@ -157,6 +199,11 @@
                             });
                             return;
                         }
+                        self.form.provinces.forEach((item) => {
+                            cityArray.push(item.cityCode);
+                        });
+                        self.form.forbiddenCityCode = cityArray.toString();
+                        
                         self.setActivityVipCard(self.form).then((res) => {
                             if(res.status == '1') {
                                 self.$notify({

@@ -1,5 +1,5 @@
 <template>
-    <div :class="{fromOther: showCss}" style="background: white;width: 100%;height:100%">
+    <div class="cont" :class="{fromOther: showCss}" style="background: white;width: 100%;height:100%">
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
     
         <el-dialog title="提示" v-model="showErailsDialog" size="tiny">
@@ -14,7 +14,7 @@
             </el-checkbox-group>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="showErailsDialog = false">取 消</el-button>
-                <el-button type="primary" @click="dialogConfirmClick()">确 定</el-button>
+                <el-button type="primary" @click="dialogConfirmClick">确 定</el-button>
             </span>
         </el-dialog>
     
@@ -161,14 +161,14 @@
                 </el-form-item>
             </template>
             
-            <el-form-item label="禁用地区" required>
+            <el-form-item label="禁用地区" prop="forbiddenCityCode">
                 <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
                 <el-button @click="selectAreaClick">选择禁用地区</el-button>
             </el-form-item>
     
-            <el-form-item label="禁用运营区" required>
+            <el-form-item label="禁用运营区" prop="forbiddenControlAreaId">
                 <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
-                <el-button @click="eRaislIdSelect()">选择禁用运营区</el-button>
+                <el-button @click="eRaislIdSelect">选择禁用运营区</el-button>
             </el-form-item>
             
             <el-form-item>
@@ -188,11 +188,19 @@
     .choose-city {
         margin-right: 10px;
     }
+    
+</style>
+<style lang="less">
+    .cont {
+        .el-dialog {
+            width: 400px !important;
+        }
+    }
 </style>
 <script>
     import {mapState,mapGetters, mapActions, mapMutations} from 'vuex'
     import {settings} from '../config/settings';
-    import SelectAreas from '../components/SelectArea.vue';
+    import SelectAreas from '../components/SelectAreaForActivity';
 
 
     export default{
@@ -284,8 +292,14 @@
                     expireEndTime: [
                         {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
+                    forbiddenCityCode: [
+                        {required: true, message: '请选择禁用城市', trigger: 'change'}
+                    ],
+                    forbiddenControlAreaId: [
+                        {required: true, message: '请选择禁用运营区', trigger: 'change'}
+                    ],
+                    
                 },
-                
             }
         },
         
@@ -323,24 +337,6 @@
                 'getERails'
             ]),
             
-            setAreas(form) {
-                let self = this;
-                if (!form.provinces.length) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
-                    return;
-                }
-                self.form = Object.assign({}, self.form, form);
-                self.dialogVisible = false;
-            },
-            cancelSelect () {
-                let self = this;
-                self.dialogVisible = false;
-                self.form.areaType = 0;
-            },
             // 正则表达式 ＞0 的正整数
             isInt(str){
                 let g = /^\+?[1-9][0-9]*$/;
@@ -470,23 +466,38 @@
                     this.form.expire_days = '';
                 }
             },
+            
             selectAreaClick() {
                 let self = this;
                 self.dialogVisible = true;
-                // 将计费方式归位 防止在没有选择地区的时候 选择其他计费方式
-                self.form.billingWay = 1;
             },
+    
+            setAreas(form) {
+                let self = this;
+                let cityArray = [];
+                self.form = Object.assign({}, self.form, form);
+//                self.provinces = self.form.provinces;
+                self.dialogVisible = false;
+                self.form.provinces.forEach((item) => {
+                    cityArray.push(item.cityCode);
+                });
+                self.form.forbiddenCityCode = cityArray.toString();
+            },
+            cancelSelect () {
+                let self = this;
+                self.dialogVisible = false;
+            },
+            
             eRaislIdSelect() {
                 this.showErailsDialog = true;
             },
             dialogConfirmClick(){
                 this.showErailsDialog = false;
-                const list = [];
-                for(let i = 0; i < this.eRailsIdList.length; i++) {
-                    list.push(this.eRailsIdList[i]);
-                    this.eRailsValueList.push(this.eRailsIdList[i]);
+                if(!this.eRailsIdList.length) {
+                    this.eRailsValueList = []
                 }
-                this.form.forbiddenControlAreaId = list.toString();
+                this.eRailsValueList = this.eRailsIdList;
+                this.form.forbiddenControlAreaId = this.eRailsIdList.toString();
             },
     
             upStep() {
@@ -494,7 +505,6 @@
             },
             onSubmit(formname) {
                 let self = this;
-                let cityArray = [];
                 self.$refs[formname].validate((valid) => {
                     if(!self.form.third_part_type && self.form.third_part_type !== 0) {
                         self.$notify({
@@ -504,10 +514,6 @@
                         });
                         return;
                     }
-                    self.form.provinces.forEach((item) => {
-                        cityArray.push(item.cityCode);
-                    });
-                    self.form.forbiddenCityCode = cityArray.toString();
                     
                     if (valid) {
                         self.setActivityVipCard(self.form)

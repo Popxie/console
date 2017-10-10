@@ -61,7 +61,7 @@
                     <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
                 </el-upload>
                 <el-dialog v-model="showDialogImg" size="tiny" style="text-align: center">
-                    <img width="60%" :src="dialogImageUrl" alt="">
+                    <img width="100%" :src="dialogImageUrl" alt="">
                 </el-dialog>
             </el-form-item>
     
@@ -70,12 +70,13 @@
                     :action="url"
                     :on-preview="handlePreviewForDetails"
                     :on-success="handleSuccessForDetails"
+                    :on-remove="handleRemoveForDetails"
                 >
                     <i v-if="showBtnForDetails" class="el-icon-plus"></i>
                     <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
                 </el-upload>
                 <el-dialog v-model="showDialogImgForDetails" size="tiny" style="text-align: center">
-                    <img width="60%" :src="dialogImageUrlForDetails" alt="">
+                    <img width="100%" :src="dialogImageUrlForDetails" alt="">
                 </el-dialog>
             </el-form-item>
     
@@ -83,6 +84,7 @@
                 <el-upload
                     :action="fileUrl"
                     :on-success="handleSuccessForCoupon"
+                    :on-remove="handleRemoveForCoupon"
                 >
                     <i v-if="showBtnForCoupon" class="el-icon-plus"></i>
                     <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
@@ -308,7 +310,10 @@
             this.dialogImageUrlForDetails = file.url;
             this.showDialogImgForDetails = true;
         },
-     
+        handleRemoveForDetails() {
+            this.form.merchantDetailPic = '';
+            this.showBtnForDetails = true;
+        },
         handleSuccessForDetails(res,file) {
             let self = this;
             console.debug('res', res);
@@ -317,6 +322,7 @@
                 self.form.merchantDetailPic = res.data;
             }
         },
+        // 导入券码
         handleSuccessForCoupon(res) {
             let self = this;
             self.showBtnForCoupon = false;
@@ -324,6 +330,10 @@
             if (res.statusCode === '200') {
                 self.form.couponFile = res.data;
             }
+        },
+        handleRemoveForCoupon() {
+            this.form.couponFile = '';
+            this.showBtnForCoupon = true;
         },
         // 分解时间范围
         dateBlur(val) {
@@ -377,6 +387,9 @@
             margin: 0;
             height: 20px;
             line-height: 20px;
+        }
+        .el-dialog {
+            width: 400px !important;
         }
     }
 </style>

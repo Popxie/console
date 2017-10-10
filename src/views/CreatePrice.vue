@@ -31,10 +31,12 @@
                     <el-form-item label="活动名称" prop="name" style="width: 50%">
                         <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
-                    <el-form-item label="地区" required>
+                    
+                    <el-form-item label="地区" prop="cityList">
                         <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
                         <el-button @click="showAreaSelect">选择相同计费规则的区域</el-button>
                     </el-form-item>
+                    
                     <el-form-item label="计费方式" required>
                         <el-radio-group v-model="form.billingWay" @change="chargingModeClick">
                             <el-radio :label="1">按统一计价</el-radio>
@@ -246,12 +248,16 @@
                     name: [
                         {required: true, message: '请输入活动名称', trigger: 'blur'},
                         {min: 1, max: 24, message: '长度在 1 到 24 个字符', trigger: 'blur'}
-                    ]
+                    ],
+                    
                 },
                 formRules: {
                     name: [
                         {required: true, message: '请输入活动名称', trigger: 'blur'},
                         {min: 1, max: 24, message: '长度在 1 到 24 个字符', trigger: 'blur'}
+                    ],
+                    cityList:  [
+                        {required: true, message: '请选择计费规则地区', trigger: 'change'}
                     ],
                     model: [
                         {required: true, message: '请选择规则模型', trigger: 'change'}
@@ -315,16 +321,22 @@
             },
             setAreas(form) {
                 let self = this;
-                if (!form.provinces.length) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
-                    return;
-                }
+                let cityArray = [];
+//                if (!form.provinces.length) {
+//                    self.$notify({
+//                        title: '提示',
+//                        message: '请选择省份',
+//                        type: 'info'
+//                    });
+//                    return;
+//                }
                 self.form = Object.assign({}, self.form, form);
                 self.dialogVisible = false;
+    
+                self.form.provinces.forEach((item) => {
+                    cityArray.push(item.cityName);
+                });
+                self.form.cityList = cityArray.toString();
                 
             },
             //新增阶梯计价 规则
@@ -364,7 +376,7 @@
                 let self = this;
                 const index = this.form.billingWay;
                 if(index === 2) {
-                    if(!self.form.provinces) {
+                    if(!self.form.cityList) {
                         self.$notify({
                             title: '警告',
                             message: '请先选择城市',
@@ -488,7 +500,6 @@
                 let self = this;
                 let type = self.form.type;
                 let startTime, endTime;
-                let cityArray = [];
                 //表单验证
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
@@ -500,10 +511,7 @@
                             });
                             return;
                         }
-                        self.form.provinces.forEach((item) => {
-                            cityArray.push(item.cityName);
-                        });
-                        self.form.cityList = cityArray.toString();
+                        
                         self.formatPartner();
                         self.formatERails();
                         if (type !== 3) {

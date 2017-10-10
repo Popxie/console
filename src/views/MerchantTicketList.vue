@@ -14,22 +14,28 @@
         
         <div style="display: flex;height: 36px;width: 100%;line-height: 36px;margin-bottom: 15px">
             <el-input class="el-inputs" v-model="page.topic" @change="inputValueChnange" placeholder="请输入券活动主题"></el-input>
-    
-            <el-select v-model="page.isNewPerson" class="is-new-user" placeholder="是否仅新用户可用">
-                <el-option
-                    v-for="item in isNewOptions"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
             
-            <el-select v-model="page.status" class="select" placeholder="券的状态">
-                <el-option
-                    v-for="item in stateOptions"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
+            <div style="margin-left: 15px;display: flex">
+                <span style="padding-right: 3px">是否仅新用户可用</span>
+                <el-select v-model="page.isNewUser" class="is-new-user">
+                    <el-option
+                        v-for="item in isNewOptions"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+            
+            <div style="margin-left: 15px;display: flex">
+                <span style="padding-right: 3px">券的状态</span>
+                <el-select v-model="page.status" class="select">
+                    <el-option
+                        v-for="item in stateOptions"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
             <el-button class="btn" type="primary" @click="searchClick">搜索</el-button>
             <el-button class="btn" style="width: 106px !important;" type="primary" @click="() => $router.push('createCoupon')">创建商家券</el-button>
         </div>
@@ -82,6 +88,7 @@
             <el-table-column
                 prop="isNewuserUse"
                 align="center"
+                :formatter="isNewuserUseFilter"
                 label="是否仅新用户可用"
             >
             </el-table-column>
@@ -213,7 +220,7 @@
           
           stateOptions: [
               {
-                  value: '',
+                  value: null,
                   label: '全部',
               },
               {
@@ -231,50 +238,16 @@
           ],
           isNewOptions: [
               {
+                  value: null,
+                  label: '全部'
+              },
+              {
                   value: 0,
                   label: '否'
               },
               {
                   value: 1,
                   label: '是'
-              }
-          ],
-          testList: [
-              {
-                  batchId: '2222',
-                  couponNo: '123123',
-                  couponName: '而我翁人',
-                  cityName: '杭州',
-                  isNewUserUse: '否',
-                  allDenomination: '100',
-                  expirationTimeStart: '2017.3.29-2017.04.10',
-                  couponCreateTime: '2017.3.29',
-                  isUse: '未领用',
-                  status: '已使用'
-              },
-              {
-                  batchId: '2222',
-                  couponNo: '123123',
-                  couponName: '而我翁人',
-                  cityName: '杭州',
-                  isNewUserUse: '否',
-                  allDenomination: '100',
-                  expirationTimeStart: '2017.3.29-2017.04.10',
-                  couponCreateTime: '2017.3.29',
-                  isUse: '未领用',
-                  status: '已使用'
-              },
-              {
-                  batchId: '2222',
-                  couponNo: '123123',
-                  couponName: '而我翁人',
-                  cityName: '杭州',
-                  isNewUserUse: '否',
-                  allDenomination: '100',
-                  expirationTimeStart: '2017.3.29-2017.04.10',
-                  couponCreateTime: '2017.3.29',
-                  isUse: '未领用',
-                  status: '已使用'
               }
           ],
           // 查询时发送的对象
@@ -304,7 +277,7 @@
               
               topic: null,          // 活动主题
               status: null,
-              isNewPerson: null,
+              isNewUser: null,
           },
           dataObj: {
               batchId: null,
@@ -358,9 +331,20 @@
                     path: 'merchantTicketDetails',
                     query: {
                         batchId: val.id,
+                        couponBatchCode: val.batchNo,
                     }
                 }
             )
+        },
+        isNewuserUseFilter(row) {
+            switch (row.isNewuserUse) {
+                case 0:
+                    return '否';
+                    break;
+                case 1:
+                    return '是';
+                    break;
+            }
         },
         handleSizeChange(val) {
             let self = this;
@@ -373,10 +357,12 @@
             self.getMerchantList(self.page);
         },
         modifyClick(val) {
+            console.debug('val', val);
+            console.debug(typeof(val));
             this.$router.push({
                 path: 'editMerchantTicket',
                 query: {
-                    batchId: val,
+                    "batchId":val,
                 }
             })
         },
@@ -433,11 +419,11 @@
             margin-left: 15px;
         }
         .is-new-user {
-            margin-left: 15px;
+            margin-left: 2px;
             width: 150px;
         }
         .select {
-            margin-left: 15px;
+            margin-left: 2px;
             width: 100px;
         }
         .btn {

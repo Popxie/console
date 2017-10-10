@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container container-cont">
         <TapSelect v-if="!showNext" :taps="taps" title="优惠券管理" @setValue="setCoupon"/>
         <!--选择地区-->
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
@@ -241,7 +241,8 @@
                         >
                         </el-date-picker>
                     </el-form-item>
-
+                    
+    
                     <el-form-item>
                         <el-button type="info" @click="upStep()">返222回</el-button>
                         <el-button type="info" @click="finishCreate('form')">生222成劵</el-button>
@@ -906,28 +907,31 @@
     }
 </style>
 <style lang="less">
-    .button-cont {
-        .el-radio-button {
-            margin-right: 30px;
+    .container-cont{
+        .button-cont {
+            .el-radio-button {
+                margin-right: 30px;
+            }
+            .el-radio-button .el-radio-button__inner {
+                border-radius: 4px;
+                border: 1px solid #bfcbd9;
+                width: 102px;
+                box-shadow: none;
+            }
         }
-        .el-radio-button .el-radio-button__inner {
-            border-radius: 4px;
-            border: 1px solid #bfcbd9;
-            width: 102px;
-            box-shadow: none;
+        .flex-cont {
+            .el-form-item__content {
+                display: flex;
+            }
+        }
+        .row {
+            .el-input {
+                width: 150px;
+            }
+        }
+        .setcoupon {
+            width: 100% !important;
         }
     }
-    .flex-cont {
-        .el-form-item__content {
-            display: flex;
-        }
-    }
-    .row {
-        .el-input {
-            width: 150px;
-        }
-    }
-    .setcoupon {
-        width: 100% !important;
-    }
+    
 </style>

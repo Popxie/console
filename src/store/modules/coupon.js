@@ -81,8 +81,47 @@ const actions = {
                 if (json.statusCode === '200') {
                     return Promise.resolve(json);
                 }
-                return Promise.reject(json.message);
+                return Promise.reject(json);
             }).catch(() => {
+                return Promise.reject(error);
+            })
+    },
+    // 查询商家券信息（点击修改进入修改页面 用于数据回显）
+    getMerchantInfo({commit}, params){
+        const url = '/query_third_coupon_batch_detail';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json);
+                }
+                return Promise.reject(json);
+            }).catch((error) => {
+                return Promise.reject(error);
+            })
+    },
+    // 批量发券 （batch）
+    batchSendMerchant({commit}, params) {
+        const url = '/send_coupon';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json);
+                }
+                return Promise.reject(json);
+            }).catch((error) => {
+                return Promise.reject(error);
+            })
+    },
+    // 导入新券
+    insertNewMerchant({commit}, params) {
+        const url = '/import_third_coupon_continue';
+        return _post({url}, params, commit)
+            .then((json) => {
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json);
+                }
+                return Promise.reject(json);
+            }).catch((error) => {
                 return Promise.reject(error);
             })
     },

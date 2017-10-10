@@ -11,20 +11,21 @@
                 <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
             </el-upload>
             <p style="color: red; padding: 10px 0">温馨提示：7:00-9:00，11:30-13:30，5:30-8:00不能发券</p>
-            <el-button type="primary">确认发券</el-button>
+            <el-input v-model="batchSendData.sendNumber" type="number" placeholder="请填写每个人要发送的数量 " style="width: 60%;margin:0 75px 5px 0"></el-input>
+            <el-button type="primary" @click="batchSendClick">确认发券</el-button>
             <el-button @click="isShowSendCoupon = false">取消</el-button>
         </el-dialog>
         <!--导入新券 dialog-->
         <el-dialog v-model="isShowImportCoupon" title="导入新券" size="tiny">
             <el-upload
                 :action="fileUrl"
-                :on-remove="handleRemoveForSendCoupon"
-                :on-success="handleSuccessForSendCoupon"
+                :on-remove="handleRemoveForSendNewCoupon"
+                :on-success="handleSuccessForSendNewCoupon"
             >
-                <el-button  v-if="showBtn">导入</el-button>
+                <el-button  v-if="showBtnForNew">导入</el-button>
                 <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
             </el-upload>
-            <el-button type="primary">确认发券</el-button>
+            <el-button type="primary" @click="confirmSendForImport">确认发券</el-button>
             <el-button @click="isShowImportCoupon = false">取消</el-button>
         </el-dialog>
         <!--删除 dialog-->
@@ -40,30 +41,26 @@
         </el-dialog>
         <!--第一行-->
         <div style="display: flex;height: 36px;width: 100%;line-height: 36px;margin-bottom: 15px">
-            <div style="width: 80px;padding-right: 12px">券生成时间</div>
-            <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="—"
-                @change="dateBlur"
-                placeholder="选择日期范围">
-            </el-date-picker>
-            
-            <el-select v-model="page.isNewPerson" class="is-new-user" placeholder="是否仅新用户可用">
-                <el-option
-                    v-for="item in isNewOptions"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            
-            <el-select v-model="page.status" class="select" placeholder="券的状态">
-                <el-option
-                    v-for="item in stateOptions"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
+            <div style="display: flex">
+                <span style="padding-right: 3px">领用状态</span>
+                <el-select v-model="page.received" class="select">
+                    <el-option
+                        v-for="item in stateOptions"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+            <div style="margin-left: 15px;display: flex">
+                <span style="padding-right: 3px">使用状态</span>
+                <el-select v-model="page.used" class="select">
+                    <el-option
+                        v-for="item in useStateOptions"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
             
             <el-button class="btn btn-left" type="primary" @click="searchClick">查询</el-button>
         </div>
@@ -125,7 +122,7 @@
             </el-table-column>
             
             <el-table-column
-                prop="expirationTimeStart"
+                prop="formatEffectiveTime"
                 align="center"
                 width="130"
                 label="使用期限">
@@ -185,44 +182,43 @@
                 
                 stateOptions: [
                     {
-                        value: '',
+                        value: null,
                         label: '全部',
                     },
                     {
+                        value: 0,
+                        label: '未领用',
+                    },
+                    {
                         value: 1,
-                        label: '已生成',
+                        label: '已领用',
                     },
-                    {
-                        value: 2,
-                        label: '已下线',
-                    },
-                    {
-                        value: 3,
-                        label: '已过期',
-                    },
+                    
                 ],
-                isNewOptions: [
+                useStateOptions: [
+                    {
+                        value: null,
+                        label: '全部',
+                    },
                     {
                         value: 0,
-                        label: '否'
+                        label: '未使用',
                     },
                     {
                         value: 1,
-                        label: '是'
-                    }
+                        label: '已使用',
+                    },
+    
                 ],
                 
-                dateRange: '',          // 时间范围 (传给接口的时候不能将这个字段的值传过去，(Sat Sep 16 2017 00:00:00 GMT+0800 (CST)))
                 fileUrl: `${settings.URL}/api/uploadFile`,
                 multipleSelection: [],  // 全选后的值
                 page: {
                     batchId: null,
                     page: 1,
                     size: 10,
-                    expirationTimeStart: null,
-                    expirationTimeEnd: null,
-                    status: null,
-                    isNewPerson: null,
+                    received: null, // 领用状态
+                    used: null,     // 使用状态
                 },
                 buttonList: [
                     {
@@ -238,12 +234,23 @@
                 couponOperate: null,
                 showBtnForSendCoupon: true,
                 showBtn: true,
+                showBtnForNew: true,
                 isShowSendCoupon: false,
                 isShowImportCoupon: false,
                 dialogConfirm: false,
                 couponIdList: [],
                 delObj: {
                     couponId: '',     // 要删除的券的id （多个的时候用逗号隔开）
+                },
+                batchSendData: {
+                    couponBatchCode: null,
+                    sendNumber: null,
+                    userFile: null,
+                    type: 2,
+                },
+                importObjData: {
+                   batchId: null,
+                   couponFile: null,
                 }
                 
             }
@@ -255,23 +262,18 @@
             ])
         },
         created() {
+            this.importObjData.batchId = this.$route.query.batchId;
+            this.batchSendData.couponBatchCode = this.$route.query.couponBatchCode;
             this.page.batchId = this.$route.query.batchId;
             this.getMerchanDetailstList(this.page);
         },
         methods: {
             ...mapActions([
                 'getMerchanDetailstList',
-                'delMerchanDetails'
+                'delMerchanDetails',
+                'batchSendMerchant',
+                'insertNewMerchant'
             ]),
-            dateBlur(val) {
-                let self = this;
-                // 将组件的val （年月日时分秒的时间区间）分离
-                let items = val.split('—');
-                // 将年月日 跟 时分秒分离
-                self.page.expirationTimeStart = items[0];
-                self.page.expirationTimeEnd = items[1];
-                self.timeRange = val;
-            },
             searchClick() {
                 this.getMerchanDetailstList(this.page);
             },
@@ -290,19 +292,33 @@
                         break;
                 }
             },
-            handleRemoveForSendCoupon(res,file) {
+            handleRemoveForSendCoupon(res) {
                 this.showBtn = true;
-                console.debug('res', res);
-                console.debug('file', file);
+                if (res.statusCode === '200') {
+                    this.batchSendData.couponFile = res.data;
+                }
             },
             handleSuccessForSendCoupon(res) {
                 this.showBtn = false;
+                if (res.statusCode === '200') {
+                    this.batchSendData.userFile = res.data;
+                }
+                console.debug('this.batchSendData', this.batchSendData);
+            },
+            handleRemoveForSendNewCoupon() {
+                this.showBtnForNew = true;
+                this.importObjData.couponFile = null;
+            },
+            handleSuccessForSendNewCoupon(res) {
+                this.showBtnForNew = false;
                 console.debug('res', res);
+                if (res.statusCode === '200') {
+                    this.importObjData.couponFile = res.data;
+                }
             },
             // 全选 或者 单选
             handleSelectionChange(val) {
                 this.multipleSelection = val;
-                console.debug(val);
                 val.forEach((item) => {
                     this.couponIdList.push(item.id);
                     this.delObj.couponId = this.couponIdList.toString();
@@ -310,7 +326,7 @@
                 });
                 console.debug(this.couponIdList);
             },
-            // dialog 确认删除按钮
+            // dialog 确认删除
             confirmClick() {
                 this.delMerchanDetails(this.delObj)
                     .then((res)=> {
@@ -335,15 +351,60 @@
                         });
                     });
             },
+            // 删除
             delClick(val) {
                 this.dialogConfirm = true;
                 this.delObj.couponId = val;
+            },
+            // 批量发券的 dialog中的 确认导入
+            batchSendClick() {
+                if(!this.batchSendData.sendNumber) {
+                    this.$notify({
+                        title: '警告',
+                        message: '请填写要发的数量',
+                        type: 'warning'
+                    })
+                }
+                this.batchSendMerchant(this.batchSendData)
+                    .then((res) => {
+                        this.$notify({
+                            title: '成功',
+                            message: res.message,
+                            type: 'success'
+                        });
+                        this.showBtn = false;
+                    },(err) => {
+                        this.$notify({
+                            title: '警告',
+                            message: err.message,
+                            type: 'warning'
+                        })
+                    })
+            },
+            // 导入新券的 dialog中的 确认导入
+            confirmSendForImport() {
+                this.insertNewMerchant(this.importObjData)
+                    .then((res) => {
+                        this.$notify({
+                            title: '成功',
+                            message: res.message,
+                            type: 'success'
+                        });
+                        this.isShowImportCoupon = false;
+                    },(err) => {
+                        this.$notify({
+                            title: '警告',
+                            message: err.message,
+                            type: 'warning'
+                        })
+                    });
             },
             handleSizeChange(val) {
                 let self = this;
                 self.page.size = val;
                 self.getMerchanDetailstList(self.page);
             },
+            
             handleCurrentChange(val) {
                 let self = this;
                 self.page.page = val;
@@ -362,9 +423,8 @@
             width: 175px !important;
             margin-left: 15px;
         }
-        .is-new-user {
-            margin-left: 15px;
-            width: 150px;
+        .el-dialog {
+            width: 450px !important;
         }
         .select {
             margin-left: 15px;

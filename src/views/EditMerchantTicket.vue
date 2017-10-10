@@ -125,7 +125,7 @@
 
 <script>
     import {mapGetters, mapActions} from 'vuex';
-    import SelectAreas from '../components/SelectArea.vue';
+    import SelectAreas from '../components/SelectAreaForActivity';
     import {settings} from '../config/settings';
     
     
@@ -207,9 +207,14 @@
                 }
             }
         },
+        created() {
+            console.debug('3', this.$route.query);
+            this.getMerchantInfo(this.$route.query);
+        },
         methods:{
             ...mapActions([
-                'createMerchant'
+                'createMerchant',
+                'getMerchantInfo'
             ]),
             
             selectArea() {
@@ -385,6 +390,9 @@
             margin: 0;
             height: 20px;
             line-height: 20px;
+        }
+        .el-dialog {
+            width: 400px !important;
         }
     }
 </style>
