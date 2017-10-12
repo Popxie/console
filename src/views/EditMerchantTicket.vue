@@ -191,7 +191,7 @@
                     expirationTimeEnd:'',    // 结束时间
                     serviceConditions: '',   // 使用条件
                     instructions: '',        // 使用说明
-                    cityName: '',
+                    cityName: '全国',
                     allDenomination: 0,      // 该页面没有的字段 但是后端需要
                 },
                 setAreasValue: [],
@@ -233,15 +233,13 @@
                 .then((res) => {
                     this.fileList[0].url = res.data.merchantListPic;
                     this.fileListForDetail[0].url = res.data.merchantDetailPic;
-                    console.debug('res', res);
-                    if(res.data.cityCode || res.data.cityName) {
-                        res.data.areaType = 0;
-                        res.data.cityName = 1;
-                    }
+                    // 初始化
+                    res.data.areaType = 0;
+                    res.data.cityName = '全国';
                     
                     // 深拷贝  将res.data对象合并到 this.form
                     this.form = Object.assign({}, this.form, res.data);
-                    
+                    console.debug('this.for333m', this.form);
                     // 控制 '商户类型' 的显示情况
                     switch (this.form.couponType) {
                         case 1:
@@ -306,7 +304,7 @@
             selectArea() {
                 let self = this;
                 if (self.form.areaType === 0) {
-                    self.form.cityName = 1;
+                    self.form.cityName = '全国';
                     return;
                 }
                 self.dialogVisible = true;

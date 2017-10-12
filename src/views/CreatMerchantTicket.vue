@@ -170,7 +170,7 @@
               expirationTimeEnd:'',    // 结束时间
               serviceConditions: '',   // 使用条件
               instructions: '',        // 使用说明
-              cityName: 1,            // 投放地域
+              cityName: '全国',            // 投放地域
               allDenomination: 0,      // 该页面没有的字段 但是后端需要
           },
           rules: {
@@ -223,7 +223,7 @@
         selectArea() {
             let self = this;
             if (self.form.areaType === 0) {
-                self.form.cityName = 1;
+                self.form.cityName = '全国';
                 return;
             }
             self.dialogVisible = true;
