@@ -26,7 +26,7 @@
                         <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
                     
-                    <el-form-item label="活动图片：" prop="picUrl" required>
+                    <el-form-item label="活动图片：" prop="picUrl" class="dialog-cont">
                         <el-upload
                             :action="url"
                             list-type="picture-card"
@@ -63,23 +63,22 @@
                             </el-form-item>
                         </el-col>
                     </el-form-item>
-    
-    
+                    
+                    
                     <el-form-item label="设置" prop="checkedList">
                         <el-checkbox-group v-model="form.checkedList" @change="checkedChange">
                             <el-checkbox :label="1">设置区域</el-checkbox>
                             <el-checkbox :label="2">设置电子围栏</el-checkbox>
                         </el-checkbox-group>
                     </el-form-item>
-    
+                    
                     <el-form-item label="选择区域"  v-if="showArea">
                         <el-radio-group v-model="areaType" @change="chooseAreaTypeClick">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">部分区域</el-radio>
-                            <el-radio :label="-1" style="display: none">隐藏按钮</el-radio>
                         </el-radio-group>
                     </el-form-item>
-    
+                    
                     <el-form-item label="电子围栏"  v-if="showErail">
                         <div class="row-wrap">
                             <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
@@ -171,11 +170,7 @@
                 .then((res) => {
                     this.eRailsList = res.data;
                 }, (err) => {
-                    this.$notify({
-                        title: '失败',
-                        message: err.msg,
-                        type: 'error'
-                    });
+                    this.alertFn('失败', err.msg, 'error');
                 });
             const where = this.$route.query.isFromWhere;
             if(where === 'details') {
@@ -195,21 +190,15 @@
                             this.eRailsIdList.push(Number(tempArr[i]));
                         }
                     }
-                    if(res.data.areaCode && res.data.areaCode != 1) {
-                        this.citys = res.data.areaCode.split(',');
-                        console.debug('this.citys', this.citys);
-                        // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
-                        this.areaType = -1;
-                        this.form.checkedList.push(1);
-                        this.showArea = true;
-                        // 修改子组件的信息
-                        this.$refs.info.citys = this.citys;
-                        this.$refs.info.provinceList = res.data.province;
-                    } else {
-                        this.form.checkedList.push(1);
-                        this.showArea = true;
+                    // areaCode = 1  表示全国
+                    if(res.data.areaCode) {
+                        // 只要 存在全国 或者  任何一个城市 就让他显示到 全域 （部分区域得重新设置，因为数据无法回显）
                         this.areaType = 0;
+                        res.data.areaCode = 1;
+                        this.form.checkedList.push(1);
+                        this.showArea = true;
                     }
+                    
                     if(res.data.electricFenceId) {
                         this.form.checkedList.push(2);
                         this.showErail = true;
@@ -219,11 +208,7 @@
                     // 深拷贝  将res.data对象合并到 this.form
                     this.form = Object.assign({}, this.form, res.data);
                 },(err) => {
-                    this.$notify({
-                        title: '错误',
-                        message: err ||'错误',
-                        type: 'error'
-                    })
+                    this.alertFn('错误', err, 'error');
                 });
         },
         methods: {
@@ -232,36 +217,33 @@
                 'getERailsList',
                 'getActivityInfo'
             ]),
+            
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
                 // 选中隐藏按钮
-                self.areaType = -1;
-    
+                self.areaType = 0;
+                self.form.areaCode = 1;
+                
             },
             setAreas(val) {
                 let self = this;
-                
                 // 获取cityCode 前 先清空一下 cityCodeArr
                 self.cityCodeArr = [];
+                
                 // 获取cityCode
                 for(let i = 0; i < val.provinces.length; i++){
                     self.cityCodeArr.push(val.provinces[i].cityCode);
                 }
-                if(self.form.areaCode && self.form.areaCode != 1) {
-                    // 防止 设置后 原先带过来的值被清空
-                    self.form.areaCode += `,${self.cityCodeArr.toString()}`;
-                } else {
-                    self.form.areaCode = self.cityCodeArr.toString();
-                }
-                if (!self.form.areaCode) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
-                    return;
-                }
+                self.form.areaCode = self.cityCodeArr.toString();
                 self.dialogVisible = false;
             },
             handlePreview(file) {
@@ -272,30 +254,29 @@
                 this.form.picUrl = '';
                 this.showBtn = true;
             },
-            handleSuccess(res) {
+            handleSuccess(res, file) {
                 let self = this;
                 self.showBtn = false;
-                if (res.statusCode == 200) {
+                if (res.statusCode === '200') {
                     self.form.picUrl = res.data;
                 }
                 let w = 690;
                 let h = 292;
                 self.checkImgPX(file.url, w, h);
             },
-    
+            
             hanleErr() {
-                this.$notify({
-                    title: '提示',
-                    message: '图片过大，请上传1mb以内',
-                    type: 'info'
-                });
+                this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
             },
+            
             blurStartClick(val) {
                 this.form.startTime = val;
             },
+            
             blurEndClick(val) {
                 this.form.endTime = val;
             },
+            
             checkedChange(val) {
                 // 当有一个选中的时候 且 选中的为全域 => 则显示全域 隐藏电子围栏
                 if(val[0] && val[0] === 1) {
@@ -328,9 +309,9 @@
                 if(val.length === 2) {
                     this.showArea = this.showErail = true;
                 }
-        
+                
             },
-    
+            
             chooseAreaTypeClick(index) {
                 // 全国
                 if(index === 0) {
@@ -363,18 +344,14 @@
                 img.onload = function () {
                     let imgwidth = img.width;
                     let imgheight = img.height;
-                    if (imgwidth != width || imgheight != height) {
-                        self.$notify({
-                            title: '警告',
-                            message: '图的尺寸应该是' + width + "*" + height,
-                            type: 'warning'
-                        });
+                    if (imgwidth !== width || imgheight !== height) {
+                        self.alertFn('警告', '图的尺寸应该是' + width + "*" + height, 'warning');
                         return self.isSubmmit = false;
                     }
-                }
+                };
                 return self.isSubmmit = true;
             },
-    
+            
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
@@ -386,65 +363,38 @@
                     }
                     if (valid) {
                         if(!self.isSubmmit) {
-                            self.$notify({
-                                title: '警告',
-                                message: '图的尺寸应该是690 * 292',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '图的尺寸应该是690 * 292', 'warning');
                             return;
                         }
+                        // 当 '设置'选项 只选中一个的时候 判断对应的 值是否选择
                         if(!self.form.areaCode && self.form.checkedList[0] === 1) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请设置区域',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请选择区域', 'warning');
                             return;
                         }
                         if(!self.form.electricFenceId && self.form.checkedList[0] === 2) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请设置电子围栏',
-                                type: 'warning'
-                            });
+                            self.alertFn('警告', '请选择电子围栏', 'warning');
                             return;
                         }
+                        // 当 '设置' 选项 两个同时选的时候 判断对应的 值是否选择
                         if(self.form.checkedList.length === 2) {
                             if(!self.form.areaCode) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请设置区域',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '请选择区域', 'warning');
                                 return;
                             }
                             if(!self.form.electricFenceId) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请设置电子围栏',
-                                    type: 'warning'
-                                });
+                                self.alertFn('警告', '请选择电子围栏', 'warning');
                                 return;
                             }
                         }
                         self.form.startDate = self.form.startTime;
                         self.form.endDate = self.form.endTime;
                         self.createdActivity(self.form).then((res) => {
-                            if(res.status == '1') {
-                                self.$notify({
-                                    title: '成功',
-                                    message: res.msg,
-                                    type: 'success'
-                                });
+                            if(res.status === '1') {
+                                self.alertFn('成功',res.msg, 'success');
                                 self.$router.push({path: 'bgActivityCenter',});
-                            } else {
-                                self.$notify({
-                                    title: '失败',
-                                    message: res.msg,
-                                    type: 'error'
-                                });
                             }
                         }, (err) => {
+                            self.alertFn('失败',err.msg, 'warning');
                         });
                     }
                 });
@@ -470,9 +420,14 @@
     }
 
 </style>
-<style>
+<style lang="less">
     .el-upload__inner {
         display: block !important;
+    }
+    .dialog-cont {
+        .el-dialog {
+            width: 400px !important;
+        }
     }
 </style>
 

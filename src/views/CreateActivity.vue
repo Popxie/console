@@ -25,7 +25,7 @@
                     <el-form-item label="活动名称" prop="name">
                         <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
                     </el-form-item>
-    
+                    
                     <el-form-item label="活动图片：" prop="picUrl" required>
                         <el-upload
                             :action="url"
@@ -33,6 +33,7 @@
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :on-success="handleSuccess"
+                            :on-error="hanleErr"
                         >
                             <i v-if="showBtn" class="el-icon-plus"></i>
                             <div class="el-upload__tip" slot="tip">要求：690*292，且不超过1MB</div>
@@ -67,7 +68,7 @@
                             <el-radio :label="1">部分区域</el-radio>
                         </el-radio-group>
                     </el-form-item>
-    
+                    
                     <el-form-item label="电子围栏"  v-if="showErail">
                         <div class="row-wrap">
                             <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
@@ -93,7 +94,7 @@
     import {mapGetters, mapActions, mapMutations} from 'vuex'
     import {settings} from '../config/settings';
     import SelectAreas from '../components/SelectAreaForActivity'
-
+    
     export default{
         data(){
             return {
@@ -109,8 +110,8 @@
                 showArea: false,
                 showErail: false,
                 areaType: '',           // 选择区域的字段(自己写的字段)
-    
-    
+                
+                
                 form: {
                     name: '',       // 活动名称
                     picUrl: '',        // 上传图片后 返回的 图片地址
@@ -155,11 +156,7 @@
                 .then((res) => {
                     this.eRailsList = res.data;
                 }, (err) => {
-                    this.$notify({
-                        title: '失败',
-                        message: err.msg,
-                        type: 'error'
-                    });
+                    this.alertFn('失败', err.msg, 'error')
                 });
         },
         methods: {
@@ -167,6 +164,13 @@
                 'createdActivity',
                 'getERailsList',
             ]),
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
             cancelSelect () {
                 let self = this;
                 self.dialogVisible = false;
@@ -174,17 +178,10 @@
             },
             setAreas(val) {
                 let self = this;
-                if (!val.provinces.length) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
-                    return;
-                }
+                
                 // 获取cityCode 前 先清空一下 cityCodeArr
                 self.cityCodeArr = [];
-    
+                
                 // 获取cityCode
                 for(let i = 0; i < val.provinces.length; i++){
                     self.cityCodeArr.push(val.provinces[i].cityCode);
@@ -200,17 +197,22 @@
                 this.form.picUrl = '';
                 this.showBtn = true;
             },
+            
+            hanleErr() {
+                this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
+            },
+            
             handleSuccess(res, file) {
                 let self = this;
                 self.showBtn = false;
-                if (res.statusCode == 200) {
+                if (res.statusCode === '200') {
                     self.form.picUrl = res.data;
                 }
                 let w = 690;
                 let h = 292;
                 self.checkImgPX(file.url, w, h);
             },
-    
+            
             dateBlur(val) {
                 let self = this;
                 // 将组件的val （年月日时分秒的时间区间）分离
@@ -251,7 +253,7 @@
                     this.$refs.info.citys = [];
                     this.$refs.info.provinceList = [];
                     this.$refs.info.provinces = {};
-    
+                    
                 }
                 if(val.length === 2) {
                     this.showArea = this.showErail = true;
@@ -288,87 +290,50 @@
                 img.onload = function () {
                     let imgwidth = img.width;
                     let imgheight = img.height;
-                    if (imgwidth != width || imgheight != height) {
-                        self.$notify({
-                            title: '警告',
-                            message: '图的尺寸应该是' + width + "*" + height,
-                            type: 'warning'
-                        });
+                    if (imgwidth !== width || imgheight !== height) {
+                        self.alertFn('警告', '图的尺寸应该是' + width + "*" + height, 'warning');
                         return self.isSubmmit = false;
                     }
-                }
+                };
                 return self.isSubmmit = true;
             },
-    
+            
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
                         if(!self.isSubmmit) {
-                            self.$notify({
-                                title: '警告',
-                                message: '图的尺寸应该是690 * 292',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '图的尺寸应该是690 * 292', 'warning');
                             return;
                         }
-                        
+                        // 当 '设置'选项 只选中一个的时候 判断对应的 值是否选择
                         if(!self.form.areaCode && self.form.checkedList[0] === 1) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请设置区域',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请选择区域', 'warning');
                             return;
                         }
                         if(!self.form.electricFenceId && self.form.checkedList[0] === 2) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请设置电子围栏',
-                                type: 'warning'
-                            });
+                            self.alertFn('警告', '请选择电子围栏', 'warning');
                             return;
                         }
+                        // 当 '设置' 选项 两个同时选的时候 判断对应的 值是否选择
                         if(self.form.checkedList.length === 2) {
                             if(!self.form.areaCode) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请设置区域',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '请选择区域', 'warning');
                                 return;
                             }
                             if(!self.form.electricFenceId) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请设置电子围栏',
-                                    type: 'warning'
-                                });
+                                self.alertFn('警告', '请选择电子围栏', 'warning');
                                 return;
                             }
                         }
-    
+                        // 提交表单
                         self.createdActivity(self.form).then((res) => {
-                            if(res.status == '1') {
-                                self.$notify({
-                                    title: '成功',
-                                    message: res.msg,
-                                    type: 'success'
-                                });
+                            if(res.status === '1') {
+                                self.alertFn('成功',res.msg, 'success');
                                 self.$router.push({path: 'bgActivityCenter',});
-                            } else {
-                                self.$notify({
-                                    title: '失败',
-                                    message: res.msg,
-                                    type: 'error'
-                                });
                             }
                         }, (err) => {
-                            self.$notify({
-                                title: '失败',
-                                message: err,
-                                type: 'error'
-                            });
+                            self.alertFn('失败',err.msg, 'warning');
                         });
                     }
                 });
@@ -398,5 +363,5 @@
     .el-upload__inner {
         display: block !important;
     }
-    
+
 </style>
