@@ -160,8 +160,8 @@
                     
                     <template v-if="form.viewPosition == 6">
                         <div class="tip">尺寸要求：750*128</div>
-                        <el-form-item label="广告链接：" prop="adsHyperlinks">
-                            <el-input v-model="form.adsHyperlinks" placeholder="请填写广告链接"></el-input>
+                        <el-form-item label="广告链接：" prop="hyperlinks">
+                            <el-input v-model="form.hyperlinks" placeholder="请填写广告链接"></el-input>
                         </el-form-item>
                     </template>
                     <el-form-item>
@@ -240,7 +240,6 @@
                     iosDownloadUrl: '',
                     androidVer: '',
                     androidDownloadUrl: '',
-                    adsHyperlinks: '',         // 广告链接 (改字段还没有跟 后端确定)
                 },
                 //设置投放地域所选
                 selectCityInfos: [],
@@ -298,9 +297,6 @@
                     androidDownloadUrl: [
                         {required: true, message: '请填写android下载地址', trigger: 'blur'},
                         {max: 255, message: 'android下载地址不能超过255字符', trigger: 'blur'}
-                    ],
-                    adsHyperlinks: [
-                        {max: 120, required: true, message: '最多不能超过120个字符！', trigger: 'blur'}
                     ],
                 }
             }
@@ -501,7 +497,7 @@
                                         message: res.message,
                                         type: 'success'
                                     });
-//                                self.$router.push('advList');
+                                self.$router.push('advList');
                                 }, (err) => {
                                     self.$notify({
                                         title: '提示',

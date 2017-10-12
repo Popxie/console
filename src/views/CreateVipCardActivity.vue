@@ -1,7 +1,8 @@
 <template>
     <div class="cont" :class="{fromOther: showCss}" style="background: white;width: 100%;height:100%">
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-    
+        
+        <!--电子围栏-->
         <el-dialog title="提示" v-model="showErailsDialog" size="tiny">
             <el-checkbox-group v-model="eRailsIdList" >
                 <el-row :gutter="20">
@@ -32,7 +33,7 @@
             </el-form-item>
            
             <el-form-item label="卡类型" required>
-                <el-radio-group v-model="form.type"  @change="chooseCardType">
+                <el-radio-group v-model="form.type" @change="chooseCardType">
                     <el-radio :label="21">月卡</el-radio>
                     <el-radio :label="24">次卡</el-radio>
                     <el-radio :label="22">半年卡</el-radio>
@@ -50,11 +51,10 @@
                     :on-preview="handlePreview"
                     :on-remove="handleRemove"
                     :on-success="handleSuccess"
-                    style="height: 36px;"
                 >
                     <i v-if="showBtn" class="el-icon-plus"></i>
                 </el-upload>
-                <el-dialog v-model="showDialogImg" size="tiny">
+                <el-dialog v-model="showDialogImg" size="tiny" class="dialog-cont">
                     <img width="100%" :src="dialogImageUrl" alt="">
                 </el-dialog>
             </el-form-item>
@@ -161,12 +161,12 @@
                 </el-form-item>
             </template>
             
-            <el-form-item label="禁用地区" prop="forbiddenCityCode">
+            <el-form-item label="禁用地区" class="ban-cont">
                 <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
                 <el-button @click="selectAreaClick">选择禁用地区</el-button>
             </el-form-item>
     
-            <el-form-item label="禁用运营区" prop="forbiddenControlAreaId">
+            <el-form-item label="禁用运营区" class="ban-cont">
                 <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
                 <el-button @click="eRaislIdSelect">选择禁用运营区</el-button>
             </el-form-item>
@@ -192,9 +192,19 @@
 </style>
 <style lang="less">
     .cont {
-        .el-dialog {
-            width: 400px !important;
-            background: red !important;
+        .dialog-cont {
+            .el-dialog {
+                width: 400px !important;
+            }
+        }
+        .ban-cont {
+            margin-left: 13px;
+            .el-form-item__label {
+                width: 170px !important;
+            }
+            .el-form-item__content {
+                margin-left: 170px !important;
+            }
         }
     }
 </style>
@@ -225,15 +235,7 @@
                 showTimesCard: false,
                 showBackBtn: false,
                 showErailsDialog: false,
-                eRailsList: [
-                    {id: 191, electricName: "上海市-上海市-闸北区"},
-                    {id: 128, electricName: "上海市-上海市-闸北区"},
-                    {id: 498, electricName: "上海市-上海市-闸北区"},
-                    {id: 348, electricName: "上海市-上海市-闸北区"},
-                    {id: 678, electricName: "上海市-上海市-闸北区"},
-                    {id: 898, electricName: "上海市-上海市-闸北区"},
-                    {id: 108, electricName: "上海市-上海市-闸北区"},
-                ],
+                eRailsList: [],
                 eRailsIdList: [],
                 eRailsValueList: [],
                 form: {
@@ -293,13 +295,6 @@
                     expireEndTime: [
                         {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
-                    forbiddenCityCode: [
-                        {required: true, message: '请选择禁用城市', trigger: 'change'}
-                    ],
-                    forbiddenControlAreaId: [
-                        {required: true, message: '请选择禁用运营区', trigger: 'change'}
-                    ],
-                    
                 },
             }
         },
@@ -312,9 +307,10 @@
         created() {
             let self = this;
             self.getThirdPartnerList();
-            self.getERails({type: '1'})
+            
+            self.getERails({type: 1})
                 .then((res) => {
-                    console.debug('res', res);
+                    this.eRailsList = res.data;
                 },(err) => {
                 self.$notify({
                     title: '警告',
@@ -343,9 +339,8 @@
                 let g = /^\+?[1-9][0-9]*$/;
                 return g.test(str);
             },
-            chooseCardType() {
-                const index = this.form.type;
-                if(index === 24) {
+            chooseCardType(val) {
+                if(val === 24) {
                     this.showTimesCard = true;
                 } else {
                     this.showTimesCard = false;
@@ -458,11 +453,11 @@
                 this.form.expireEndTime = res;
             },
             // 活动时间范围
-            validDaysClick() {
+            validDaysClick(val) {
                 this.showValidDays =!this.showValidDays;
-                const index = this.form.validate_type;
-                if(index === 0){
-                    this.form.validateDaysRangeArr = []
+                if(val === 0){
+                    this.form.expireEndTime = '';
+                    this.form.expireStartTime = '';
                 } else {
                     this.form.expire_days = '';
                 }
@@ -477,7 +472,6 @@
                 let self = this;
                 let cityArray = [];
                 self.form = Object.assign({}, self.form, form);
-//                self.provinces = self.form.provinces;
                 self.dialogVisible = false;
                 self.form.provinces.forEach((item) => {
                     cityArray.push(item.cityCode);

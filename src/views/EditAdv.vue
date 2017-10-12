@@ -52,12 +52,19 @@
                         </template>
                     </div>
                     <!--上传图片-->
-                    <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
+                    <template v-if="form.viewPosition != 4 && form.viewPosition != 5 && form.viewPosition != 6">
                         <el-form-item label="广告图片：">
-                            <img style="width: 300px; height: 300px" :src="form.adsPicUrl">
+                            <div style="width: 290px;">
+                                <img style="width: 70%;margin: 0 15%;" :src="form.adsPicUrl">
+                            </div>
                         </el-form-item>
                     </template>
-
+    
+                    <template v-if="form.viewPosition == 6">
+                        <el-form-item label="广告图片：">
+                            <img style="width: 290px;" :src="form.adsPicUrl">
+                        </el-form-item>
+                    </template>
                     <!--首页弹框-->
                     <div v-if="form.viewPosition == 2">
                         <el-form-item label="展现设置：">
@@ -149,6 +156,12 @@
                             <el-input type="textarea" v-model="form.androidDownloadUrl"></el-input>
                         </el-form-item>
                     </div>
+                    <!--个人广告中心-->
+                    <template v-if="form.viewPosition == 6">
+                        <el-form-item label="广告链接：" prop="hyperlinks">
+                            <el-input v-model="form.hyperlinks" placeholder="请填写广告链接"></el-input>
+                        </el-form-item>
+                    </template>
                 </el-form>
             </el-col>
         </el-row>

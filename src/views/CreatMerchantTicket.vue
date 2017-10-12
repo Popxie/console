@@ -17,7 +17,6 @@
                 <el-radio-group v-model="form.isNewUserUse">
                     <el-radio :label="1">是</el-radio>
                     <el-radio :label="0">否</el-radio>
-                    <el-radio :label="-1">不限</el-radio>
                 </el-radio-group>
             </el-form-item>
             
@@ -80,7 +79,7 @@
                 </el-dialog>
             </el-form-item>
     
-            <el-form-item label="导入券码：" prop="couponFile" required>
+            <el-form-item label="导入券码：" prop="couponFile">
                 <el-upload
                     :action="fileUrl"
                     :on-success="handleSuccessForCoupon"
@@ -89,7 +88,6 @@
                     <i v-if="showBtnForCoupon" class="el-icon-plus"></i>
                     <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
                 </el-upload>
-               
             </el-form-item>
             
             <el-form-item label="活动时间" prop="validateDaysRange">
@@ -148,6 +146,8 @@
           showBtnForCoupon: true,
           showDialogImgForCoupon: false,
           dialogImageUrlForCoupon: '',
+          isPass: false,            // 上传完图片以后 判断是否符合规格
+          isPassForFile: false,     // 上传完文件以后 判断是否符合规格
           
           other: 4,
           timeRange: '-1',         // 赋值后的时间范围
@@ -186,7 +186,7 @@
                   {required: true, message: '请上商家详情页图片', trigger: 'change'}
               ],
               couponFile: [
-                  {required: true, message: '请上传导入券', trigger: 'change'}
+                  {required: true, message: '请上传格式为xls或者xlsx的文件', trigger: 'change'}
               ],
               validateDaysRange: [
                   {type: 'array', required: true, message: '请选择时间范围', trigger: 'change'}
@@ -288,7 +288,31 @@
             });
         
         },
-    
+        // 检查图片宽高
+        checkImgPX(path, width, height) {
+            let img = null,
+                self = this;
+            img = document.createElement("img");
+            document.body.insertAdjacentElement("beforeEnd", img);
+            img.style.visibility = "hidden";
+            img.src = path;
+            img.onload = function () {
+                let imgwidth = img.width;
+                let imgheight = img.height;
+                if (imgwidth !== width || imgheight !== height) {
+                    self.$notify({
+                        title: '警告',
+                        message: '图的尺寸应该是' + width + "*" + height,
+                        type: 'warning'
+                    });
+                    self.isPass = false;
+                } else {
+                    self.isPass = true;
+                }
+            };
+            return true;
+        },
+        
         // 商家券列表 的上传事件
         handlePreview(file) {
             this.dialogImageUrl = file.url;
@@ -298,12 +322,15 @@
             this.form.merchantListPic = '';
             this.showBtn = true;
         },
-        handleSuccess(res) {
+        handleSuccess(res, file) {
             let self = this;
             self.showBtn = false;
             if (res.statusCode === '200') {
                 self.form.merchantListPic = res.data;
             }
+            let w = 60;
+            let h = 60;
+            self.checkImgPX(file.url, w, h);
         },
         // 商家券详情 的上传事件
         handlePreviewForDetails(file) {
@@ -321,20 +348,36 @@
             if (res.statusCode === '200') {
                 self.form.merchantDetailPic = res.data;
             }
+            let w = 90;
+            let h = 90;
+            self.checkImgPX(file.url, w, h);
         },
         // 导入券码
+        handleRemoveForCoupon() {
+            this.form.couponFile = '';
+            this.showBtnForCoupon = true;
+        },
+        
         handleSuccessForCoupon(res) {
             let self = this;
             self.showBtnForCoupon = false;
             console.debug('res', res);
             if (res.statusCode === '200') {
                 self.form.couponFile = res.data;
+                console.debug('self.form.couponFile', self.form.couponFile);
+                if(res.data.indexOf('xls') === -1 || res.data.indexOf('xlsx') === -1) {
+                    self.$notify({
+                        title: '警告',
+                        message: '上传格式正确的文件',
+                        type: 'warning',
+                    });
+                    self.isPassForFile = false;
+                } else {
+                    self.isPassForFile = true;
+                }
             }
         },
-        handleRemoveForCoupon() {
-            this.form.couponFile = '';
-            this.showBtnForCoupon = true;
-        },
+        
         // 分解时间范围
         dateBlur(val) {
             let self = this;
@@ -353,6 +396,22 @@
             let self = this;
             self.$refs[formname].validate((valid) => {
                 if (valid) {
+                    if(!self.isPass) {
+                        self.$notify({
+                            title: '提示',
+                            message: '请选择规格正确的图片',
+                            type: 'warning'
+                        });
+                        return;
+                    }
+                    if(!self.isPassForFile) {
+                        self.$notify({
+                            title: '提示',
+                            message: '请上传格式正确的文件',
+                            type: 'warning'
+                        });
+                        return;
+                    }
                     self.createMerchant(self.form).then((res) => {
                         self.$notify({
                             title: '成功',

@@ -1,7 +1,7 @@
 <template>
     <div class="creat-merchant-cont">
-        <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
-    
+        <SelectAreas ref="info" :selectArea="dialogVisible"@selectProvince="selectProvince" @cancel="cancelSelect" @confirm="setAreas"/>
+        
         <el-row>
             <el-col :lg="{span: 13,offset:1}" :md="{span: 14, offset:1}"
                     :sm="{span:16, offset:1}" :xs="{span: 18, offset:1}"
@@ -16,15 +16,14 @@
                             <el-radio-button :label="3" :disabled="isDisabledRight">代金券</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
-        
+                    
                     <el-form-item label="是否仅新用户可用：" required>
                         <el-radio-group v-model="form.isNewUserUse">
                             <el-radio :label="1">是</el-radio>
                             <el-radio :label="0">否</el-radio>
-                            <el-radio :label="-1">不限</el-radio>
                         </el-radio-group>
                     </el-form-item>
-        
+                    
                     <el-form-item label="单用户每日发放上限：" prop="dailyLimitSize">
                         <el-radio-group v-model="form.dailyLimitSize">
                             <el-radio :label="1">1</el-radio>
@@ -38,15 +37,15 @@
                             </el-radio>
                         </el-radio-group>
                     </el-form-item>
-        
+                    
                     <el-form-item label="券发放主题：" prop="topic">
                         <el-input v-model.trim="form.topic" :maxlength="30" placeholder="请输入本次发券的主题，30字以内"></el-input>
                     </el-form-item>
-        
+                    
                     <el-form-item label="优惠卷显示名称：" prop="couponName">
                         <el-input v-model.trim="form.couponName" :maxlength="15" placeholder="请输入优惠券上显示的券名，15字以内"></el-input>
                     </el-form-item>
-        
+                    
                     <el-form-item label="设置投放地域：" required>
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
@@ -54,7 +53,7 @@
                             <el-radio :label="-1" style="display: none">隐藏按钮</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                
+                    
                     <el-form-item label="商家列表图片：" prop="merchantListPic" class="dialog-cont">
                         <el-upload
                             :action="url"
@@ -70,7 +69,7 @@
                             <img width="100%" :src="dialogImageUrl" alt="">
                         </el-dialog>
                     </el-form-item>
-    
+                    
                     <el-form-item label="商家详情页图片：" prop="merchantDetailPic" class="dialog-cont">
                         <el-upload
                             :action="url"
@@ -86,8 +85,8 @@
                             <img width="100%" :src="dialogImageUrlForDetails" alt="">
                         </el-dialog>
                     </el-form-item>
-    
-    
+                    
+                    
                     <el-form-item label="活动时间：" required>
                         <el-col :span="11">
                             <el-form-item prop="expirationTimeStart">
@@ -107,15 +106,15 @@
                             </el-form-item>
                         </el-col>
                     </el-form-item>
-        
+                    
                     <el-form-item label="使用条件：" prop="serviceConditions">
                         <el-input type="textarea" v-model="form.serviceConditions" placeholder="请填写使用条件，100字以内"></el-input>
                     </el-form-item>
-        
+                    
                     <el-form-item label="使用说明：" prop="instructions">
                         <el-input type="textarea" v-model="form.instructions" placeholder="请填写使用说明，100字以内"></el-input>
                     </el-form-item>
-        
+                    
                     <el-form-item>
                         <el-button type="info" @click="() => {$router.go(-1)}">返回</el-button>
                         <el-button type="info" @click="onSubmit('form')">保存</el-button>
@@ -159,7 +158,7 @@
                 
                 other: 4,
                 timeRange: '-1',         // 赋值后的时间范围
-    
+                
                 fileList:[
                     {name:'商家列表图片',url:''}
                 ],
@@ -168,6 +167,11 @@
                 ],
                 citys: [],
                 cityCodeArr: [],
+                cityNameArr: [],
+                provinceCodeArr: [],
+                provinceNameArr: [],
+                provinceCodeArrReapt: [],
+                provinceNameArrReapt: [],
                 form: {
                     batchId: null,
                     couponType: null,      // 商户券类型
@@ -184,6 +188,7 @@
                     instructions: '',        // 使用说明
                     allDenomination: 0,      // 该页面没有的字段 但是后端需要
                 },
+                setAreasValue: [],
                 rules: {
                     dailyLimitSize: [
                         {type: 'number', required: true, message: '请选择可领用', trigger: 'change'},
@@ -218,20 +223,22 @@
             }
         },
         created() {
-            console.debug('this.$route.query', this.$route.query);
+//            console.debug('this.$route.query', this.$route.query);
             this.getMerchantInfo(this.$route.query)
                 .then((res) => {
                     this.fileList[0].url = res.data.merchantListPic;
                     this.fileListForDetail[0].url = res.data.merchantDetailPic;
-    
-                    if(res.data.areaCode && res.data.areaCode != 1) {
-                        this.citys = res.data.areaCode.split(',');
-                        console.debug('this.citys', this.citys);
+                    
+                    if(res.data.cityCode) {
+                        this.citys = res.data.cityCode.split(',');
                         // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
                         this.areaType = -1;
                         // 修改子组件的信息
+                        console.debug('this.$refs.info', this.$refs.info);
                         this.$refs.info.citys = this.citys;
                         this.$refs.info.provinceList = res.data.province;
+                        this.cityCodeArr = this.citys;
+                        console.debug('333', this.cityCodeArr);
                     } else {
                         this.showArea = true;
                         this.areaType = 0;
@@ -274,30 +281,70 @@
                 }
                 self.dialogVisible = true;
             },
+            selectProvince(val,checkCity) {
+                console.debug('province', val);
+                console.debug('checkCity-cityCode', checkCity);
+            },
             setAreas(val) {
+                console.debug('setAreas(val)', val);
                 let self = this;
                 // 获取cityCode 前 先清空一下 cityCodeArr
-                self.cityCodeArr = [];
+//                self.cityCodeArr = [];
                 // 获取cityCode
-                for(let i = 0; i < val.provinces.length; i++){
-                    self.cityCodeArr.push(val.provinces[i].cityCode);
+                self.setAreasValue = val;
+                for(let i = 0; i < self.setAreasValue.provinces.length; i++){
+                    self.cityCodeArr.push(self.setAreasValue.provinces[i].cityCode);
+                    self.cityNameArr.push(self.setAreasValue.provinces[i].cityName);
+                    self.provinceCodeArrReapt.push(self.setAreasValue.provinces[i].provinceCode);
+                    self.provinceNameArrReapt.push(self.setAreasValue.provinces[i].provinceName);
                 }
-                if(self.form.areaCode && self.form.areaCode != 1) {
-                    // 防止 设置后 原先带过来的值被清空
-                    self.form.areaCode += `,${self.cityCodeArr.toString()}`;
-                } else {
-                    self.form.areaCode = self.cityCodeArr.toString();
+                // 获取 去重以后的 省份代码
+                for(let i = 0; i < self.provinceCodeArrReapt.length; i++) {
+                    if (self.provinceCodeArr.indexOf(self.provinceCodeArrReapt[i]) === -1) {
+                        self.provinceCodeArr.push(self.provinceCodeArrReapt[i]);
+                    }
                 }
-                // 编辑的时候不可以用 !val.provinces.length
-                if (!self.form.areaCode) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
-                    return;
+                // 获取 去重以后的 省份名字
+                for(let i = 0; i < self.provinceNameArrReapt.length; i++) {
+                    if (self.provinceNameArr.indexOf(self.provinceNameArrReapt[i]) === -1) {
+                        self.provinceNameArr.push(self.provinceNameArrReapt[i]);
+                    }
                 }
+                
+//                if(self.form.cityCode) { // 进来的时候带有 cityCode的情况
+//                    // 防止 设置后 原先带过来的值被清空
+////                    self.form.cityCode += `,${self.cityCodeArr.toString()}`;
+////
+////                    self.form.cityName += `,${self.cityNameArr.toString()}`;
+////
+////                    self.form.provinceCode += `,${self.provinceCodeArr.toString()}`;
+////
+////                    self.form.provinceName += `,${self.provinceNameArr.toString()}`;
+//
+//                    console.debug('this.form1111', this.form);
+//                } else { // 一进来的时候 没有cityCode的情况
+//                    self.form.cityCode = self.cityCodeArr.toString();
+//
+//                    self.form.cityName = self.cityNameArr.toString();
+//
+//                    self.form.provinceCode = self.provinceCodeArr.toString();
+//
+//                    self.form.provinceName = self.provinceNameArr.toString();
+//
+//                    console.debug('this.form2222', this.form);
+//
+//                }
+                self.form.cityCode = self.cityCodeArr.toString();
+    
+                self.form.cityName = self.cityNameArr.toString();
+    
+                self.form.provinceCode = self.provinceCodeArr.toString();
+    
+                self.form.provinceName = self.provinceNameArr.toString();
+//                 编辑的时候不可以用 !val.provinces.length
+                
                 self.form = Object.assign({}, self.form, val);
+                console.debug('form', self.form);
                 self.dialogVisible = false;
             },
             cancelSelect () {
@@ -411,6 +458,15 @@
                     if (valid) {
                         
                         this.form.batchId = this.$route.query.batchId;
+    
+                        if (!self.form.cityCode) {
+                            self.$notify({
+                                title: '提示',
+                                message: '请选择城市',
+                                type: 'info'
+                            });
+                            return;
+                        }
                         
                         self.fourInOne(self.form).then((res) => {
                             self.$notify({

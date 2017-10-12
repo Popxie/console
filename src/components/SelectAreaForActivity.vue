@@ -112,10 +112,12 @@
                     self.citys=[];
                     self.checkCity=[];
                 }
+                this.$emit('selectProvince',val,self.checkCity);
             },
             selectCity(val){
                 let self = this;
                 self.citys = val;
+                console.debug('cityVlaue', val);
                 Object.assign(self.provinces,{
                     [self.areaCode]:val
                 });

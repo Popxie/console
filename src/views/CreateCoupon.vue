@@ -5,7 +5,7 @@
         <SelectAreas :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
 
         <el-row v-if="showNext">
-            <el-col :lg="{span: 16}" :md="{span: 14}" :sm="{span:12}" :xs="{span: 10}">
+            <el-col :lg="{span: 16}" :md="{span: 14}" :sm="{span:12}" :xs="{span: 10}" style="padding-left: 10px">
                 <el-form v-if="form.type <= 3" class="mt40" ref="form" :model="form"
                          :rules="rules" label-position="left" label-width="180px"
                 >
@@ -217,7 +217,7 @@
                     </template>
                     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
                     <el-form-item label="有效期类型：" required>
-                        <el-radio-group v-model="form.validateType" @change="validDaysClick()">
+                        <el-radio-group v-model="form.validateType" @change="validDaysClick">
                             <el-radio :label="0">固定天数</el-radio>
                             <el-radio :label="1">固定时间</el-radio>
                         </el-radio-group>
@@ -404,10 +404,10 @@
             },
 
             // 有效期类型 （固定天数、固定时间）
-            validDaysClick() {
+            validDaysClick(val) {
+                console.debug('ddd', val);
                 this.showValidDays =!this.showValidDays;
-                const index = this.form.validateType;
-                if(index === 1){
+                if(val === 1){
                     this.form.validateDays = '';
                 } else {
                     this.form.validateDaysRange = [];
