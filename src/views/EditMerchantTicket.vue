@@ -1,6 +1,6 @@
 <template>
     <div class="creat-merchant-cont">
-        <SelectAreas ref="info" :selectArea="dialogVisible"@selectProvince="selectProvince" @cancel="cancelSelect" @confirm="setAreas"/>
+        <SelectAreas ref="info" :selectArea="dialogVisible" @cancel="cancelSelect" @confirm="setAreas"/>
         
         <el-row>
             <el-col :lg="{span: 13,offset:1}" :md="{span: 14, offset:1}"
@@ -50,7 +50,6 @@
                         <el-radio-group v-model="form.areaType" @change="selectArea">
                             <el-radio :label="0">全域</el-radio>
                             <el-radio :label="1">选择地域</el-radio>
-                            <el-radio :label="-1" style="display: none">隐藏按钮</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     
@@ -60,6 +59,7 @@
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :on-success="handleSuccess"
+                            :on-error="hanleErr"
                             :default-file-list="fileList"
                         >
                             <i v-if="showBtn" class="el-icon-plus"></i>
@@ -76,6 +76,7 @@
                             :on-preview="handlePreviewForDetails"
                             :on-success="handleSuccessForDetails"
                             :on-remove="handleRemoveForDetails"
+                            :on-error="hanleErr"
                             :default-file-list="fileListForDetail"
                         >
                             <i v-if="showBtnForDetails" class="el-icon-plus"></i>
@@ -172,6 +173,10 @@
                 provinceNameArr: [],
                 provinceCodeArrReapt: [],
                 provinceNameArrReapt: [],
+    
+                isPassForList: true,     // 上传完图片以后 判断是否符合规格
+                isPassForDetails: true,
+                
                 form: {
                     batchId: null,
                     couponType: null,      // 商户券类型
@@ -186,6 +191,7 @@
                     expirationTimeEnd:'',    // 结束时间
                     serviceConditions: '',   // 使用条件
                     instructions: '',        // 使用说明
+                    cityName: '',
                     allDenomination: 0,      // 该页面没有的字段 但是后端需要
                 },
                 setAreasValue: [],
@@ -223,30 +229,20 @@
             }
         },
         created() {
-//            console.debug('this.$route.query', this.$route.query);
             this.getMerchantInfo(this.$route.query)
                 .then((res) => {
                     this.fileList[0].url = res.data.merchantListPic;
                     this.fileListForDetail[0].url = res.data.merchantDetailPic;
-                    
-                    if(res.data.cityCode) {
-                        this.citys = res.data.cityCode.split(',');
-                        // 如果是 部分区域的情况下 防止一进来就弹出地域选择框 => 换成取消选择区域按钮
-                        this.areaType = -1;
-                        // 修改子组件的信息
-                        console.debug('this.$refs.info', this.$refs.info);
-                        this.$refs.info.citys = this.citys;
-                        this.$refs.info.provinceList = res.data.province;
-                        this.cityCodeArr = this.citys;
-                        console.debug('333', this.cityCodeArr);
-                    } else {
-                        this.showArea = true;
-                        this.areaType = 0;
+                    console.debug('res', res);
+                    if(res.data.cityCode || res.data.cityName) {
+                        res.data.areaType = 0;
+                        res.data.cityName = 1;
                     }
                     
                     // 深拷贝  将res.data对象合并到 this.form
                     this.form = Object.assign({}, this.form, res.data);
                     
+                    // 控制 '商户类型' 的显示情况
                     switch (this.form.couponType) {
                         case 1:
                             this.isDisabledLeft = false;
@@ -261,11 +257,7 @@
                             this.isDisabledLeft = this.isDisabledMid = true;
                     }
                 },(err) =>{
-                    this.$notify({
-                        title:'警告',
-                        message: err.message,
-                        type:'warning',
-                    })
+                    this.alertFn('警告', err.message, 'warning');
                 });
         },
         methods:{
@@ -274,77 +266,65 @@
                 'fourInOne'
             ]),
             
+            // 公用提醒 函数
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            // 检查图片宽高
+            checkImgPX(path, width, height, where) {
+                let img = null,
+                    self = this;
+                img = document.createElement("img");
+                document.body.insertAdjacentElement("beforeEnd", img);
+                img.style.visibility = "hidden";
+                img.src = path;
+                img.onload = function () {
+                    let imgwidth = img.width;
+                    let imgheight = img.height;
+                    if (imgwidth !== width || imgheight !== height) {
+                        self.alertFn('警告', '图的尺寸应该是' + width + "*" + height, 'warning');
+                        if(where === 'lists') {
+                            self.isPassForList = false;
+                        } else {
+                            self.isPassForDetails = false;
+                        }
+                    } else {
+                        if(where === 'lists') {
+                            self.isPassForList = true;
+                        } else {
+                            self.isPassForDetails = true;
+                        }
+                    }
+                };
+                return true;
+            },
+            // '设置投放地域' 的状态切换状态
             selectArea() {
                 let self = this;
-                if (self.form.areaType == '0') {
+                if (self.form.areaType === 0) {
+                    self.form.cityName = 1;
                     return;
                 }
                 self.dialogVisible = true;
             },
-            selectProvince(val,checkCity) {
-                console.debug('province', val);
-                console.debug('checkCity-cityCode', checkCity);
-            },
             setAreas(val) {
-                console.debug('setAreas(val)', val);
                 let self = this;
                 // 获取cityCode 前 先清空一下 cityCodeArr
-//                self.cityCodeArr = [];
-                // 获取cityCode
-                self.setAreasValue = val;
-                for(let i = 0; i < self.setAreasValue.provinces.length; i++){
-                    self.cityCodeArr.push(self.setAreasValue.provinces[i].cityCode);
-                    self.cityNameArr.push(self.setAreasValue.provinces[i].cityName);
-                    self.provinceCodeArrReapt.push(self.setAreasValue.provinces[i].provinceCode);
-                    self.provinceNameArrReapt.push(self.setAreasValue.provinces[i].provinceName);
+                self.cityCodeArr = [];
+    
+                // 获取cityCode 和 cityName
+                for(let i = 0; i < val.provinces.length; i++){
+                    self.cityCodeArr.push(val.provinces[i].cityCode);
+                    self.cityNameArr.push(val.provinces[i].cityName);
                 }
-                // 获取 去重以后的 省份代码
-                for(let i = 0; i < self.provinceCodeArrReapt.length; i++) {
-                    if (self.provinceCodeArr.indexOf(self.provinceCodeArrReapt[i]) === -1) {
-                        self.provinceCodeArr.push(self.provinceCodeArrReapt[i]);
-                    }
-                }
-                // 获取 去重以后的 省份名字
-                for(let i = 0; i < self.provinceNameArrReapt.length; i++) {
-                    if (self.provinceNameArr.indexOf(self.provinceNameArrReapt[i]) === -1) {
-                        self.provinceNameArr.push(self.provinceNameArrReapt[i]);
-                    }
-                }
-                
-//                if(self.form.cityCode) { // 进来的时候带有 cityCode的情况
-//                    // 防止 设置后 原先带过来的值被清空
-////                    self.form.cityCode += `,${self.cityCodeArr.toString()}`;
-////
-////                    self.form.cityName += `,${self.cityNameArr.toString()}`;
-////
-////                    self.form.provinceCode += `,${self.provinceCodeArr.toString()}`;
-////
-////                    self.form.provinceName += `,${self.provinceNameArr.toString()}`;
-//
-//                    console.debug('this.form1111', this.form);
-//                } else { // 一进来的时候 没有cityCode的情况
-//                    self.form.cityCode = self.cityCodeArr.toString();
-//
-//                    self.form.cityName = self.cityNameArr.toString();
-//
-//                    self.form.provinceCode = self.provinceCodeArr.toString();
-//
-//                    self.form.provinceName = self.provinceNameArr.toString();
-//
-//                    console.debug('this.form2222', this.form);
-//
-//                }
                 self.form.cityCode = self.cityCodeArr.toString();
-    
                 self.form.cityName = self.cityNameArr.toString();
-    
-                self.form.provinceCode = self.provinceCodeArr.toString();
-    
-                self.form.provinceName = self.provinceNameArr.toString();
-//                 编辑的时候不可以用 !val.provinces.length
                 
                 self.form = Object.assign({}, self.form, val);
-                console.debug('form', self.form);
                 self.dialogVisible = false;
             },
             cancelSelect () {
@@ -367,37 +347,29 @@
                 let self = this;
                 let val = e.target.value;
                 console.debug('e.target.value', e.target.value);
-                if (val == 1) {
+                if (val === 1) {
                     self.form.dailyLimitSize = 1;
                     e.target.value = 4;
                     return
                 }
-                if (val == 2) {
+                if (val === 2) {
                     self.form.dailyLimitSize = 2;
                     e.target.value = 4;
                     return
                 }
-                if (val == 3) {
+                if (val === 3) {
                     self.form.dailyLimitSize = 3;
                     e.target.value = 4;
                     return
                 }
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    self.alertFn('提示', '数值不能小于等于0', 'info');
                     e.target.value = 4;
                     self.form.dailyLimitSize = 1;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    self.alertFn('提示', '数值为整数', 'info');
                     e.target.value = 4;
                     self.form.dailyLimitSize = 1;
                     return;
@@ -418,12 +390,20 @@
                 this.form.merchantListPic = '';
                 this.showBtn = true;
             },
-            handleSuccess(res) {
+            handleSuccess(res, file) {
                 let self = this;
                 self.showBtn = false;
                 if (res.statusCode === '200') {
                     self.form.merchantListPic = res.data;
+                    let w = 60;
+                    let h = 60;
+                    let where = 'lists';
+                    self.checkImgPX(file.url, w, h, where);
                 }
+            },
+            // 列表和详情公用的 上传失败时间
+            hanleErr() {
+                this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
             },
             // 商家券详情 的上传事件
             handlePreviewForDetails(file) {
@@ -440,6 +420,9 @@
                 self.showBtnForDetails = false;
                 if (res.statusCode === '200') {
                     self.form.merchantDetailPic = res.data;
+                    let w = 90;
+                    let h = 90;
+                    self.checkImgPX(file.url, w, h);
                 }
             },
             blurStartClick(val) {
@@ -459,28 +442,16 @@
                         
                         this.form.batchId = this.$route.query.batchId;
     
-                        if (!self.form.cityCode) {
-                            self.$notify({
-                                title: '提示',
-                                message: '请选择城市',
-                                type: 'info'
-                            });
+                        if(!self.isPassForList || !self.isPassForDetails) {
+                            self.alertFn('提示', '请上传格式正确的图片', 'warning');
                             return;
                         }
-                        
+                        // 提交表单
                         self.fourInOne(self.form).then((res) => {
-                            self.$notify({
-                                title: '成功',
-                                message: res.message,
-                                type: 'success'
-                            });
+                            self.alertFn('成功', res.message, 'success');
                             self.$router.push({path: 'merchantTicketList',});
                         }, (err) => {
-                            self.$notify({
-                                title: '失败',
-                                message: err.message,
-                                type: 'error'
-                            });
+                            self.alertFn('失败', err.message, 'error');
                         });
                     }
                 });

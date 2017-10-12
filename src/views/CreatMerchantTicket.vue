@@ -55,6 +55,7 @@
                     :on-preview="handlePreview"
                     :on-remove="handleRemove"
                     :on-success="handleSuccess"
+                    :on-error="hanleErr"
                 >
                     <i v-if="showBtn" class="el-icon-plus"></i>
                     <div class="el-upload__tip" slot="tip">要求：60*60</div>
@@ -70,6 +71,7 @@
                     :on-preview="handlePreviewForDetails"
                     :on-success="handleSuccessForDetails"
                     :on-remove="handleRemoveForDetails"
+                    :on-error="hanleErr"
                 >
                     <i v-if="showBtnForDetails" class="el-icon-plus"></i>
                     <div class="el-upload__tip" slot="tip">要求：90*90</div>
@@ -146,7 +148,8 @@
           showBtnForCoupon: true,
           showDialogImgForCoupon: false,
           dialogImageUrlForCoupon: '',
-          isPass: false,            // 上传完图片以后 判断是否符合规格
+          isPassForList: false,     // 上传完图片以后 判断是否符合规格
+          isPassForDetails: false,
           isPassForFile: false,     // 上传完文件以后 判断是否符合规格
           
           other: 4,
@@ -167,6 +170,7 @@
               expirationTimeEnd:'',    // 结束时间
               serviceConditions: '',   // 使用条件
               instructions: '',        // 使用说明
+              cityName: 1,            // 投放地域
               allDenomination: 0,      // 该页面没有的字段 但是后端需要
           },
           rules: {
@@ -207,9 +211,19 @@
             'createMerchant'
         ]),
         
+        alertFn(title,msg,type) {
+            this.$notify({
+                title: title,
+                message: msg,
+                type: type,
+            });
+        },
+        
+        // '设置投放地域' 的状态切换状态
         selectArea() {
             let self = this;
-            if (self.form.areaType == '0') {
+            if (self.form.areaType === 0) {
+                self.form.cityName = 1;
                 return;
             }
             self.dialogVisible = true;
@@ -217,11 +231,7 @@
         setAreas(form) {
             let self = this;
             if (!form.provinces.length) {
-                self.$notify({
-                    title: '提示',
-                    message: '请选择省份',
-                    type: 'info'
-                });
+                self.alertFn('提示', '请选择省份', 'info');
                 return;
             }
             self.form = Object.assign({}, self.form, form);
@@ -246,38 +256,30 @@
         setLimit(e) {
             let self = this;
             let val = e.target.value;
-            console.debug('e.target.value', e.target.value);
-            if (val == 1) {
+            if (val === 1) {
                 self.form.dailyLimitSize = 1;
                 e.target.value = 4;
                 return
             }
-            if (val == 2) {
+            if (val === 2) {
                 self.form.dailyLimitSize = 2;
                 e.target.value = 4;
                 return
             }
-            if (val == 3) {
+            if (val === 3) {
                 self.form.dailyLimitSize = 3;
                 e.target.value = 4;
                 return
             }
             if (val <= 0) {
-                self.$notify({
-                    title: '提示',
-                    message: '数值不能小于等于0',
-                    type: 'info'
-                });
+                self.alertFn('提示', '数值不能小于等于0', 'info');
                 e.target.value = 4;
                 self.form.dailyLimitSize = 1;
                 return;
             }
             if (!this.isInt(val)) {
-                this.$notify({
-                    title: '提示',
-                    message: '数值为整数',
-                    type: 'info'
-                });
+                
+                this.alertFn('提示', '数值为整数', 'info');
                 e.target.value = 4;
                 self.form.dailyLimitSize = 1;
                 return;
@@ -289,7 +291,7 @@
         
         },
         // 检查图片宽高
-        checkImgPX(path, width, height) {
+        checkImgPX(path, width, height, where) {
             let img = null,
                 self = this;
             img = document.createElement("img");
@@ -300,14 +302,18 @@
                 let imgwidth = img.width;
                 let imgheight = img.height;
                 if (imgwidth !== width || imgheight !== height) {
-                    self.$notify({
-                        title: '警告',
-                        message: '图的尺寸应该是' + width + "*" + height,
-                        type: 'warning'
-                    });
-                    self.isPass = false;
+                    self.alertFn('警告', '图的尺寸应该是' + width + "*" + height, 'warning');
+                    if(where === 'lists') {
+                        self.isPassForList = false;
+                    } else {
+                        self.isPassForDetails = false;
+                    }
                 } else {
-                    self.isPass = true;
+                    if(where === 'lists') {
+                        self.isPassForList = true;
+                    } else {
+                        self.isPassForDetails = true;
+                    }
                 }
             };
             return true;
@@ -330,7 +336,12 @@
             }
             let w = 60;
             let h = 60;
-            self.checkImgPX(file.url, w, h);
+            let where = 'lists';
+            self.checkImgPX(file.url, w, h, where);
+        },
+        // 列表和详情公用的 上传失败时间
+        hanleErr() {
+            this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
         },
         // 商家券详情 的上传事件
         handlePreviewForDetails(file) {
@@ -343,14 +354,15 @@
         },
         handleSuccessForDetails(res,file) {
             let self = this;
-            console.debug('res', res);
             self.showBtnForDetails = false;
             if (res.statusCode === '200') {
                 self.form.merchantDetailPic = res.data;
+                let w = 90;
+                let h = 90;
+                let where = 'details';
+                self.checkImgPX(file.url, w, h, where);
             }
-            let w = 90;
-            let h = 90;
-            self.checkImgPX(file.url, w, h);
+           
         },
         // 导入券码
         handleRemoveForCoupon() {
@@ -361,16 +373,10 @@
         handleSuccessForCoupon(res) {
             let self = this;
             self.showBtnForCoupon = false;
-            console.debug('res', res);
             if (res.statusCode === '200') {
                 self.form.couponFile = res.data;
-                console.debug('self.form.couponFile', self.form.couponFile);
                 if(res.data.indexOf('xls') === -1 || res.data.indexOf('xlsx') === -1) {
-                    self.$notify({
-                        title: '警告',
-                        message: '上传格式正确的文件',
-                        type: 'warning',
-                    });
+                    self.alertFn('警告', '上传格式正确的文件', 'warning');
                     self.isPassForFile = false;
                 } else {
                     self.isPassForFile = true;
@@ -396,35 +402,20 @@
             let self = this;
             self.$refs[formname].validate((valid) => {
                 if (valid) {
-                    if(!self.isPass) {
-                        self.$notify({
-                            title: '提示',
-                            message: '请选择规格正确的图片',
-                            type: 'warning'
-                        });
+                    if(!self.isPassForList || !self.isPassForDetails) {
+                        self.alertFn('提示', '请上传格式正确的图片', 'warning');
                         return;
                     }
                     if(!self.isPassForFile) {
-                        self.$notify({
-                            title: '提示',
-                            message: '请上传格式正确的文件',
-                            type: 'warning'
-                        });
+                        self.alertFn('提示', '请上传格式正确的文件', 'warning');
                         return;
                     }
+                    // 提交表单
                     self.createMerchant(self.form).then((res) => {
-                        self.$notify({
-                            title: '成功',
-                            message: res.message,
-                            type: 'success'
-                        });
+                        self.alertFn('成功', res.message, 'success');
                         self.$router.push({path: 'merchantTicketList',});
                     }, (err) => {
-                        self.$notify({
-                            title: '失败',
-                            message: err.message,
-                            type: 'error'
-                        });
+                        self.alertFn('失败', err.message, 'error');
                     });
                 }
             });

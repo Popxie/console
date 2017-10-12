@@ -357,8 +357,6 @@
             self.getMerchantList(self.page);
         },
         modifyClick(val) {
-            console.debug('val', val);
-            console.debug(typeof(val));
             this.$router.push({
                 path: 'editMerchantTicket',
                 query: {
@@ -366,7 +364,7 @@
                 }
             })
         },
-//        1:上线 2:下线 3:过期 4:删除
+       // 1:上线 2:下线 3:过期 4:删除
         onlineClick(val) {
             this.dataObj.status = 1;
             this.dataObj.batchId = val;
@@ -382,7 +380,6 @@
             this.dataObj.status = 4;
             this.dataObj.batchId = val;
             this.dialogConfirmOff = true;
-            console.debug('this.dataObj', this.dataObj);
         },
         confirmClick() {
             this.fourInOne(this.dataObj)
