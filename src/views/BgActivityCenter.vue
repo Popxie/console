@@ -216,6 +216,14 @@
               'getActivityList',
               'offlineActivity',
           ]),
+    
+          alertFn(title,msg,type) {
+              this.$notify({
+                  title: title,
+                  message: msg,
+                  type: type,
+              });
+          },
           dateBlur(val) {
               let self = this;
               // 将组件的val （年月日时分秒的时间区间）分离
@@ -236,11 +244,7 @@
           setAreas(val) {
               let self = this;
               if (!val.provinces.length) {
-                  self.$notify({
-                      title: '提示',
-                      message: '请选择省份',
-                      type: 'info'
-                  });
+                  self.alertFn('提示', '请选择省份', 'info');
                   return;
               }
               // 获取cityCode
@@ -308,17 +312,9 @@
                       });
                       this.dialogConfirm = false;
                       this.dialogConfirmOff = false;
-                      this.$notify({
-                          title: '成功',
-                          message: res.msg,
-                          type: 'success'
-                      });
+                      this.alertFn('成功', res.msg, 'success');
                   },(err) => {
-                      this.$notify({
-                          title: '失败',
-                          message: err,
-                          type: 'error'
-                      });
+                      this.alertFn('失败', err.msg, 'error');
                   })
           },
     
@@ -334,13 +330,9 @@
           // 获取活动列表
           getAcList(params) {
               this.getActivityList(params)
-                  .then(() => {},((err)=> {
-                      this.$notify({
-                          title: '登陆已失效',
-                          message: err,
-                          type: 'error'
-                      })
-                   }))
+                  .then(() => {},(err)=> {
+                      this.alertFn('登陆已失效44', err.msg, 'error');
+                   })
           },
       }
     

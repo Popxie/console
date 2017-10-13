@@ -14,13 +14,16 @@ const getters = {
 };
 
 const actions = {
-    //创建会员卡（自营）
+    //创建会员卡（自营） 老接口已弃用
     setVipCard({commit}, data) {
+        console.debug('data', data);
         let url = '/riding_card/create_riding_card';
         let formData = new FormData();
         for (let key in data) {
             if(data[key]) {
+                console.debug('data[key]', data[key]);
                 formData.append(key,data[key]);
+                console.debug('formData', formData);
             }
         }
         return _post({url}, formData, commit)
@@ -33,7 +36,7 @@ const actions = {
                 return Promise.reject(error);
             });
     },
-    // 创建活动会员卡
+    // 创建活动会员卡 & 自营会员卡
     setActivityVipCard({commit}, params) {
         let url = '/riding_card/create_riding_card_v2';
         return _post({url}, params, commit)

@@ -32,7 +32,7 @@
                         <el-input type="number" v-model="form.can_use_counts"></el-input>
                     </el-form-item>
         
-                    <el-form-item label="有效卡样式：" prop="card_image">
+                    <el-form-item label="有效卡样式：" prop="card_image" v-if="$route.query.isFromWhere !== 'details'">
                         <el-upload
                             :action="url"
                             list-type="picture-card"
@@ -47,6 +47,10 @@
                         <el-dialog v-model="dialogImg" size="tiny">
                             <img width="100%" :src="dialogImageUrl" alt="">
                         </el-dialog>
+                    </el-form-item>
+    
+                    <el-form-item label="有效卡样式：" required v-else>
+                        <img style="width: 250px;" :src="showCardImage">
                     </el-form-item>
         
                     <el-form-item label="合作方" required>
@@ -125,15 +129,15 @@
             
                         <el-form-item v-if="showValidDays" label="有效天数：" prop="expire_days">
                             <div style="display: flex">
-                                <el-input style="width: 193px;" v-model="form.expire_days" placeholder="请输入有效天数，6字以内"></el-input>
+                                <el-input style="width: 193px;" v-model="form.expire_days" placeholder="请输入有效天数"></el-input>
                                 <span>天</span>
                             </div>
                         </el-form-item>
             
-                        <el-form-item v-else label="有效时间：">
+                        <el-form-item v-else label="有效时间：" class="ban-cont">
                             <el-col :span="11">
                                 <el-form-item prop="expireStartTime">
-                                    <el-date-picker type="date" placeholder="选择开始时间"
+                                    <el-date-picker type="date" placeholder="选择开始时间" @change="StartClick"
                                                     v-model="form.expireStartTime" style="width: 100%;"
                                     >
                                     </el-date-picker>
@@ -142,7 +146,7 @@
                             <el-col class="line" :span="2" style="text-align: center"> - </el-col>
                             <el-col :span="11">
                                 <el-form-item prop="expireEndTime">
-                                    <el-date-picker type="date" placeholder="选择结束时间"
+                                    <el-date-picker type="date" placeholder="选择结束时间" @change="EndClick"
                                                     v-model="form.expireEndTime" style="width: 100%;"
                                     >
                                     </el-date-picker>
@@ -151,11 +155,11 @@
                         </el-form-item>
                     </template>
     
-                    <el-form-item label="禁用地区" required v-if="$route.query.isFromWhere === 'details'">
+                    <el-form-item label="禁用地区" v-if="$route.query.isFromWhere === 'details'" class="ban-cont">
                         <span class="choose-city" v-for="item in provinces">{{item}}</span>
                     </el-form-item>
     
-                    <el-form-item label="禁用运营区" required>
+                    <el-form-item label="禁用运营区" class="ban-cont">
                         <span class="choose-city" v-for="item in eRailsValueList">{{item}}</span>
                     </el-form-item>
                     
@@ -182,23 +186,23 @@
         top:0;
         left: 0;
         width: 100%;
-        height: 36%;
+        height: 94%;
         z-index: 9;
-        /*background: yellowgreen;*/
-        /*opacity: .3;*/
     }
-    .coverBottom {
-        position: absolute;
-        top:45%;
-        left: 0;
-        width: 100%;
-        height: 46%;
-        z-index: 9;
-        /*background: red;*/
-        /*opacity: .3;*/
-    }
+ 
     .choose-city {
         margin-right: 10px;
+    }
+</style>
+<style lang="less">
+    .ban-cont {
+        margin-left: 13px;
+        .el-form-item__label {
+            width: 170px !important;
+        }
+        .el-form-item__content {
+            margin-left: 170px !important;
+        }
     }
 </style>
 <script>
@@ -213,6 +217,7 @@
                 url: `${settings.URL}/api/uploadImage`,
                 showBtn: false,
                 dialogImageUrl: '',
+                showCardImage: '',
                 dialogImg: false,
                 other: 4,
                 countsOther: '',
@@ -223,8 +228,8 @@
                 fileList: [
                     {name:'有效图片',url:''}
                 ],
-                provinces: ['上海','北京','广州'],
-                eRailsValueList: ['22234','33234','4234','5234'],
+                provinces: ['无'],
+                eRailsValueList: ['无'],
                 form: {
                     source_from: 2,
                     name: '',
@@ -265,13 +270,19 @@
                         {required: true, message: '请上传有效图片', trigger: 'change'}
                     ],
                     expire_days: [
-                        {type: 'number', required: true, message: '请填写有效天数', trigger: 'change'}
+                        {required: true, message: '请填写有效天数', trigger: 'change'}
                     ],
                     // 通过请求接口获取数据 从而让el-date-picker显示出 取到的值  而非通过点击 el-date-picke 来获取的到的话 就会报错
                     activeStartDate: [
                         {required: true, message: '请选择开始时间', trigger: 'change'}
                     ],
                     activeEndDate: [
+                        {required: true, message: '请选择结束时间', trigger: 'change'}
+                    ],
+                    expireStartTime: [
+                        {required: true, message: '请选择开始时间', trigger: 'change'}
+                    ],
+                    expireEndTime: [
                         {required: true, message: '请选择结束时间', trigger: 'change'}
                     ],
                 },
@@ -296,21 +307,21 @@
                     if( res.data.total_number > -1) {
                         self.countsOther = res.data.total_number;
                     }
-                    if(res.data.validate_type === 1) {
-                        self.showValidDays = false;
-                    } else {
-                        self.showValidDays = true;
+                    res.data.validate_type === 0 ? self.showValidDays = true : self.showValidDays = false;
+                    
+                    if(res.data.forbiddenCityName) {
+                        self.provinces = res.data.forbiddenCityName.split(',');
+                    }
+                    if(res.data.forbiddenControlAreaName) {
+                        self.eRailsValueList = res.data.forbiddenControlAreaName.split(',');
                     }
                     self.form = res.data;
-//                    self.provinces = self.form.forbiddenCityCode.split(',');
-//                    self.eRailsValueList = self.form.forbiddenControlAreaId.split(',');
                     self.form.id = self.$route.query.id;
                     self.fileList[0].url = res.data.show_card_image;
-                },(err) => self.$notify({
-                    title: '错误',
-                    message: err ||'错误',
-                    type: 'error'
-                }))
+                    self.showCardImage = res.data.show_card_image;
+                },(err) => {
+                    this.alertFn('失败', err.msg, 'error');
+                })
           
         },
         
@@ -320,14 +331,22 @@
                 'getThirdPartnerList',
                 'getVipCardInfo'
             ]),
-           
+    
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             /**
              * 格式化参数
              * @param obj
              * @returns {string}
              */
             parseParams: function (obj) {
-                var str = '';
+                let str = '';
                 Object.keys(obj).map(function (key) {
                     if (obj[key]) {
                         str += '&' + key + '=' + obj[key];
@@ -376,37 +395,29 @@
             setLimit(e) {
                 let self = this;
                 let val = e.target.value;
-                if (val == 1) {
+                if (val === 1) {
                     self.form.one_receive_count_max = 1;
                     e.target.value = 4;
                     return
                 }
-                if (val == 2) {
+                if (val === 2) {
                     self.form.one_receive_count_max = 2;
                     e.target.value = 4;
                     return
                 }
-                if (val == 3) {
+                if (val === 3) {
                     self.form.one_receive_count_max = 3;
                     e.target.value = 4;
                     return
                 }
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     e.target.value = 4;
                     self.form.one_receive_count_max = 1;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值为整数', 'info');
                     e.target.value = 4;
                     self.form.one_receive_count_max = 1;
                     return;
@@ -422,22 +433,14 @@
                 let self = this;
                 let val = e.target.value;
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     val = 1;
                     self.countsOther = Number(val);
                     self.form.total_number = self.countsOther;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值为整数', 'info');
                     e.target.value = '';
                     return;
                 }
@@ -461,35 +464,30 @@
             blurEndClick(val) {
                 this.form.activeEndDate = val;
             },
+            StartClick(val) {
+                this.form.expireStartTime = val;
+            },
+            EndClick(val) {
+                this.form.expireEndTime = val;
+            },
+            
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if(!self.form.third_part_type && self.form.third_part_type !== 0) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请选择合作方',
-                            type: 'warning'
-                        });
+                        this.alertFn('警告', '请选择合作方', 'warning');
                         return;
                     }
                     
                     if (valid) {
                         self.modifyActivityVipCard(self.form)
                             .then((res) => {
-                                if(res.status == '1') {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: res.msg,
-                                        type: 'success'
-                                    });
+                                if(res.status === '1') {
+                                    this.alertFn('成功', res.msg, 'success');
                                     self.$router.push({path: 'vipCardList'});
                                 }
                             },(res) => {
-                                self.$notify({
-                                    title: '失败',
-                                    message: res.msg,
-                                    type: 'error'
-                                });
+                                this.alertFn('失败', res.msg, 'error');
                             });
                     }
                 });

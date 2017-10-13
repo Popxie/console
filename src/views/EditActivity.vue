@@ -208,7 +208,7 @@
                     // 深拷贝  将res.data对象合并到 this.form
                     this.form = Object.assign({}, this.form, res.data);
                 },(err) => {
-                    this.alertFn('错误', err, 'error');
+                    this.alertFn('错误', err.msg, 'error');
                 });
         },
         methods: {

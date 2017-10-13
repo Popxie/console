@@ -22,7 +22,7 @@ const actions = {
                 if (data.statusCode === '200') {
                     return commit(types.GET_ACTIVITY_LIST, data.data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -50,7 +50,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });
@@ -77,7 +77,7 @@ const actions = {
                 if (data.status == 1) {
                     return Promise.resolve(data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });

@@ -107,7 +107,7 @@
             
             <el-form-item label="禁用地区" class="ban-cont">
                 <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
-                <el-button @click="selectAreaClick">选择禁用地区</el-button>
+                <el-button @click="selectAreaClick">选择禁用地区 <span style="color: #969696;font-size: 12px">(不包含运营区)</span> </el-button>
             </el-form-item>
     
             <el-form-item label="禁用运营区" class="ban-cont">
@@ -250,24 +250,24 @@
                 .then((res) => {
                     this.eRailsList = res.data;
                 },(err) => {
-                    self.$notify({
-                        title: '警告',
-                        message: err.msg,
-                        type: 'error'
-                    });
-                }).catch((err) => {
-                self.$notify({
-                    title: '失败',
-                    message: err.msg,
-                    type: 'warning'
-                });
-            })
+                    this.alertFn('失败', err.msg, 'error');
+                })
         },
         methods: {
             ...mapActions([
                 'setActivityVipCard',
                 'getERails',
+                'setVipCard'
             ]),
+            
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             setAreas(form) {
                 let self = this;
                 let cityArray = [];
@@ -306,15 +306,10 @@
                 this.form.card_image = '';
                 this.showBtn = true;
             },
-            handleError(err) {
-                this.$notify({
-                    title: '警告',
-                    message: '请上传1Mb以内的图片',
-                    type:'warning'
-                });
+            handleError() {
+                this.alertFn('警告', '请上传1Mb以内的图片', 'warning');
             },
             handleSuccess(res, file) {
-                console.debug('file', file);
                 let self = this;
                 self.showBtn = false;
                 if (res.statusCode === '200') {
@@ -323,11 +318,7 @@
                 if(file.name.indexOf('.jpg') === -1 && file.name.indexOf('.jpeg') === -1 &&
                     file.name.indexOf('.png') === -1 && file.name.indexOf('.gif') === -1 &&
                     file.name.indexOf('.bmp') === -1) {
-                    self.$notify({
-                        title: '警告',
-                        message: '请上传格式正确的图片',
-                        type:'warning'
-                    });
+                    this.alertFn('警告', '请上传格式正确的图片', 'warning');
                     this.isPassForFile = false;
                 } else {
                     this.isPassForFile = true;
@@ -335,7 +326,7 @@
             },
             // 卡片类型切换
             chooseCardType(val) {
-//                val === 24 ? this.showCartCounts = true : this.showCartCounts = false;
+                // val === 24 ? this.showCartCounts = true : this.showCartCounts = false;
                 if (val === 24) {
                     this.showCartCounts = true;
                     this.showModuls = true;
@@ -380,58 +371,35 @@
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if (valid) {
-                        if(self.form.original_price <= 0) {
-                            self.$notify({
-                                title: '失败',
-                                message: '原价必须大于0',
-                                type: 'error'
-                            });
+                        if(self.form.original_price < 0) {
+                            this.alertFn('失败', '原价必须大于等于0', 'error');
                             return;
                         }
-                        if(self.form.price <= 0) {
-                            self.$notify({
-                                title: '失败',
-                                message: '惊爆价必须大于0',
-                                type: 'error'
-                            });
+                        if(self.form.price < 0) {
+                            this.alertFn('失败', '惊爆价必须大于等于0', 'error');
                             return;
                         }
                         if(!self.isPassForFile && self.form.card_image) {
-                            self.$notify({
-                                title: '提示',
-                                message: '请上传格式正确的文件',
-                                type: 'warning'
-                            });
+                            this.alertFn('失败', '请上传格式正确的文件', 'error');
                             return;
                         }
                         // 校验 '卡的次数' 用了v-if 以后表单无法验证 所以在此验证
                         if(this.form.type === 24 && !this.form.can_use_counts) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请填写卡的次数',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请填写卡的次数', 'warning');
                             return;
                         }
-                        self.setActivityVipCard(self.form).then((res) => {
-                            if(res.status == '1') {
-                                self.$notify({
-                                    title: '成功',
-                                    message: res.msg,
-                                    type: 'success'
-                                });
-                                self.$router.push({
-                                    path: 'vipCardList',
-                                    query: {isFrom: 'self-support'}
-                                });
-                            }
-                        }, (err) => {
-                            self.$notify({
-                                title: '失败',
-                                message: err.msg,
-                                type: 'error'
+                        self.setActivityVipCard(self.form)
+                            .then((res) => {
+                                if(res.status === '1') {
+                                    this.alertFn('成功', res.msg, 'success');
+                                    self.$router.push({
+                                        path: 'vipCardList',
+                                        query: {isFrom: 'self-support'}
+                                    });
+                                }
+                            }, (err) => {
+                                this.alertFn('失败', err.msg, 'error');
                             });
-                        });
                     }
                 });
             }

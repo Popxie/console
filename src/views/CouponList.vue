@@ -213,7 +213,6 @@
                     value: '3'
                 }],
                 query: {},
-                isShowCitys:false,
                 operationType: '',
                 showConfirm: false,
                 message: '',
@@ -240,22 +239,28 @@
                 'updateConponStatusById',
                 'deleteConponById'
             ]),
+    
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             getCoupons(params) {
-                this.getConponList(params).then(()=> {
-                },((err)=> {
-                    this.$notify({
-                        title: '登陆已失效',
-                        message: err,
-                        type: 'error'
-                    });
-                }))
+                this.getConponList(params)
+                    .then(()=> {
+                    
+                    }, (err)=> {
+                        this.alertFn('登陆已失效2', err, 'error');
+                    })
             },
-            showCitys(){
-              this.isShowCitys = ! this.isShowCitys;
-            },
+            
             cancel() {
                 this.showConfirm = false;
             },
+            
             changeType(tab, event) {
                 let self = this;
                 self.page.currentPage = 1;
@@ -294,42 +299,26 @@
                 };
                 self.operationType = type;
                 self.showConfirm = true;
-                type == 'edit' ? self.message = '是否确定执行此操作？' : self.message = '是否确定删除该优惠券？';
+                type === 'edit' ? self.message = '是否确定执行此操作？' : self.message = '是否确定删除该优惠券？';
             },
             updateStatus() {
                 let self = this;
                 self.showConfirm = false;
-                if (self.operationType == 'edit') {
+                if (self.operationType === 'edit') {
                     self.updateConponStatusById(self.query)
                         .then((data) => {
-                            self.$notify({
-                                title: '成功',
-                                message: '执行成功',
-                                type: 'success'
-                            })
+                            this.alertFn('成功', '执行成功', 'success');
                         }, (err) => {
-                            self.$notify({
-                                title: '失败',
-                                message: err,
-                                type: 'error'
-                            })
+                            this.alertFn('失败', err, 'error');
                         });
                 } else {
                     // 删除
                     self.query.del = 'del';
                     self.deleteConponById(self.query)
                         .then((data) => {
-                            self.$notify({
-                                title: '成功',
-                                message: '删除成功',
-                                type: 'success'
-                            })
+                            this.alertFn('成功', '删除成功', 'success');
                         }, (err) => {
-                            self.$notify({
-                                title: '失败',
-                                message: err,
-                                type: 'error'
-                            })
+                            this.alertFn('失败', err, 'error');
                         });
                 }
 

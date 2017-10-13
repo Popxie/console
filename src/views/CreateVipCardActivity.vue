@@ -163,7 +163,7 @@
             
             <el-form-item label="禁用地区" class="ban-cont">
                 <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
-                <el-button @click="selectAreaClick">选择禁用地区</el-button>
+                <el-button @click="selectAreaClick">选择禁用地区 <span style="color: #969696;font-size: 12px">(不包含运营区)</span> </el-button>
             </el-form-item>
     
             <el-form-item label="禁用运营区" class="ban-cont">
@@ -312,17 +312,7 @@
                 .then((res) => {
                     this.eRailsList = res.data;
                 },(err) => {
-                self.$notify({
-                    title: '警告',
-                    message: err.msg,
-                    type: 'error'
-                });
-            }).catch((err) => {
-                    self.$notify({
-                        title: '失败',
-                        message: err.msg,
-                        type: 'warning'
-                    });
+                    this.alertFn('失败', err.msg, 'warning');
                 })
         },
        
@@ -333,6 +323,14 @@
                 'getVipCardInfo',
                 'getERails'
             ]),
+            
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
             
             // 正则表达式 ＞0 的正整数
             isInt(str){
@@ -384,21 +382,13 @@
                     return
                 }
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     e.target.value = 4;
                     self.form.one_receive_count_max = 1;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值为整数', 'info');
                     e.target.value = 4;
                     self.form.one_receive_count_max = 1;
                     return;
@@ -414,22 +404,14 @@
                 let self = this;
                 let val = e.target.value;
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     val = 1;
                     self.countsOther = Number(val);
                     self.form.total_number = self.countsOther;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值为整数', 'info');
                     e.target.value = '';
                     return;
                 }
@@ -502,31 +484,19 @@
                 let self = this;
                 self.$refs[formname].validate((valid) => {
                     if(!self.form.third_part_type && self.form.third_part_type !== 0) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请选择合作方',
-                            type: 'warning'
-                        });
+                        this.alertFn('警告', '请选择合作方', 'warning');
                         return;
                     }
                     
                     if (valid) {
                         self.setActivityVipCard(self.form)
                             .then((res) => {
-                                if(res.status == '1') {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: res.msg,
-                                        type: 'success'
-                                    });
+                                if(res.status === '1') {
+                                    this.alertFn('成功', res.msg, 'success');
                                     self.$router.push({path: 'vipCardList'});
                                 }
                             },(err) => {
-                                self.$notify({
-                                    title: '失败',
-                                    message: err,
-                                    type: 'error'
-                                });
+                                this.alertFn('失败', err.msg, 'error');
                             });
                     }
                 });

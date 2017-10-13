@@ -225,7 +225,10 @@ const mutations = {
     [types.CHECKOUT_CONPONINFO_SUCCESS] (state, data) {
         state.couponInfo = data.content;
         state.infoRecordsTotal = data.recordsTotal;
-        state.couponMap = data.couponMap;
+        // couponMap 存在的话在赋值 否则会引起错误
+        if(data.couponMap) {
+            state.couponMap = data.couponMap;
+        }
     },
     [types.UPDATE_CONPON_SUCCESS] (state, id) {
         let a = state.couponList.find(a => a.id === id);
