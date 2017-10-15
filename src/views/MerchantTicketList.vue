@@ -5,7 +5,9 @@
             title="提示"
             v-model="dialogConfirmOff"
             size="tiny">
-            <span>您确定要下线吗？？</span>
+            <span v-if="showOnline">您确定要上线吗？？</span>
+    
+            <span v-else >您确定要下线吗？？</span>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogConfirmOff = false">取 消</el-button>
                 <el-button type="primary" @click="confirmClick">确 定</el-button>
@@ -217,7 +219,8 @@
     data() {
       return {
           couponType: '-1',        // 组件绑定的值必须是字符串 但是接口接收的是 num 最后记得转换下
-          
+    
+          showOnline: null,
           stateOptions: [
               {
                   value: null,
@@ -368,12 +371,14 @@
         onlineClick(val) {
             this.dataObj.status = 1;
             this.dataObj.batchId = val;
+            this.showOnline = true;
             this.dialogConfirmOff = true;
         },
         
         offlineClick(val) {
             this.dataObj.status = 2;
             this.dataObj.batchId = val;
+            this.showOnline = false;
             this.dialogConfirmOff = true;
         },
         delClick(val) {

@@ -320,9 +320,3 @@
         margin-left: 10px;
     }
 </style>
-
-<h1 @click="toSomeWhereClick">{{pageName}}</h1>
-
-toSomeWhereClick() {
-    this.$router.push('detail')
-}
