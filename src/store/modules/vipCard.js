@@ -70,7 +70,7 @@ const actions = {
         
         return _post({url},params,commit)
             .then((data) => {
-                if (data.status == 1) {
+                if (data.status === '1') {
                     // return Promise.resolve(data);
                     for(let i = 0; i < data.data.length; i++) {
                         if(data.data[i].status === '2') {
@@ -90,7 +90,7 @@ const actions = {
     
         return _post_copy({url},params, commit)
             .then((data) => {
-                if (data.status == 1) {
+                if (data.status === '1') {
                     return Promise.resolve(data);
                 }
                 return Promise.reject(data.msg);
@@ -103,7 +103,7 @@ const actions = {
         let url = '/riding_card/get_electric_fence';
         return _post({url},params,commit)
             .then((res) => {
-                if (res.status == 1) {
+                if (res.status === '1') {
                     return Promise.resolve(res);
                 }
                 return Promise.reject(res);
@@ -118,23 +118,23 @@ const actions = {
     
         return _post({url},params, commit)
             .then((data) => {
-                if (data.status == 1) {
+                if (data.status === '1') {
                     return Promise.resolve(data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });
     },
-    //下线会员卡
+    //上、下线会员卡
     offlineVipCard({commit}, params) {
         let url = '/riding_card/offline_riding_card';
         return _post_copy({url},params, commit)
             .then((data) => {
-                if (data.status == 1) {
+                if (data.status === '1') {
                     return Promise.resolve(data);
                 }
-                return Promise.reject(data.msg);
+                return Promise.reject(data);
             }).catch((error) => {
                 return Promise.reject(error);
             });

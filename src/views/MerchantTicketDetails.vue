@@ -10,7 +10,7 @@
                 <el-button  v-if="showBtn">导入</el-button>
                 <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
             </el-upload>
-            <p style="color: red; padding: 10px 0">温馨提示：7:00-9:00，11:30-13:30，5:30-8:00不能发券</p>
+            <p style="color: red; padding: 10px 0">温馨提示：7:00-9:00，11:30-13:30，17:30-20:00不能发券</p>
             <el-input v-model="batchSendData.sendNumber" type="number" placeholder="请填写每个人要发送的数量 " style="width: 60%;margin:0 75px 5px 0"></el-input>
             <el-button type="primary" @click="batchSendClick">确认发券</el-button>
             <el-button @click="isShowSendCoupon = false">取消</el-button>
@@ -25,7 +25,7 @@
                 <el-button  v-if="showBtnForNew">导入</el-button>
                 <div class="el-upload__tip" slot="tip">支持xls，xlsx等excel文件</div>
             </el-upload>
-            <el-button type="primary" @click="confirmSendForImport">确认发券</el-button>
+            <el-button type="primary" @click="confirmSendForImport">确认导入</el-button>
             <el-button @click="isShowImportCoupon = false">取消</el-button>
         </el-dialog>
         <!--删除 dialog-->
@@ -242,6 +242,8 @@
                 delObj: {
                     couponId: '',     // 要删除的券的id （多个的时候用逗号隔开）
                 },
+                isPassForFile: false,
+                isPassForFileCopy: false,
                 batchSendData: {
                     couponBatchCode: null,
                     sendNumber: null,
@@ -265,7 +267,10 @@
             this.importObjData.batchId = this.$route.query.batchId;
             this.batchSendData.couponBatchCode = this.$route.query.couponBatchCode;
             this.page.batchId = this.$route.query.batchId;
-            this.getMerchanDetailstList(this.page);
+            // 有时候全选那一列会渲染不正常（显示三个点... 而不是 正常的选项框）
+            this.$nextTick(() => {
+                this.getMerchanDetailstList(this.page);
+            });
         },
         methods: {
             ...mapActions([
@@ -274,6 +279,15 @@
                 'batchSendMerchant',
                 'insertNewMerchant'
             ]),
+            
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+    
             searchClick() {
                 this.getMerchanDetailstList(this.page);
             },
@@ -302,6 +316,12 @@
                 this.showBtn = false;
                 if (res.statusCode === '200') {
                     this.batchSendData.userFile = res.data;
+                    if(res.data.indexOf('xls') === -1 || res.data.indexOf('xlsx') === -1) {
+                        this.alertFn('警告', '请上传格式正确的文件', 'warning');
+                        this.isPassForFile = false;
+                    } else {
+                        this.isPassForFile = true;
+                    }
                 }
                 console.debug('this.batchSendData', this.batchSendData);
             },
@@ -314,6 +334,12 @@
                 console.debug('res', res);
                 if (res.statusCode === '200') {
                     this.importObjData.couponFile = res.data;
+                    if(res.data.indexOf('xls') === -1 || res.data.indexOf('xlsx') === -1) {
+                        this.alertFn('警告', '请上传格式正确的文件', 'warning');
+                        this.isPassForFileCopy = false;
+                    } else {
+                        this.isPassForFileCopy = true;
+                    }
                 }
             },
             // 全选 或者 单选
@@ -322,21 +348,14 @@
                 val.forEach((item) => {
                     this.couponIdList.push(item.id);
                     this.delObj.couponId = this.couponIdList.toString();
-                    console.debug('this.couponIdList', this.delObj);
                 });
-                console.debug(this.couponIdList);
             },
             // dialog 确认删除
             confirmClick() {
                 this.delMerchanDetails(this.delObj)
                     .then((res)=> {
-                        console.debug('res', res);
                         if(res.statusCode === '200') {
-                            this.$notify({
-                                title: '成功',
-                                message: res.message,
-                                type: 'success'
-                            });
+                            this.alertFn('成功', res.message, 'success');
                             this.dialogConfirm = false;
                             // 重新请求一次本页面的 列表数据
                             this.$nextTick(() => {
@@ -344,11 +363,7 @@
                             })
                         }
                     }).catch((err) => {
-                        this.$notify({
-                            title: '失败',
-                            message: err.message,
-                            type: 'error'
-                        });
+                        this.alertFn('失败', err.message, 'error');
                     });
             },
             // 删除
@@ -358,45 +373,39 @@
             },
             // 批量发券的 dialog中的 确认导入
             batchSendClick() {
+                if(!this.isPassForFile) {
+                    this.alertFn('警告', '请上传格式正确的文件', 'error');
+                    return;
+                }
                 if(!this.batchSendData.sendNumber) {
-                    this.$notify({
-                        title: '警告',
-                        message: '请填写要发的数量',
-                        type: 'warning'
-                    })
+                    this.alertFn('警告', '请填写要发的数量', 'warning');
+                    return;
+                }
+                if(this.batchSendData.sendNumber > 100 || this.batchSendData.sendNumber < 1) {
+                    this.alertFn('警告', '发放数量不能大于100且不能小于0', 'warning');
+                    return;
                 }
                 this.batchSendMerchant(this.batchSendData)
                     .then((res) => {
-                        this.$notify({
-                            title: '成功',
-                            message: res.message,
-                            type: 'success'
-                        });
+                        this.alertFn('成功', res.message, 'success');
                         this.showBtn = false;
+                        this.isShowSendCoupon = false;
                     },(err) => {
-                        this.$notify({
-                            title: '警告',
-                            message: err.message,
-                            type: 'warning'
-                        })
+                        this.alertFn('失败', err.message, 'warning');
                     })
             },
             // 导入新券的 dialog中的 确认导入
             confirmSendForImport() {
+                if(!this.isPassForFileCopy) {
+                    this.alertFn('警告', '请上传格式正确的文件', 'error');
+                    return;
+                }
                 this.insertNewMerchant(this.importObjData)
                     .then((res) => {
-                        this.$notify({
-                            title: '成功',
-                            message: res.message,
-                            type: 'success'
-                        });
+                        this.alertFn('成功', res.message, 'success');
                         this.isShowImportCoupon = false;
                     },(err) => {
-                        this.$notify({
-                            title: '警告',
-                            message: err.message,
-                            type: 'warning'
-                        })
+                        this.alertFn('失败', err.message, 'error');
                     });
             },
             handleSizeChange(val) {

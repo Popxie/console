@@ -163,7 +163,8 @@
             
             <el-form-item label="禁用地区" class="ban-cont">
                 <span class="choose-city" v-for="item in form.provinces">{{item.cityName}}</span>
-                <el-button @click="selectAreaClick">选择禁用地区 <span style="color: #969696;font-size: 12px">(不包含运营区)</span> </el-button>
+                <el-button @click="selectAreaClick">选择禁用地区</el-button>
+                <!--<el-button @click="selectAreaClick">选择禁用地区 <span style="color: #969696;font-size: 12px">(不包含运营区)</span> </el-button>-->
             </el-form-item>
     
             <el-form-item label="禁用运营区" class="ban-cont">
@@ -173,7 +174,7 @@
             
             <el-form-item>
                 <el-button type="primary" @click="upStep()">返回</el-button>
-                <el-button type="primary" @click="onSubmit('form')">确5定</el-button>
+                <el-button type="primary" @click="onSubmit('form')">确定</el-button>
             </el-form-item>
         </el-form>
     </div>

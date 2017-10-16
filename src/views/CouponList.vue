@@ -253,7 +253,7 @@
                     .then(()=> {
                     
                     }, (err)=> {
-                        this.alertFn('登陆已失效2', err, 'error');
+                        this.alertFn('登陆已失效', err, 'error');
                     })
             },
             

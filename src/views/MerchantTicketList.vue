@@ -1,6 +1,6 @@
 <template>
 	<div class="merchant-list-cont">
-        <!--下线的dialog-->
+        <!--上、下线的dialog-->
         <el-dialog
             title="提示"
             v-model="dialogConfirmOff"
@@ -96,7 +96,7 @@
             </el-table-column>
             
             <el-table-column
-                prop="exchangedNum"
+                prop="limitSize"
                 align="center"
                 label="单用户可领用/兑换上限张数"
             >
@@ -113,7 +113,8 @@
             <el-table-column
                 prop="allDenomination"
                 align="center"
-                label="券面额"
+                label="券面额(元)或折扣(折)"
+                
             >
             </el-table-column>
             
@@ -132,7 +133,7 @@
             </el-table-column>
             
             <el-table-column
-                prop="status"
+                prop="exchangedNum"
                 align="center"
                 label="兑换张数"
             >
@@ -215,7 +216,6 @@
     import {settings} from '../config/settings';
 
     export default {
-    components: {},
     data() {
       return {
           couponType: '-1',        // 组件绑定的值必须是字符串 但是接口接收的是 num 最后记得转换下

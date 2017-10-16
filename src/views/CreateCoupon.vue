@@ -244,8 +244,8 @@
                     
     
                     <el-form-item>
-                        <el-button type="info" @click="upStep()">返222回</el-button>
-                        <el-button type="info" @click="finishCreate('form')">生222成劵</el-button>
+                        <el-button type="info" @click="upStep()">返回</el-button>
+                        <el-button type="info" @click="finishCreate('form')">生成劵</el-button>
                     </el-form-item>
                 </el-form>
                 
@@ -289,15 +289,15 @@
                         value: 3
                     },
                     {
-                        task: '商家券6',
+                        task: '商家券',
                         value: 6
                     },
                     {
-                        task: '会员卡活动5',
+                        task: '会员卡活动',
                         value: 5
                     },
                     {
-                        task: '自营会员卡4',
+                        task: '自营会员卡',
                         value: 4
                     },
                     
@@ -361,7 +361,15 @@
             ...mapActions([
                 'createConpon'
             ]),
-
+    
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             // 选择模块事件 （充值券、抵扣券、折扣券、会员卡）
             setCoupon(val) {
                 let self = this;
@@ -439,37 +447,29 @@
             setLimit(e) {
                 let self = this;
                 let val = e.target.value;
-                if (val == 1) {
+                if (val === 1) {
                     self.form.limitSize = 1;
                     e.target.value = 4;
                     return
                 }
-                if (val == 2) {
+                if (val === 2) {
                     self.form.limitSize = 2;
                     e.target.value = 4;
                     return
                 }
-                if (val == 3) {
+                if (val === 3) {
                     self.form.limitSize = 3;
                     e.target.value = 4;
                     return
                 }
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     e.target.value = 4;
                     self.form.limitSize = 1;
                     return;
                 }
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值为整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值为整数', 'info');
                     e.target.value = 4;
                     self.form.limitSize = 1;
                     return;
@@ -483,7 +483,7 @@
 
             selectArea() {
                 let self = this;
-                if (self.form.areaType == '0') {
+                if (self.form.areaType === '0') {
                     return;
                 }
                 self.dialogVisible = true;
@@ -495,11 +495,7 @@
             setAreas(form) {
                 let self = this;
                 if (!form.provinces.length) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '请选择省份', 'info');
                     return;
                 }
                 self.form = Object.assign({}, self.form, form);
@@ -522,12 +518,8 @@
             },
             delCoupon(index) {
                 let items = this.form.coupon;
-                if (items.length == 1) {
-                    this.$notify({
-                        title: '提示',
-                        message: '不能全部删除',
-                        type: 'info'
-                    });
+                if (items.length === 1) {
+                    this.alertFn('提示', '不能全部删除', 'info');
                     return;
                 }
                 this.form.coupon.splice(index, 1);
@@ -536,25 +528,16 @@
                 let val = e.target.value;
                 let self = this;
                 if (val <= 0) {
-                    self.$notify({
-                        title: '提示',
-                        message: '统一上限值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '统一上限值不能小于等于0', 'info');
                     e.target.value = 0;
                     self.form.maxDeductionMoney = 0;
-                    return;
                 }
             },
             checkMoneyAndRepeat(e, i) {
                 let self = this;
                 let val = e.target.value;
                 if (val <= 0) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于等于0', 'info');
                     e.target.value = 0;
                     self.form.coupon[i].denomination = 0;
                     return;
@@ -568,11 +551,7 @@
                 items.splice(i, 1);
                 items.map((c) => {
                     if (c.denomination === Number(val).toFixed(2)) {
-                        this.$notify({
-                            title: '提示',
-                            message: '劵不能重复',
-                            type: 'info'
-                        });
+                        this.alertFn('提示', '劵不能重复', 'info');
                         obj.denomination = 0;
                     }
                 })
@@ -580,13 +559,8 @@
             checkMoney(e) {
                 let val = e.target.value;
                 if (val < 0) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值不能小于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能小于0', 'info');
                     e.target.value = 0;
-                    return;
                 }
 
             },
@@ -594,11 +568,7 @@
                 let self = this;
                 let val = e.target.value;
                 if (val > 10 || val <= 0) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值不能大于10且不能小于等于0',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值不能大于10且不能小于等于0', 'info');
                     e.target.value = 0;
                     self.form.coupon[index].denomination = 0;
                     return;
@@ -612,11 +582,7 @@
                 items.splice(index, 1);
                 items.map((c) => {
                     if (c.denomination === Number(val).toFixed(2)) {
-                        this.$notify({
-                            title: '提示',
-                            message: '折扣劵不能重复',
-                            type: 'info'
-                        });
+                        this.alertFn('提示', '折扣劵不能重复', 'info');
                         obj.denomination = 0;
                     }
                 });
@@ -635,11 +601,7 @@
                 let self = this;
                 let val = e.target.value;
                 if (!this.isInt(val)) {
-                    this.$notify({
-                        title: '提示',
-                        message: '数值只能为大于0的整数',
-                        type: 'info'
-                    });
+                    this.alertFn('提示', '数值只能为大于0的整数', 'info');
                     e.target.value = 0;
                     self.form.coupon[index].couponNum = 0;
                 }
@@ -714,42 +676,26 @@
                     if(self.form.type <= 2) {
                         // 当为 不限张数的情况
                         if (!showAddTypeOne) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请输入券面额',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请输入券面额', 'warning');
                             return;
                         }
                         // 校验券面额 是否＞0
                         for (let i = 0; i < this.form.coupon.length; i++) {
                             if (!this.checkNumber(this.form.coupon[i].denomination)) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '券面额不能小于等于0',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '券面额不能小于等于0', 'warning');
                                 return;
                             }
                         }
                         // 当为 限定张数的情况
                         if(self.form.isLimitSize === 1) {
                             if(!showAddTypeOne_One) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请输入券张数',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '请输入券张数', 'warning');
                                 return;
                             }
                             // 校验 券张数 是否是正整数
                             for(let i = 0; i < this.form.coupon.length; i++) {
                                 if (!this.isInt(this.form.coupon[i].couponNum)) {
-                                    self.$notify({
-                                        title: '警告',
-                                        message: '请输入大于0的整数',
-                                        type: 'warning'
-                                    });
+                                    this.alertFn('警告', '请输入大于0的整数', 'warning');
                                     return;
                                 }
                             }
@@ -760,44 +706,28 @@
                     if(self.form.type === 3) {
                         // 当为  不限张数的情况
                         if (!showAddTypeOne) {
-                            self.$notify({
-                                title: '警告',
-                                message: '请输入折扣',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请输入折扣', 'warning');
                             return;
                         }
                             // 校验折扣券 是否＞0
                         for (let i = 0; i < this.form.coupon.length; i++) {
                             const numbers = this.form.coupon[i].denomination;
                             if (!this.checkNumber(numbers) || numbers > 10) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '折扣只能是大于0且小于等于10',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '折扣只能是大于0且小于等于10', 'warning');
                                 return;
                             }
                         }
                         // 当为 限制张数的情况
                         if(self.form.isLimitSize === 1){
                             if(!showAddTypeOne_One) {
-                                self.$notify({
-                                    title: '警告',
-                                    message: '请输入券张数',
-                                    type: 'warning'
-                                });
+                                this.alertFn('警告', '请输入券张数', 'warning');
                                 return;
                             }
                             // 校验 券张数 是否是正整数
                             for(let i = 0; i < this.form.coupon.length; i++) {
                                 const counts = this.form.coupon[i].couponNum;
                                 if (!this.isInt(counts)) {
-                                    self.$notify({
-                                        title: '警告',
-                                        message: '券张数只能为正整数',
-                                        type: 'warning'
-                                    });
+                                    this.alertFn('警告', '券张数只能为正整数', 'warning');
                                     return;
                                 }
                             }
@@ -805,20 +735,12 @@
 
                         // 校验 统一上限是否填写 (等于0的情况下 布尔值会默认为false，所以会一直让填写金额)
                         if(!self.form.maxDeductionMoney && self.form.maxDeductionMoney !==0){
-                            self.$notify({
-                                title: '警告',
-                                message: '请填写统一上限金额',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '请填写统一上限金额', 'warning');
                             return;
                         }
                         // 正则表达式 >0
                         if(!this.checkNumber(this.form.maxDeductionMoney)) {
-                            self.$notify({
-                                title: '警告',
-                                message: '统一上限金额不能小于等于0',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '统一上限金额不能小于等于0', 'warning');
                             return;
                         }
                     }
@@ -828,36 +750,24 @@
                         // 正则表达式 正整数
                         const res = this.form.validateDays;
                         if (!this.isInt(res)) {
-                            self.$notify({
-                                title: '警告',
-                                message: '有效天数只能为正整数',
-                                type: 'warning'
-                            });
+                            this.alertFn('警告', '有效天数只能为正整数', 'warning');
                             return;
                         }
                     }
                     
                     // 校验投放时间段是否填写 (当选过以后再删除 表单自带验证会失效 无法判断是否填写,所以创建了timeRange)
                     if(self.form.validateType === 1 && !self.timeRange) {
-                        self.$notify({
-                            title: '警告',
-                            message: '请选择时间范围',
-                            type: 'warning'
-                        });
+                        this.alertFn('警告', '请选择时间范围', 'warning');
                         return;
                     }
                     // 请求接口
                     if (valid) {
                         self.createConpon(self.form)
                             .then((res) => {
+                                this.alertFn('成功', res.message, 'success');
                                 self.$router.push('couponList');
                             }, (err) => {
-                            console.log(err);
-                                self.$notify({
-                                    title: '失败',
-                                    message: err,
-                                    type: 'error'
-                                });
+                                this.alertFn('警告', err, 'error');
                             });
                     } else {
                         return false

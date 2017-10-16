@@ -52,26 +52,8 @@
                                 type: 'error'
                             })
                         })
-                    } else {
-                		return false
                     }
                 })
-//                if (!self.userInfo.username) {
-//                    return self.$notify({
-//                        title: '提示',
-//                        message: '未填写用户名',
-//                        type: 'error'
-//                    });
-//                }
-//                if (!self.userInfo.password) {
-//                    return self.$notify({
-//                        title: '提示',
-//                        message: '未填写密码',
-//                        type: 'error'
-//                    });
-//                }
-
-
             },
         }
     }

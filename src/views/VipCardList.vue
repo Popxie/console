@@ -1,5 +1,19 @@
 <template>
     <div class="vip-card container">
+        <!--上、下线的dialog-->
+        <el-dialog
+            title="提示"
+            v-model="dialogConfirmOff"
+            size="tiny">
+            <span v-if="showOnline">您确定要上线吗？？</span>
+        
+            <span v-else >您确定要下线吗？？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogConfirmOff = false">取 消</el-button>
+                <el-button type="primary" @click="confirmClick">确 定</el-button>
+            </span>
+        </el-dialog>
+        
         <p style="padding-bottom: 15px">优惠券管理/会员卡列表</p>
         <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="会员卡活动" name="first"></el-tab-pane>
@@ -142,10 +156,10 @@
                                @click="modifyClick(scope.row.id)">修改
                     </el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 0 || scope.row.status == 4"
-                               @click="onlineClick(scope.row.id)">上线
+                               @click="onlineClick(scope.row.id, '1')">上线
                     </el-button>
                     <el-button type="text" size="small" v-show="scope.row.status == 1 || scope.row.status == 3"
-                               @click="offlineClick(scope.row.id)">下线
+                               @click="onlineClick(scope.row.id, '0')">下线
                     </el-button>
                     <el-button type="text" size="small"
                                @click="detailsClick(scope.row.id)">详情
@@ -160,6 +174,8 @@
     export default{
         data(){
             return {
+                dialogConfirmOff: false,
+                showOnline: false,
                 searchForm: {
                     type: ''
                 },
@@ -170,6 +186,8 @@
                     type: '',           // 卡类型
                     sourceFrom: 2,     // 来源 (默认活动)
                 },
+                // 上下线
+                params: {},
                 stateOptions: [
                     {
                         value: '',
@@ -239,6 +257,15 @@
                 'getVipCardList',
                 'offlineVipCard'
             ]),
+    
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             /**
              * 格式化参数
              * @param obj
@@ -262,7 +289,6 @@
                 } else {
                     self.dataObj.sourceFrom = 1;
                 }
-//                self.getVipCardList({sourceFrom: self.dataObj.sourceFrom});
                 self.getVipCardList(self.dataObj);
     
             },
@@ -319,60 +345,33 @@
                 }
                 
             },
-            
-            // 上限
-            onlineClick(id) {
+    
+            // 上/下线
+            onlineClick(id, inx) {
                 let self = this;
-                let params = {
+                this.dialogConfirmOff = true;
+                inx === '0' ? this.showOnline = false : this.showOnline = true;
+                self.params = {
                     id: id,
-                    type: '1'
+                    type: inx,
                 };
-                self.offlineVipCard(self.parseParams(params))
-                .then((res) => {
-                    self.$nextTick(() => {
-                        self.getVipCardList(self.dataObj);
-                    });
-                    self.$notify({
-                        title: '成功',
-                        message: res.msg,
-                        type: 'success'
-                    });
-                }, (err) => {
-                    self.$notify({
-                        title: '失败',
-                        message: err,
-                        type: 'error'
-                    });
-                });
             },
-            
-            //下线
-            offlineClick(id) {
+    
+            confirmClick() {
                 let self = this;
-                let params = {
-                        id: id,
-                        type: '0'
-                    };
-                self.offlineVipCard(self.parseParams(params))
-                .then((res) => {
-                    self.$nextTick(() => {
-                        self.getVipCardList(self.dataObj);
+                self.offlineVipCard(self.parseParams(self.params))
+                    .then((res) => {
+                        self.$nextTick(() => {
+                            self.getVipCardList(self.dataObj);
+                        });
+                        self.alertFn('成功', res.msg, 'success');
+                        this.dialogConfirmOff = false;
+                    }, (err) => {
+                        self.alertFn('失败', err.msg, 'error');
                     });
-                    self.$notify({
-                        title: '成功',
-                        message: res.msg,
-                        type: 'success'
-                    });
-                }, (err) => {
-                    self.$notify({
-                        title: '失败',
-                        message: err,
-                        type: 'error'
-                    });
-                });
             },
             
-            typeFilter(row, column){
+            typeFilter(row){
                 if(row.type === '21') {
                     return '月卡'
                 } else {
@@ -386,7 +385,7 @@
                     return '是';
                 }
             },
-            statusFilter(row, column){
+            statusFilter(row){
                 switch (row.status) {
                     case '0':
                         return '未上线';
@@ -405,7 +404,7 @@
                         break;
                 }
             },
-            useCountsFilter(row, column){
+            useCountsFilter(row){
                 if(row.canUseCounts === '1000000' || row.canUseCounts === 'null') {
                     return '无限次'
                 } else {

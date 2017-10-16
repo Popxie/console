@@ -19,7 +19,7 @@ const actions = {
         const url = '/saveadvert';
         return _post({url}, params,commit)
             .then((json) => {
-                if (json.statusCode == 200) {
+                if (json.statusCode === '200') {
                     return Promise.resolve(json);
                 }
                 return Promise.reject(json.message || '保存失败');
@@ -32,7 +32,7 @@ const actions = {
         const url = '/queryAdvertById';
         return _get({url, query}, commit)
             .then((json) => {
-                if (json.statusCode == 200) {
+                if (json.statusCode === '200') {
                     commit(types.CHECKOUT_ADSBYID_FAILURE, json.data)
                     return json.data;
                 }
@@ -46,7 +46,7 @@ const actions = {
         const url = '/updateAdvertById'
         return _post({url}, params, commit)
             .then((json) => {
-                if (json.statusCode == 200) {
+                if (json.statusCode === '200') {
                     return Promise.resolve(json.data);
                 }
                 return Promise.reject(json.message);
@@ -55,11 +55,12 @@ const actions = {
                 return Promise.reject(error)
             })
     },
+    
     checkAdsByType({commit, state}, query) {
         const url = '/queryAdvertByTime';
         return _get({url, query})
             .then((json) => {
-                if (json.statusCode == 200) {
+                if (json.statusCode === '200') {
                     return Promise.resolve(json.data);
                 }
                 return Promise.reject(json.message);

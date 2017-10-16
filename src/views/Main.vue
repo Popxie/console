@@ -105,7 +105,7 @@
                 'updatePwd', 'loginOut'
             ]),
             submitForm(formName) {
-                const self = this
+                const self = this;
                 const upForm = {
                     newPwd:self.modifyPwd.newPwd,
                     oldPwd:self.modifyPwd.oldPwd,
@@ -132,15 +132,15 @@
                 });
             },
             handleCommand(command) {
-                if (command == 'loginout') {
+                if (command === 'loginout') {
                     this.loginOut();
                     this.$router.push('/login');
                 }
                 this.showModify = true;
             },
             checkLogin() {
-                var self = this;
-                var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                let self = this;
+                let userInfo = JSON.parse(localStorage.getItem('userInfo'));
                 if (!userInfo) {
                     self.$router.push('/login');
                 }
@@ -161,7 +161,7 @@
             NavBar
         },
         created() {
-            var self = this;
+            let self = this;
             self.checkLogin();
         }
     }

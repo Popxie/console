@@ -18,11 +18,11 @@ const actions = {
         const url = '/login';
         return _get({url, query}, commit)
             .then((json) => {
-                if (json.statusCode == 200) {
-                    commit(types.LOGIN_SUCCESS, json.data)
-                    return Promise.resolve(json.data)
+                if (json.statusCode === '200') {
+                    commit(types.LOGIN_SUCCESS, json.data);
+                    return Promise.resolve(json.data);
                 }
-                return Promise.reject(json.message)
+                return Promise.reject(json.message);
             })
             .catch((error) => {
                 return Promise.reject(error)
@@ -35,7 +35,7 @@ const actions = {
         const url = '/updateAdminPwd';
         return _post({url}, params, commit)
             .then((json) => {
-                if (json.statusCode == 200) {
+                if (json.statusCode === '200') {
                     return Promise.resolve(json.data);
                 }
                 return Promise.reject(json.message || '修改失败');

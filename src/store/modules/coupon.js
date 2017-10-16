@@ -36,8 +36,8 @@ const actions = {
         const url = '/savecoupon';
         return _post({url}, params, commit)
             .then((json) => {
-                if (json.statusCode == 200) {
-                    return Promise.resolve(json.data);
+                if (json.statusCode === '200') {
+                    return Promise.resolve(json);
                 }
                 return Promise.reject(json);
             })
@@ -51,7 +51,7 @@ const actions = {
         return _post({url}, params, commit)
             .then((json) => {
                 if (json.statusCode === '200') {
-                    return Promise.resolve(json.data);
+                    return Promise.resolve(json);
                 }
                 return Promise.reject(json);
             })
@@ -77,7 +77,6 @@ const actions = {
         const url = '/update_third_coupon_status';
         return _post({url}, params, commit)
             .then((json) => {
-            console.debug('json', json)
                 if (json.statusCode === '200') {
                     return Promise.resolve(json);
                 }

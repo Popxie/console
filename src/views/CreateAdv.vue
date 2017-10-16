@@ -306,20 +306,27 @@
             ...mapActions([
                 'createNewAds',
                 'getAdsByid',
-                'updateAdsById',
-                'checkAdsByType'
             ]),
+    
+            alertFn(title,msg,type) {
+                this.$notify({
+                    title: title,
+                    message: msg,
+                    type: type,
+                });
+            },
+            
             /**
              *
              * @param val
              */
             setViewPosition(val) {
-                var self = this;
+                let self = this;
                 self.form.viewPosition = val;
                 self.showNext = false;
             },
             toggleNext() {
-                var self = this;
+                let self = this;
                 self.showNext = true;
                 self.form.startTime = [];
                 self.form.hyperlinks = '';
@@ -327,7 +334,7 @@
             
             selectArea() {
                 let self = this;
-                if (self.form.areaType == '0') {
+                if (self.form.areaType === '0') {
                     return;
                 }
                 self.dialogVisible = true;
@@ -340,11 +347,7 @@
             setAreas(form) {
                 let self = this;
                 if (!form.provinces.length) {
-                    self.$notify({
-                        title: '提示',
-                        message: '请选择省份',
-                        type: 'info'
-                    });
+                    self.alertFn('提示', '请选择省份', 'info');
                     return;
                 }
                 self.form = Object.assign({}, self.form, form);
@@ -383,7 +386,7 @@
             },
             handleSuccess(res, file) {
                 let self = this;
-                if (res.statusCode == 200) {
+                if (res.statusCode === '200') {
                     self.form.adsPicUrl = res.data;
                 }
                 let w, h;
@@ -424,11 +427,7 @@
                     let imgwidth = img.width;
                     let imgheight = img.height;
                     if (imgwidth !== width || imgheight !== height) {
-                        self.$notify({
-                            title: '警告',
-                            message: '图的尺寸应该是' + width + "*" + height,
-                            type: 'warning'
-                        });
+                        self.alertFn('警告', '图的尺寸应该是' + width + "*" + height, 'warning');
                         self.isPass = false;
                     } else {
                         self.isPass = true;
@@ -448,28 +447,17 @@
                         if(!self.form.areaType) {
                             if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
                                 if(!self.isPass) {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: '请选择规格正确的图片',
-                                        type: 'warning'
-                                    });
+                                    self.alertFn('提示', '请选择规格正确的图片', 'warning');
                                     return;
                                 }
                             }
                             self.createNewAds(self.form)
                                 .then((res) => {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: res.message,
-                                        type: 'success'
-                                    });
+                                    self.alertFn('成功', res.message, 'success');
                                     self.$router.push('advList');
                                 }, (err) => {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: err,
-                                        type: 'info'
-                                    })
+                                    // Promise.reject(json.message); 返回的是 json.message
+                                    self.alertFn('提示', err, 'error');
                                 });
                             return;
                         }
@@ -478,11 +466,7 @@
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
                             if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
                                 if(!self.isPass) {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: '请选择规格正确的图片',
-                                        type: 'warning'
-                                    });
+                                    self.alertFn('提示', '请选择规格正确的图片', 'warning');
                                     return;
                                 }
                             }
@@ -492,18 +476,10 @@
                             self.form.topic = topic + "__" + cityInfo.cityName;
                             self.createNewAds(self.form)
                                 .then((res) => {
-                                    self.$notify({
-                                        title: '成功',
-                                        message: res.message,
-                                        type: 'success'
-                                    });
-                                self.$router.push('advList');
+                                    self.alertFn('成功', res.message, 'success');
+                                    self.$router.push('advList');
                                 }, (err) => {
-                                    self.$notify({
-                                        title: '提示',
-                                        message: err,
-                                        type: 'info'
-                                    })
+                                    self.alertFn('失败', err, 'error');
                                 });
                         }
                     }
