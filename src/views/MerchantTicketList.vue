@@ -133,13 +133,6 @@
             </el-table-column>
             
             <el-table-column
-                prop="exchangedNum"
-                align="center"
-                label="兑换张数"
-            >
-            </el-table-column>
-            
-            <el-table-column
                 prop="formatCreateTime"
                 align="center"
                 label="券生成时间"
