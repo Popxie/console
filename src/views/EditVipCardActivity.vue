@@ -155,7 +155,7 @@
                         </el-form-item>
                     </template>
     
-                    <el-form-item label="禁用地区" v-if="$route.query.isFromWhere === 'details'" class="ban-cont">
+                    <el-form-item label="禁用地区" class="ban-cont">
                         <span class="choose-city" v-for="item in provinces">{{item}}</span>
                     </el-form-item>
     

@@ -92,7 +92,7 @@
                 </el-upload>
             </el-form-item>
             
-            <el-form-item label="活动时间" prop="validateDaysRange">
+            <el-form-item label="券的有效时间" prop="validateDaysRange">
                 <el-date-picker
                     type="daterange"
                     range-separator="—"
@@ -341,7 +341,7 @@
         },
         // 列表和详情公用的 上传失败时间
         hanleErr() {
-            this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
+            this.alertFn('提示', '图片过大或者网络异常', 'info')
         },
         // 商家券详情 的上传事件
         handlePreviewForDetails(file) {

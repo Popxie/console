@@ -88,7 +88,7 @@
                     </el-form-item>
                     
                     
-                    <el-form-item label="活动时间：" required>
+                    <el-form-item label="券的有效时间：" required>
                         <el-col :span="11">
                             <el-form-item prop="expirationTimeStart">
                                 <el-date-picker type="date" placeholder="选择开始时间" @change="blurStartClick"
@@ -384,10 +384,12 @@
                 this.dialogImageUrl = file.url;
                 this.showDialogImg = true;
             },
+            
             handleRemove() {
                 this.form.merchantListPic = '';
                 this.showBtn = true;
             },
+            
             handleSuccess(res, file) {
                 let self = this;
                 self.showBtn = false;
@@ -401,20 +403,22 @@
             },
             // 列表和详情公用的 上传失败时间
             hanleErr() {
-                this.alertFn('提示', '图片过大，请上传1mb以内', 'info')
+                this.alertFn('提示', '图片过大或者网络异常', 'info')
             },
+            
             // 商家券详情 的上传事件
             handlePreviewForDetails(file) {
                 this.dialogImageUrlForDetails = file.url;
                 this.showDialogImgForDetails = true;
             },
+            
             handleRemoveForDetails() {
                 this.form.merchantDetailPic = '';
                 this.showBtnForDetails = true;
             },
+            
             handleSuccessForDetails(res,file) {
                 let self = this;
-                console.debug('res', res);
                 self.showBtnForDetails = false;
                 if (res.statusCode === '200') {
                     self.form.merchantDetailPic = res.data;
@@ -423,9 +427,11 @@
                     self.checkImgPX(file.url, w, h);
                 }
             },
+            
             blurStartClick(val) {
                 this.form.expirationTimeStart = val;
             },
+            
             blurEndClick(val) {
                 this.form.expirationTimeEnd = val;
             },
@@ -433,6 +439,7 @@
             upStep() {
                 this.$emit('back-click');
             },
+            
             onSubmit(formname) {
                 let self = this;
                 self.$refs[formname].validate((valid) => {
@@ -444,6 +451,7 @@
                             self.alertFn('提示', '请上传格式正确的图片', 'warning');
                             return;
                         }
+                        
                         // 提交表单
                         self.fourInOne(self.form).then((res) => {
                             self.alertFn('成功', res.message, 'success');

@@ -309,7 +309,7 @@
                 this.showBtn = true;
             },
             handleError() {
-                this.alertFn('警告', '请上传1Mb以内的图片', 'warning');
+                this.alertFn('警告', '图片过大或者网络异常', 'warning');
             },
             handleSuccess(res, file) {
                 let self = this;

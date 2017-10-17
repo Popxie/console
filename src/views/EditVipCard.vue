@@ -104,7 +104,7 @@
                         </el-form-item>
                     </template>
     
-                    <el-form-item label="禁用地区" v-if="$route.query.isFromWhere === 'self_support_details'"  class="ban-cont">
+                    <el-form-item label="禁用地区"  class="ban-cont">
                         <span class="choose-city" v-for="item in provinces">{{item}}</span>
                     </el-form-item>
     
@@ -310,7 +310,7 @@
                 this.showBtn = true;
             },
             handleError() {
-                this.alertFn('警告', '请上传1Mb以内的图片', 'warning');
+                this.alertFn('警告', '图片过大或者网络异常', 'warning');
             },
             handleSuccess(res, file) {
                 let self = this;

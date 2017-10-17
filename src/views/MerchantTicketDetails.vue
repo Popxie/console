@@ -80,7 +80,7 @@
                 label="全选"
                 type="selection"
                 align="center"
-                width="55">
+            >
             </el-table-column>
             
             <el-table-column
@@ -172,7 +172,8 @@
 </template>
 
 <script>
-    import {mapGetters, mapActions, mapMutations} from 'vuex'
+    import {mapGetters, mapActions, mapMutations, mapState} from 'vuex'
+    import * as types from '../store/mutation-types';
     import {settings} from '../config/settings';
     
     export default {
@@ -253,7 +254,12 @@
                 importObjData: {
                    batchId: null,
                    couponFile: null,
-                }
+                },
+                obj: {
+                    data: {
+                        content: []
+                    }
+                },
                 
             }
         },
@@ -267,11 +273,13 @@
             this.importObjData.batchId = this.$route.query.batchId;
             this.batchSendData.couponBatchCode = this.$route.query.couponBatchCode;
             this.page.batchId = this.$route.query.batchId;
-            // 有时候全选那一列会渲染不正常（显示三个点... 而不是 正常的选项框）
-            this.$nextTick(() => {
-                this.getMerchanDetailstList(this.page);
-            });
+            // 清空上一次的 列表数据
+            this.$store.commit(types.GET_MERCHANT_DETAILS_LIST, this.obj);
         },
+        mounted() {
+            this.getMerchanDetailstList(this.page);
+        },
+        
         methods: {
             ...mapActions([
                 'getMerchanDetailstList',
@@ -390,6 +398,8 @@
                         this.alertFn('成功', res.message, 'success');
                         this.showBtn = false;
                         this.isShowSendCoupon = false;
+                        // 更新列表页面
+                        this.getMerchanDetailstList(this.page);
                     },(err) => {
                         this.alertFn('失败', err.message, 'warning');
                     })
@@ -404,6 +414,8 @@
                     .then((res) => {
                         this.alertFn('成功', res.message, 'success');
                         this.isShowImportCoupon = false;
+                        // 更新列表页面
+                        this.getMerchanDetailstList(this.page);
                     },(err) => {
                         this.alertFn('失败', err.message, 'error');
                     });
