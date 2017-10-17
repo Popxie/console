@@ -24,7 +24,7 @@
                         </el-radio-group>
                     </el-form-item>
                     
-                    <el-form-item label="单用户每日发放上限：" prop="dailyLimitSize">
+                    <el-form-item label="单用户发放上限：" prop="dailyLimitSize">
                         <el-radio-group v-model="form.dailyLimitSize">
                             <el-radio :label="1">1</el-radio>
                             <el-radio :label="2">2</el-radio>
