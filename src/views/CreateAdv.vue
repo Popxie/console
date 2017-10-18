@@ -334,7 +334,7 @@
             
             selectArea() {
                 let self = this;
-                if (self.form.areaType === '0') {
+                if (self.form.areaType === 0) {
                     return;
                 }
                 self.dialogVisible = true;
