@@ -2,8 +2,8 @@
  * Created by chengfei on 2017/3/16.
  */
 export const settings = {
-    URL: 'https://api.mingbikes.com'
-    // URL: 'https://sit.mingbikes.com',      // 测试环境下的域名
+    // URL: 'https://api.mingbikes.com'
+    URL: 'https://sit.mingbikes.com',      // 测试环境下的域名
     // URL: 'https://gray-api.mingbikes.com'
     
     

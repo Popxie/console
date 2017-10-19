@@ -4,10 +4,9 @@
         <TapSelect v-if="showNext" title="广告管理" :taps="taps" @setValue="setViewPosition"/>
         <!--多选地区-->
         <SelectCity :selectCity="dialogVisible" @cancel="cancelSelect" @confirm="setCities"/>
-
+        
         <el-row v-if="!showNext">
-            <el-col :lg="{span: 11,offset:1}" :md="{span: 14, offset:1}" :sm="{span:16, offset:1}"
-                    :xs="{span: 18, offset:1}">
+            <el-col :lg="{span: 16}" :md="{span: 14}" :sm="{span:12}" :xs="{span: 10}" style="padding-left: 10px">
                 <el-form class="mt40" ref="form" :model="form" :rules="rules" label-position="left" label-width="150px">
                     <el-form-item label="广告主题：" prop="topic">
                         <el-input v-model="form.topic" placeholder="请填写广告主题"></el-input>
@@ -20,19 +19,6 @@
                         </el-select>
                     </el-form-item>
                     <template>
-                        <el-form-item label="设置投放地域：" required>
-                            <el-radio-group v-model="form.areaType" @change="selectArea">
-                                <el-radio :label="0">全域</el-radio>
-                                <el-radio :label="1">选择地域</el-radio>
-                            </el-radio-group>
-                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">编辑</el-button>
-                            <div v-if="form.areaType && selectCityInfos.length>0">
-                                <span v-for="area in selectCityInfos" v-if="selectCityInfos.length>0"
-                                      class="choose-area">
-                                        {{area.provinceName}}-{{area.cityName}}
-                                </span>
-                            </div>
-                        </el-form-item>
                         <el-form-item label="设置投放时间段：" prop="startTime" v-if="form.viewPosition != 5">
                             <el-date-picker type="datetimerange" range-separator="——" placeholder="选择时间范围"
                                             v-model="form.startTime" @change="timeChange"
@@ -41,7 +27,7 @@
                     </template>
                     <!--上传图片(1.2.3.6模块公用 viewPosition)-->
                     <template v-if="form.viewPosition != 4 && form.viewPosition != 5">
-                        <el-form-item label="广告图片：" prop="adsPicUrl">
+                        <el-form-item label="广告图片：" prop="adsPicUrl" class="pic-cont">
                             <el-upload
                                 :action="url"
                                 list-type="picture-card"
@@ -164,6 +150,64 @@
                             <el-input v-model="form.hyperlinks" placeholder="请填写广告链接"></el-input>
                         </el-form-item>
                     </template>
+                    
+                    <template>
+                        <el-form-item label="自定义人群:" required class="button-conts">
+                            <el-radio-group v-model="form.couponType" @change="chooseMethodClick">
+                                <el-radio-button :label="1">不限制</el-radio-button>
+                                <el-radio-button :label="2">定向人群</el-radio-button>
+                                <el-radio-button :label="3">排除人群</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+                        
+                        <el-form-item label="设置投放地域：" required>
+                            <el-radio-group v-model="form.areaType" @change="selectArea">
+                                <el-radio :label="0">全域</el-radio>
+                                <el-radio :label="1">选择地域</el-radio>
+                            </el-radio-group>
+                            <el-button v-show="form.areaType==1" type="text" @click="selectAreaByClick">编辑</el-button>
+                            <div v-if="form.areaType && selectCityInfos.length>0">
+                                <span v-for="area in selectCityInfos" v-if="selectCityInfos.length>0"
+                                      class="choose-area">
+                                        {{area.provinceName}}-{{area.cityName}}
+                                </span>
+                            </div>
+                        </el-form-item>
+    
+                        <el-form-item label="性别:" required class="button-conts">
+                            <el-radio-group v-model="form.sexType" @change="chooseSexClick">
+                                <el-radio-button :label="1">不限制</el-radio-button>
+                                <el-radio-button :label="2">男</el-radio-button>
+                                <el-radio-button :label="3">女</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+    
+                        <el-form-item label="年龄：" required>
+                            <el-radio-group v-model="form.age" @change="changeAgeClick">
+                                <el-radio :label="1">不限制</el-radio>
+                                <el-radio :label="2">按年龄</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+    
+                        <el-form-item label="投放平台:" required class="button-conts">
+                            <el-radio-group v-model="form.platformType" @change="choosePlatformClick">
+                                <el-radio-button :label="1">不限制</el-radio-button>
+                                <el-radio-button :label="2">ios</el-radio-button>
+                                <el-radio-button :label="3">android</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+    
+                        <el-form-item label="按手机品牌：" required>
+                            <el-radio-group v-model="form.phoneType" @change="changePhoneTpyeClick">
+                                <el-radio :label="1">不限制</el-radio>
+                                <el-radio :label="2">选择手机品牌</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+
+
+
+                    </template>
+                    
                     <el-form-item>
                         <el-button type="info" @click="toggleNext">返回</el-button>
                         <el-button type="info" @click="finishCreate('form')">完成</el-button>
@@ -210,7 +254,7 @@
                         task: '升级提示框',
                         value: 5
                     },
-                    
+                
                 ],
                 dialogVisible: false,
                 areaDialogVisible: false,
@@ -240,6 +284,11 @@
                     iosDownloadUrl: '',
                     androidVer: '',
                     androidDownloadUrl: '',
+                    couponType: 1,   // 自定义人群 一下字段 统统没有和后端对接
+                    sexType: 1,      // 性别
+                    age: 1,         // 年龄
+                    platformType: 1,// 投放平台
+                    phoneType: 1,   // 手机品牌
                 },
                 //设置投放地域所选
                 selectCityInfos: [],
@@ -301,13 +350,13 @@
                 }
             }
         },
-       
+        
         methods: {
             ...mapActions([
                 'createNewAds',
                 'getAdsByid',
             ]),
-    
+            
             alertFn(title,msg,type) {
                 this.$notify({
                     title: title,
@@ -358,6 +407,14 @@
                 self.selectCityInfos = selectCityInfos;
                 self.dialogVisible = false;
             },
+            cancelSelect () {
+                let self = this;
+                self.dialogVisible = false;
+                self.form.areaType = 0;
+                self.reset();
+                
+            },
+            
             reset() {
                 let self = this;
                 self.form.provinceName = '';
@@ -370,13 +427,7 @@
                 self.form.beginTime = items[0];
                 self.form.stopTime = items[1];
             },
-            cancelSelect () {
-                let self = this;
-                self.dialogVisible = false;
-                self.form.areaType = 0;
-                self.reset();
-
-            },
+            
             handlePictureCardPreview(file) {
                 this.dialogImageUrl = file.url;
                 this.dialogImg = true;
@@ -435,6 +486,25 @@
                 };
                 return true;
             },
+            // 自定义人群 条件切换
+            chooseMethodClick(val) {
+                this.form.couponType = val;
+            },
+            chooseSexClick(val) {
+                this.form.sexType = val;
+            },
+            changeAgeClick (val) {
+                this.form.age = val;
+                console.debug('this.form.age', this.form.age);
+            },
+            choosePlatformClick(val) {
+                this.form.platformType = val;
+                console.debug('this.form.platformType', this.form.platformType);
+            },
+            changePhoneTpyeClick(val) {
+                this.form.phoneType = val;
+                console.debug('this.form.phoneType', this.form.phoneType);
+            },
             /**
              * 点击完成
              * @param formName
@@ -454,7 +524,7 @@
                             self.createNewAds(self.form)
                                 .then((res) => {
                                     self.alertFn('成功', res.message, 'success');
-                                    self.$router.push('advList');
+//                                    self.$router.push('advList');
                                 }, (err) => {
                                     // Promise.reject(json.message); 返回的是 json.message
                                     self.alertFn('提示', err, 'error');
@@ -462,14 +532,14 @@
                             return;
                         }
                         // 非全域
+                        if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
+                            if(!self.isPass) {
+                                self.alertFn('提示', '请选择规格正确的图片', 'warning');
+                                return;
+                            }
+                        }
                         let topic = JSON.parse(JSON.stringify(self.form.topic));
                         for (let i = 0; i < self.selectCityInfos.length; i++) {
-                            if(self.form.viewPosition !== 4 && self.form.viewPosition !== 5) {
-                                if(!self.isPass) {
-                                    self.alertFn('提示', '请选择规格正确的图片', 'warning');
-                                    return;
-                                }
-                            }
                             let cityInfo = self.selectCityInfos[i];
                             self.form.provinceName = cityInfo.provinceName;
                             self.form.cityName = cityInfo.cityName;
@@ -477,7 +547,7 @@
                             self.createNewAds(self.form)
                                 .then((res) => {
                                     self.alertFn('成功', res.message, 'success');
-                                    self.$router.push('advList');
+//                                    self.$router.push('advList');
                                 }, (err) => {
                                     self.alertFn('失败', err, 'error');
                                 });
@@ -488,22 +558,43 @@
         }
     }
 </script>
-<style scoped>
+<style lang="less" scoped>
     .container {
         background-color: #fff;
         font-size: 14px;
     }
-
+    
     .mt40 {
         margin-top: 40px;
     }
-
+    
     .tip {
         margin-left: 150px;
-        margin-bottom: 5px;
+        margin-bottom: 14px;
     }
-
+    .pic-cont {
+        margin-bottom: 0;
+    }
     .choose-area {
         margin-right: 4px;
+    }
+</style>
+
+<style lang="less">
+    
+    .button-conts {
+        /*自定义人群的样式 这一行比其他行行高要高*/
+        .el-form-item__content {
+            height: 36px;
+        }
+        .el-radio-button {
+            margin-right: 3px;
+        }
+        .el-radio-button .el-radio-button__inner {
+            border-radius: 4px;
+            border: 1px solid #bfcbd9;
+            width: 102px;
+            box-shadow: none;
+        }
     }
 </style>
